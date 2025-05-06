@@ -12,6 +12,8 @@
 - [NuScenes-QA: A Multi-modal Visual Question Answering Benchmark for Autonomous Driving Scenario](https://arxiv.org/abs/2305.14836)
   - https://github.com/qiantianwen/NuScenes-QA
 - [RAG-Driver: Generalisable Driving Explanations with Retrieval-Augmented In-Context Learning in Multi-Modal Large Language Model](https://arxiv.org/abs/2402.10828)
+- [Awesome-LLM4AD](https://github.com/Thinklab-SJTU/Awesome-LLM4AD)
+  - collection of research papers about LLM-for-Autonomous-Driving(LLM4AD)
 
 ### Frameworks (Fine-tuning)
 - All expect DS to be in specific formats (e.g., ShareGPT)
