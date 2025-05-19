@@ -6,3 +6,6 @@ Citation/Research Manager
 ## 💬 Milestone Presentations
 - [Milestone 1](https://docs.google.com/presentation/d/13reSKMykn5WhVyi5zi5oK5OygVjTZljeMWflJejQZlw/edit?slide=id.g32bc6f01e94_0_43#slide=id.g32bc6f01e94_0_43)
 
+## Setup
+
+Install the package requirements from requirements.txt and run ```pip install flash-attn --no-build-isolation```.
