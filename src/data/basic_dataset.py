@@ -13,11 +13,12 @@ from src.utils.utils import remove_nones
 # eval will even be transferable to video.
 
 def simple_dict_collate(batch: Any):
-    messages = [[m] for m, _, _, _ in batch]
-    labels = [l for _, l, _, _ in batch]
-    q_ids = [q_id for _, _, q_id, _ in batch]
-    qa_types = [qa_types for _, _, _, qa_types in batch]
-    return messages, labels, q_ids, qa_types
+    messages = [[m] for m, _, _, _, _ in batch]
+    questions = [q for _, q, _, _, _ in batch]
+    labels = [l for _, l, _, _, _ in batch]
+    q_ids = [q_id for _, _, q_id, _, _ in batch]
+    qa_types = [qa_types for _, _, _, qa_types, _ in batch]
+    return messages, questions, labels, q_ids, qa_types
 
 def prune_key_object_info(koi: dict[str, Any]):
     # TODO: Change this to something else if we really need all keys and values from koi
@@ -81,6 +82,7 @@ class DriveLMImageDataset(Dataset):
         image_path = qa["image_path"]
         return (
             self.message_format.format(question, key_object_info, image_path),
+            question,
             answer,
             qa["id"],
             qa["qa_type"],
