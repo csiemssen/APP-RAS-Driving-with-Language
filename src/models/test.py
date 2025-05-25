@@ -3,7 +3,8 @@ from torch.utils.data import DataLoader
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor, BitsAndBytesConfig
 from qwen_vl_utils import process_vision_info
 
-from src.data.basic_loader import DriveLMImageDataset
+from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
+from src.data.message_formats import QwenMessageFormat
 
 
 def run_inference():
@@ -22,48 +23,32 @@ def run_inference():
         torch_dtype=torch.bfloat16,
         attn_implementation="flash_attention_2",
         quantization_config=nf4_config,
-        #use_liger=True,
         device_map="cuda",
     )
 
-    # default processer
     processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct")
 
-    # The default range for the number of visual tokens per image in the model is 4-16384.
-    # You can set min_pixels and max_pixels according to your needs, such as a token range of 256-1280, to balance performance and cost.
-    # min_pixels = 256*28*28
-    # max_pixels = 1280*28*28
-    # processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
-
-    # TODO: Make sure the ds is loaded on the GPU!
-    ds = DriveLMImageDataset()
-    # dl = DataLoader(ds, batch_size=1) # TODO: Figure out a universal way of applying a batch here
-    q, a, koi, ip = ds[-1]
-
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "image": ip,
-                },
-                {"type": "text", "text": q},
-            ],
-        }
-    ]
+    # NOTE: This still does not produces the correct result
+    #       We will have to figure out whether we can use batch processing here or not
+    ds = DriveLMImageDataset(QwenMessageFormat())
+    dl = DataLoader(ds, batch_size=3, collate_fn=simple_dict_collate)
+    messages = next(iter(dl))
+    #print(messages)
 
     # Preparation for inference
-    text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
+    texts = [
+        processor.apply_chat_template(
+            message, tokenize=False, add_generation_prompt=True
+        ) for message in messages
+    ]
     image_inputs, video_inputs = process_vision_info(messages)
     inputs = processor(
-        text=[text],
+        text=texts,
         images=image_inputs,
         videos=video_inputs,
         padding=True,
         return_tensors="pt",
+        padding_side="left",
     )
     inputs = inputs.to("cuda")
 
@@ -75,6 +60,6 @@ def run_inference():
     output_text = processor.batch_decode(
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
-    print("Question:", q)
-    print("Pred:", output_text)
-    print("Label:", a)
+    print("> Message: \n", messages)
+    print("> Pred: \n", output_text)
+    # print("Label:", a)
