@@ -31,9 +31,9 @@ def run_inference():
     # NOTE: This still does not produces the correct result
     #       We will have to figure out whether we can use batch processing here or not
     ds = DriveLMImageDataset(QwenMessageFormat())
+    print(len(ds))
     dl = DataLoader(ds, batch_size=3, collate_fn=simple_dict_collate)
-    messages = next(iter(dl))
-    #print(messages)
+    messages, labels, q_ids, question_type = next(iter(dl))
 
     # Preparation for inference
     texts = [
@@ -60,6 +60,7 @@ def run_inference():
     output_text = processor.batch_decode(
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
-    print("> Message: \n", messages)
-    print("> Pred: \n", output_text)
-    # print("Label:", a)
+    print("> Messages:\n", messages)
+    print("> Preds:\n", output_text)
+    print("> Labels:\n", labels)
+    print("> QIDs:\n", q_ids)

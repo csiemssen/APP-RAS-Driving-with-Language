@@ -1,12 +1,10 @@
-from collections.abc import Callable
 import os
 from json import load
 from typing import Any
 
 from torch.utils.data import Dataset
-from transformers import AutoProcessor
 
-from src.constants import drivelm_dir, drivelm_json
+from src.constants import drivelm_json, data_dir, drivelm_dir
 from src.data.message_formats import MessageFormat
 from src.utils.utils import remove_nones
 
@@ -14,45 +12,63 @@ from src.utils.utils import remove_nones
 # With the current dataset structure and the specific questioning of bounding boxes, it is unclear whether the
 # eval will even be transferable to video.
 
-def simple_dict_collate(batch: Any) -> Any:
-    return [[b] for b in batch]
+def simple_dict_collate(batch: Any):
+    messages = [[m] for m, _, _, _ in batch]
+    labels = [l for _, l, _, _ in batch]
+    q_ids = [q_id for _, _, q_id, _ in batch]
+    qa_types = [qa_types for _, _, _, qa_types in batch]
+    return messages, labels, q_ids, qa_types
 
 def prune_key_object_info(koi: dict[str, Any]):
     # TODO: Change this to something else if we really need all keys and values from koi
     return {km:{k:v} for km, _ in koi.items() for k, v in koi[km].items() if k != "2d_bbox"}
 
-# NOTE: This DS does not consider any dependecies between the questions
+# TODO: We will also need to extract the test data for the eval later on
+#       → Why is this extracted from the training data?
+# NOTE: This DS does not consider any direct dependecies between the questions
 class DriveLMImageDataset(Dataset):
     def __init__(self, message_format: MessageFormat):
         self.message_format = message_format
 
         data = load(open(drivelm_json))
-        key_frames = [data[k]["key_frames"][kf] for k in data.keys() for kf in data[k]["key_frames"].keys()]
 
-        # NOTE: We have to pass None for the koi, as we should not assume that the model already konws about the kois
-        qas_perception = [{
-            "qa": remove_nones(qa),
-            "key_object_info": None,
-            "image_path": os.path.join(drivelm_dir, kf["image_paths"]["CAM_FRONT"])
-        } for kf in key_frames for qa in kf["QA"]["perception"]]
-        qas_prediction = [{
-            "qa": remove_nones(qa),
-            "key_object_info": prune_key_object_info(kf["key_object_infos"]),
-            "image_path": os.path.join(drivelm_dir, kf["image_paths"]["CAM_FRONT"])
-        } for kf in key_frames for qa in kf["QA"]["prediction"]]
-        qas_planning = [{
-            "qa": remove_nones(qa),
-            "key_object_info": prune_key_object_info(kf["key_object_infos"]),
-            "image_path": os.path.join(drivelm_dir, kf["image_paths"]["CAM_FRONT"])
-        } for kf in key_frames for qa in kf["QA"]["planning"]]
+        qa_list = []
+        for scene_id in data.keys():
+            scene_obj = data[scene_id]["key_frames"]
+            for key_frame_id in scene_obj.keys():
+                image_path = os.path.join(drivelm_dir, scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"])
 
-        # NOTE: This is a workaround for when we dont have the full dataset available on disk
-        #       If the full ds should be used double check that we have ever kf available.
-        qas_perception = [d for d in qas_perception if os.path.isfile(d["image_path"])]
-        qas_prediction = [d for d in qas_prediction if os.path.isfile(d["image_path"])]
-        qas_planning = [d for d in qas_planning if os.path.isfile(d["image_path"])]
+                # NOTE: This is a simple workaround if we do not have all files available
+                if not os.path.isfile(image_path):
+                    continue
 
-        self.qas = qas_perception + qas_prediction + qas_planning
+                key_object_infos = scene_obj[key_frame_id]["key_object_infos"]
+
+                qas = scene_obj[key_frame_id]["QA"]
+
+                qas_perception = qas["perception"]
+                qas_prediction = qas["prediction"]
+                qas_planning = qas["planning"]
+                qas_behavior = qas["behavior"]
+
+                qa_types = (
+                    ["perception" for _ in range(len(qas_perception))]
+                    + ["prediction" for _ in range(len(qas_prediction))]
+                    + ["planning" for _ in range(len(qas_planning))]
+                    + ["behavior" for _ in range(len(qas_behavior))]
+                )
+
+                for i, qa in enumerate(qas_perception + qas_prediction + qas_planning + qas_behavior):
+                    qa_list.append(
+                        {
+                            "qa": remove_nones(qa),
+                            "qa_type": qa_types[i],
+                            "id": scene_id + "_" + key_frame_id + "_" + str(i),
+                            "key_object_info": key_object_infos if qa_types[i] != "perception" else None,
+                            "image_path": image_path,
+                        }
+                    )
+        self.qas = qa_list
 
     def __len__(self):
         return len(self.qas)
@@ -60,9 +76,12 @@ class DriveLMImageDataset(Dataset):
     def __getitem__(self, idx):
         qa = self.qas[idx]
         question = qa["qa"]["Q"]
-        print(question)
-        # TODO: Think about how to include the answer here as well
-        #answer = qa["qa"]["A"]
+        answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
-        return self.message_format.format(question, key_object_info, image_path)
+        return (
+            self.message_format.format(question, key_object_info, image_path),
+            answer,
+            qa["id"],
+            qa["qa_type"],
+        )
