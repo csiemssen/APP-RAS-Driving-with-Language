@@ -35,7 +35,7 @@ def run_inference():
 
     # NOTE: This still does not produces the correct result
     #       We will have to figure out whether we can use batch processing here or not
-    ds = DriveLMImageDataset(QwenMessageFormat())
+    ds = DriveLMImageDataset(QwenMessageFormat(), "val")
     test_set = Subset(ds, np.arange(4))
 
     # TODO: Experiment with the batch size to fit as much as we can into memory!

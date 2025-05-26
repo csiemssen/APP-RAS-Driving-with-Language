@@ -21,9 +21,9 @@ class QwenMessageFormat(MessageFormat):
                     "type": "text",
                     "text": question
                 },
-                {
+                *([{
                     "type": "text",
                     "text": "Key object infos:\n" + key_object_info.__str__(),
-                },
+                }] if key_object_info else []),
             ],
         }
