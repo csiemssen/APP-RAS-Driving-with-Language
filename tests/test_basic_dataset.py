@@ -13,6 +13,7 @@ class TestDriveLMImageDataset(unittest.TestCase):
         dataset = DriveLMImageDataset(message_format=QwenMessageFormat(), split="val")
         self.assertGreater(len(dataset), 0, "Validation dataset should not be empty")
 
+class TestMessageFormat(unittest.TestCase):
     def test_format_of_qwen_message(self):
       # https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct
       message_format = QwenMessageFormat()
