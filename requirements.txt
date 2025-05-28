@@ -1,0 +1,6 @@
+qwen-vl-utils==0.0.8
+decord; platform_system != "Darwin"
+transformers~=4.51.3
+torch~=2.7.0
+bitsandbytes
+numpy~=2.2.6
