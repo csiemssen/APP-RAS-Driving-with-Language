@@ -180,7 +180,10 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# ignore data files+
+# ignore data files
 data/nuscenes
 data/val_data
 data/drivelm
+
+# ignore mac OS files
+.DS_Store
