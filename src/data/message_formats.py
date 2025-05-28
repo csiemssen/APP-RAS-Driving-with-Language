@@ -4,18 +4,18 @@ from abc import ABC, abstractmethod
 class MessageFormat(ABC):
 
     @abstractmethod
-    def format(self, question: str, key_object_info:dict, image_path: str) -> dict[str, str]:
+    def format(self, question: str, key_object_info:dict, image_path: str) -> dict[str, str | list[dict[str, str]]]:
         pass
 
 class QwenMessageFormat(MessageFormat):
 
-    def format(self, question: str, key_object_info: dict, image_path: str) -> dict[str, str]:
+    def format(self, question: str, key_object_info: dict, image_path: str) -> dict[str, str | list[dict[str, str]]]:
         return {
             "role": "user",
             "content": [
                 {
                     "type": "image",
-                    "image": image_path,
+                    "image": f"file://{image_path}",
                 },
                 {
                     "type": "text",
