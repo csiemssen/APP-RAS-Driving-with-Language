@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/" # Root directory where requirements.txt is located
+    schedule:
+      interval: "weekly" # Check for updates weekly
