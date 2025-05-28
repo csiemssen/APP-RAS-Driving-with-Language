@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 src_dir = Path(__file__).parent.resolve()
 data_dir = src_dir / ".." / "data"
 drivelm_dir = data_dir / "drivelm"

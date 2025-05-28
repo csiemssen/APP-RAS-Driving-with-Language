@@ -1,6 +1,7 @@
 import os
 from json import load
 from typing import Any
+from src.utils.logger import get_logger
 
 from torch.utils.data import Dataset
 
@@ -8,6 +9,7 @@ from src.constants import drivelm_train_json, data_dir, drivelm_dir, drivelm_val
 from src.data.message_formats import MessageFormat
 from src.utils.utils import remove_nones
 
+logger = get_logger(__name__)
 
 # With the current dataset structure and the specific questioning of bounding boxes, it is unclear whether the
 # eval will even be transferable to video.
@@ -31,15 +33,20 @@ class DriveLMImageDataset(Dataset):
         self.split = split
 
         if split == "train":
-            data = load(open(drivelm_train_json))
+            logger.info("Loading DriveLM training dataset")
+            with open(drivelm_train_json) as f:
+                data = load(f)
         else:
-            data = load(open(drivelm_val_json))
+            logger.info("Loading DriveLM validation dataset")
+            with open(drivelm_val_json) as f:
+                data = load(f)
 
         removed = 0
         qa_list = []
         for scene_id in data.keys():
             scene_obj = data[scene_id]["key_frames"]
             for key_frame_id in scene_obj.keys():
+                # NOTE: Only consider FRONT camera images for now
                 image_path = os.path.join(drivelm_dir, scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"])
 
                 # NOTE: This is a simple workaround if we do not have all files available
@@ -73,7 +80,9 @@ class DriveLMImageDataset(Dataset):
                             "image_path": image_path,
                         }
                     )
-        print(removed)
+
+        logger.info(f"Removed {removed} scenes due to missing image files.")
+        logger.info(f"Loaded {len(qa_list)} QAs from the DriveLM dataset.")
         self.qas = qa_list
 
     def __len__(self):
