@@ -1,9 +1,9 @@
 qwen-vl-utils==0.0.8
-decord; platform_system != "Darwin"
+decord~=0.6.0; platform_system != "Darwin"
 transformers~=4.51.3
 torch~=2.7.0
 bitsandbytes>=0.42.0; platform_system != "Darwin"
 numpy~=2.2.6
-pytest
-torchvision
-accelerate
+pytest~=8.3.5
+torchvision~=0.22.0
+accelerate~=1.7.0
