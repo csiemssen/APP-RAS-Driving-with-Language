@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 import platform
 from typing import List, Dict
 from src.utils.utils import is_mps, is_cuda

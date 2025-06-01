@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 from transformers import AutoTokenizer, AutoModel
 from src.data.message_formats import InternVLMessageFormat
 from src.utils.utils import flatten, is_mps, is_cuda

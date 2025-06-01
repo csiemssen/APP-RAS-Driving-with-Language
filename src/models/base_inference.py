@@ -9,7 +9,7 @@ class BaseInferenceEngine(ABC):
       self.device = device if device is not None else get_device()
       self.message_formatter = None
 
-    # seperating model loading for now, for testing purposes - may remove later
+    # separating model loading for now, for testing purposes - may remove later
     @abstractmethod
     def load_model(self) -> None:
         pass
