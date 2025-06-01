@@ -184,6 +184,8 @@ cython_debug/
 data/nuscenes
 data/val_data
 data/drivelm
+data/output
 
 # ignore mac OS files
 .DS_Store
+backup/

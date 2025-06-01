@@ -38,3 +38,19 @@ def evaluate_model(engine, dataset_split: str = "val", batch_size: int = 2, test
     os.makedirs(os.path.join(data_dir, "output"), exist_ok=True)
     with open(os.path.join(data_dir, "output", f"{sanitize_model_name(engine.model_path)}_output.json"), "w") as f:
       json.dump(results, f, indent=2)
+
+    # Todo Input the proper info here once we have it
+    with open(os.path.join(data_dir, "output", f"{sanitize_model_name(engine.model_path)}_submission.json"), "w") as f:
+      json.dump(
+          {
+              "method": "test",
+              "team": "test",
+              "authors": ["test"],
+              "email": "test",
+              "institution": "test",
+              "country": "test",
+              "results": results,
+          },
+          f,
+          indent=2  # Optional: make the JSON nicely formatted
+      )

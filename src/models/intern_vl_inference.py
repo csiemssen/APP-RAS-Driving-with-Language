@@ -37,7 +37,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
 
     self.generation_config = dict(max_new_tokens=128, do_sample=False)
 
-    logger.info("Model loaded and ready.")
+    logger.info(f"{self.model_path} loaded and ready.")
 
   def predict_batch(self, messages: List[List[Dict]]):
 
