@@ -27,3 +27,15 @@ class QwenMessageFormat(MessageFormat):
                 }] if key_object_info else []),
             ],
         }
+
+class InternVLMessageFormat(MessageFormat):
+
+  def format(self, question: str, key_object_info: dict, image_path: str) -> dict[str, str | list[dict[str, str]]]:
+      full_prompt = question
+      if key_object_info:
+          full_prompt += "\n\nKey object infos:\n" + str(key_object_info)
+
+      return {
+          "text": full_prompt,
+          "image_path": image_path,
+      }
