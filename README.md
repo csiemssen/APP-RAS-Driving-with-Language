@@ -3,6 +3,12 @@
 Citation/Research Manager
 [Group](https://www.zotero.org/groups/5975647/app-ras-driving-with-language)
 
+## 📚 DriveLM Challenge
+- [Challenge Website](https://opendrivelab.com/challenge2024/#driving_with_language)
+- [GitHub Repository](https://github.com/OpenDriveLab/DriveLM)
+- [Team Google Form](https://docs.google.com/forms/d/e/1FAIpQLSef_L4L9jXV_88pXkuFmaloifhRuFjVARbjsV-8GWETc6aNCA/viewform)
+
+
 ## 💬 Milestone Presentations
 - [Milestone 1](https://docs.google.com/presentation/d/13reSKMykn5WhVyi5zi5oK5OygVjTZljeMWflJejQZlw/edit?slide=id.g32bc6f01e94_0_43#slide=id.g32bc6f01e94_0_43)
 
