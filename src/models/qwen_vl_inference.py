@@ -1,6 +1,6 @@
 import torch
 import platform
-from typing import List, Dict
+from typing import List, Dict, Optional
 from src.utils.utils import is_mps, is_cuda
 from src.data.message_formats import QwenMessageFormat
 from src.models.base_inference import BaseInferenceEngine
@@ -8,41 +8,26 @@ from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, Auto
 from qwen_vl_utils import process_vision_info
 from src.utils.logger import get_logger
 
-BitsAndBytesConfig = None
-if platform.system() != "Darwin" and is_cuda():
-    from transformers import BitsAndBytesConfig
-
 logger = get_logger(__name__)
 
 class QwenVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", device: torch.device = None):
+  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", device: Optional[str] = None, torch_dtype: Optional[torch.dtype] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
     self.message_formatter = QwenMessageFormat()
 
   def load_model(self) -> None:
-    if is_cuda():
-        torch.cuda.empty_cache()
 
-    torch_dtype = torch.float32 if is_mps() else torch.float16
     attn_implementation = "eager" if is_mps() else "flash_attention_2"
-
-    nf4_config = None
-    if BitsAndBytesConfig is not None:
-      nf4_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_compute_dtype=torch.bfloat16
-      )
 
     self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         self.model_path,
-        torch_dtype=torch_dtype,
+        torch_dtype=self.torch_dtype,
         attn_implementation=attn_implementation,
-        quantization_config=nf4_config,
-    ).to(self.device).eval()
+        quantization_config=self.quantization_config,
+        device_map=self.device,
+    ).eval()
 
     self.processor = AutoProcessor.from_pretrained(self.model_path)
 

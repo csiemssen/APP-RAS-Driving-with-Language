@@ -5,16 +5,25 @@ from src.data.message_formats import QwenMessageFormat
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from torch.utils.data import Subset, DataLoader
+from src.utils.utils import is_cuda
 
 @pytest.mark.inference
 class TestQwenVLInference(unittest.TestCase):
   def test_qwen_model_load(self):
     engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")
+
+    if is_cuda():
+      engine.configure_quantization(use_4bit=True)
+
     engine.load_model()
     self.assertIsNotNone(engine.model, "Model should be loaded successfully.")
 
   def test_qwen_model_predict(self):
     engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")
+
+    if is_cuda():
+      engine.configure_quantization(use_4bit=True)
+
     engine.load_model()
 
     dataset = DriveLMImageDataset(QwenMessageFormat(), "val")

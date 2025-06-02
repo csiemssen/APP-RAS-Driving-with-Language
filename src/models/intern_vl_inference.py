@@ -3,34 +3,33 @@ from transformers import AutoTokenizer, AutoModel
 from src.data.message_formats import InternVLMessageFormat
 from src.utils.utils import flatten, is_mps, is_cuda
 from src.utils.logger import get_logger
-from src.utils.internVL_image_utils import load_image, get_num_patches
+from src.utils.intern_vl_image_utils import load_image, get_num_patches
 from src.models.base_inference import BaseInferenceEngine
-from typing import List, Dict
-
+from typing import List, Dict, Optional
 
 logger = get_logger(__name__)
 
 # ToDo: Implement way easier LMDeploy Pipeline inference for InternVL model as described in documentation (linux only)
 
 class InternVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", device: torch.device = None):
+  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", device: Optional[str] = None, torch_dtype: Optional[torch.dtype] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
     self.message_formatter = InternVLMessageFormat()
 
+
   def load_model(self) -> None:
 
-    self.torch_dtype = torch.float32 if is_mps() else torch.float16
-
+    # flash_attention_2 is not supported, flash_attention configured by default, if not available, it will use eager
     self.model = AutoModel.from_pretrained(
       self.model_path,
-      torch_dtype=self.torch_dtype,
-      low_cpu_mem_usage=True,
-      use_flash_attn=is_cuda(),
-      load_in_8bit=is_cuda(),
       trust_remote_code=True,
-    ).to(self.device).eval()
+      low_cpu_mem_usage=True,
+      torch_dtype=self.torch_dtype,
+      quantization_config=self.quantization_config,
+      device_map=self.device
+    ).eval()
 
     self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True)
 

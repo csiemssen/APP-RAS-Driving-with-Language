@@ -5,17 +5,26 @@ from src.data.message_formats import InternVLMessageFormat
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from torch.utils.data import Subset, DataLoader
+from src.utils.utils import is_cuda
 
 @pytest.mark.inference
 class TestInternVLInference(unittest.TestCase):
   def test_internvl_model_load(self):
     engine = InternVLInferenceEngine("OpenGVLab/InternVL3-2B")
+
+    if is_cuda():
+      engine.configure_quantization(use_4bit=True)
+
     engine.load_model()
     self.assertIsNotNone(engine.model, "Model should be loaded successfully.")
     self.assertIsNotNone(engine.tokenizer, "Tokenizer should be loaded successfully.")
 
   def test_internvl_model_predict(self):
     engine = InternVLInferenceEngine("OpenGVLab/InternVL3-2B")
+
+    if is_cuda():
+      engine.configure_quantization(use_4bit=True)
+
     engine.load_model()
 
     dataset = DriveLMImageDataset(InternVLMessageFormat(), "val")

@@ -12,11 +12,11 @@ def sanitize_model_name(model_path: str) -> str:
 
 def get_device() -> str:
   if torch.cuda.is_available():
-    return torch.device("cuda")
+    return "cuda"
   elif torch.backends.mps.is_available():
-    return torch.device("mps")
+    return "mps"
   else:
-    return torch.device("cpu")
+    return "auto"
 
 def is_mps() -> bool:
   return torch.backends.mps.is_available()

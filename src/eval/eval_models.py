@@ -8,7 +8,7 @@ from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.data.message_formats import QwenMessageFormat, InternVLMessageFormat
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.constants import data_dir
-from src.utils.utils import sanitize_model_name
+from src.utils.utils import sanitize_model_name, is_cuda
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -19,6 +19,9 @@ def evaluate_model(engine, dataset_split: str = "val", batch_size: int = 2, test
         num_samples = min(test_set_size, len(dataset))
         dataset = Subset(dataset, np.arange(num_samples))
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=simple_dict_collate)
+
+    if is_cuda():
+      engine.configure_quantization(use_4bit = True)
 
     engine.load_model()
 
