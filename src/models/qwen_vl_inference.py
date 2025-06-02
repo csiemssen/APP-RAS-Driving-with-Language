@@ -66,8 +66,9 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
     )
 
     inputs = {k: v.to(self.device) if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+    with torch.no_grad():
+      generated_ids = self.model.generate(**inputs, max_new_tokens=128)
 
-    generated_ids = self.model.generate(**inputs, max_new_tokens=128)
     generated_ids_trimmed = [
         out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs["input_ids"], generated_ids)
     ]

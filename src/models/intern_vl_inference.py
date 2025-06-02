@@ -21,11 +21,11 @@ class InternVLInferenceEngine(BaseInferenceEngine):
 
   def load_model(self) -> None:
 
-    torch_dtype = torch.float32 if is_mps() else torch.float16
+    self.torch_dtype = torch.float32 if is_mps() else torch.float16
 
     self.model = AutoModel.from_pretrained(
       self.model_path,
-      torch_dtype=torch_dtype,
+      torch_dtype=self.torch_dtype,
       low_cpu_mem_usage=True,
       use_flash_attn=is_cuda(),
       load_in_8bit=is_cuda(),
@@ -48,18 +48,19 @@ class InternVLInferenceEngine(BaseInferenceEngine):
     num_patches_list = []
 
     for msg in flat_messages:
-      pixel_tensor = load_image(msg["image_path"]).to(self.device).to(torch.float32)
+      pixel_tensor = load_image(msg["image_path"]).to(self.device).to(self.torch_dtype)
       num_patches_list.append(get_num_patches(pixel_tensor))
       pixel_values_list.append(pixel_tensor)
 
     pixel_values = torch.cat(pixel_values_list, dim=0)
 
-    responses = self.model.batch_chat(
-      tokenizer=self.tokenizer,
-      pixel_values=pixel_values,
-      num_patches_list=num_patches_list,
-      questions=texts,
-      generation_config=self.generation_config
-    )
+    with torch.no_grad():
+      responses = self.model.batch_chat(
+        tokenizer=self.tokenizer,
+        pixel_values=pixel_values,
+        num_patches_list=num_patches_list,
+        questions=texts,
+        generation_config=self.generation_config
+      )
 
     return responses
