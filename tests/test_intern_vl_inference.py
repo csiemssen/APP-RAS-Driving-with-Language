@@ -1,6 +1,7 @@
 import unittest
 import pytest
 import numpy as np
+import torch
 from src.data.message_formats import InternVLMessageFormat
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.intern_vl_inference import InternVLInferenceEngine
@@ -23,7 +24,7 @@ class TestInternVLInference(unittest.TestCase):
     engine = InternVLInferenceEngine("OpenGVLab/InternVL3-2B")
 
     if is_cuda():
-      engine.configure_quantization(use_4bit=True)
+      engine.configure_quantization(use_4bit=True, torch_dtype=torch.bfloat16)
 
     engine.load_model()
 

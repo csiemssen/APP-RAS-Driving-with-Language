@@ -12,12 +12,11 @@ logger = get_logger(__name__)
 # ToDo: Implement way easier LMDeploy Pipeline inference for InternVL model as described in documentation (linux only)
 
 class InternVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", device: Optional[str] = None, torch_dtype: Optional[torch.dtype] = None):
+  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", device: Optional[str] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
     self.message_formatter = InternVLMessageFormat()
-
 
   def load_model(self) -> None:
 

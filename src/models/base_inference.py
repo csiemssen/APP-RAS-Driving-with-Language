@@ -4,21 +4,18 @@ import torch
 from src.utils.utils import get_device, is_cuda, is_mps
 
 class BaseInferenceEngine(ABC):
-    def __init__(self, model_path: str, device: Optional[str] = None, torch_dtype: Optional[torch.dtype] = None):
+    def __init__(self, model_path: str, device: Optional[str] = None):
       self.model_path = model_path
       self.device = device if device is not None else get_device()
       self.message_formatter = None
       self.quantization_config = None
-
-      if torch_dtype is None:
-          self.torch_dtype = torch.float32 if is_mps() else torch.float16
-      else:
-        self.torch_dtype = torch_dtype
+      self.torch_dtype = torch.float32 if is_mps() else torch.float16
 
       if is_cuda():
           torch.cuda.empty_cache()
 
-    def configure_quantization(self, use_4bit: bool = False):
+    def configure_quantization(self, use_4bit: bool = False, torch_dtype: Optional[torch.dtype] = None):
+        self.torch_dtype = torch_dtype # override init dtype if provided
         if is_cuda():
             from transformers import BitsAndBytesConfig
             if use_4bit:

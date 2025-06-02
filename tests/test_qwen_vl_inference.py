@@ -1,6 +1,7 @@
 import unittest
 import pytest
 import numpy as np
+import torch
 from src.data.message_formats import QwenMessageFormat
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
@@ -13,7 +14,7 @@ class TestQwenVLInference(unittest.TestCase):
     engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")
 
     if is_cuda():
-      engine.configure_quantization(use_4bit=True)
+      engine.configure_quantization(use_4bit=True, torch_dtype=torch.bfloat16)
 
     engine.load_model()
     self.assertIsNotNone(engine.model, "Model should be loaded successfully.")
@@ -22,7 +23,7 @@ class TestQwenVLInference(unittest.TestCase):
     engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")
 
     if is_cuda():
-      engine.configure_quantization(use_4bit=True)
+      engine.configure_quantization(use_4bit=True, torch_dtype=torch.bfloat16)
 
     engine.load_model()
 

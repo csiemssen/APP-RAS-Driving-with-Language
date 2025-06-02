@@ -21,7 +21,7 @@ def evaluate_model(engine, dataset_split: str = "val", batch_size: int = 2, test
     dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=simple_dict_collate)
 
     if is_cuda():
-      engine.configure_quantization(use_4bit = True)
+      engine.configure_quantization(use_4bit = True, torch_dtype=torch.bfloat16)
 
     engine.load_model()
 

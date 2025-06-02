@@ -11,7 +11,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 class QwenVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", device: Optional[str] = None, torch_dtype: Optional[torch.dtype] = None):
+  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", device: Optional[str] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
