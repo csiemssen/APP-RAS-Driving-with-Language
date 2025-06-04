@@ -11,7 +11,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 class QwenVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", device: Optional[str] = None):
+  def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct", revision: Optional[str] = None, device: Optional[str] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
@@ -23,13 +23,14 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
 
     self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         self.model_path,
+        revision=self.revision,
         torch_dtype=self.torch_dtype,
         attn_implementation=attn_implementation,
         quantization_config=self.quantization_config,
         device_map=self.device,
     ).eval()
 
-    self.processor = AutoProcessor.from_pretrained(self.model_path)
+    self.processor = AutoProcessor.from_pretrained(self.model_path, revision=self.revision)
 
     logger.info(f"{self.model_path} loaded and ready.")
 

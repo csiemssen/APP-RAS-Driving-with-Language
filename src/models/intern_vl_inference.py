@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 # ToDo: Implement way easier LMDeploy Pipeline inference for InternVL model as described in documentation (linux only)
 
 class InternVLInferenceEngine(BaseInferenceEngine):
-  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", device: Optional[str] = None):
+  def __init__(self, model_path: str = "OpenGVLab/InternVL3-2B", revision: Optional[str] = None, device: Optional[str] = None):
     super().__init__(model_path, device)
     self.model = None
     self.tokenizer = None
@@ -23,6 +23,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
     # flash_attention_2 is not supported, flash_attention configured by default, if not available, it will use eager
     self.model = AutoModel.from_pretrained(
       self.model_path,
+      revision=self.revision,
       trust_remote_code=True,
       low_cpu_mem_usage=True,
       torch_dtype=self.torch_dtype,
@@ -30,7 +31,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
       device_map=self.device
     ).eval()
 
-    self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True)
+    self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True, revision=self.revision)
 
     self.generation_config = dict(max_new_tokens=128, do_sample=False)
 
