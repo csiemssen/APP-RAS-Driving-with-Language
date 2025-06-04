@@ -61,4 +61,6 @@ class InternVLInferenceEngine(BaseInferenceEngine):
         generation_config=self.generation_config
       )
 
+    logger.info(f"Generated {len(responses)} responses for batch of size {len(messages)}")
+
     return responses

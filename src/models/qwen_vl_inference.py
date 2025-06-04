@@ -61,4 +61,6 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
 
+    logger.info(f"Generated {len(output_text)} responses for batch of size {len(messages)}")
+
     return output_text
