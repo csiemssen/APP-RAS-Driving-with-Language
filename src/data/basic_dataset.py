@@ -6,15 +6,14 @@ import gdown
 from torch.utils.data import Dataset
 
 from src.constants import (
-    drivelm_train_json,
-    data_dir,
     drivelm_dir,
+    drivelm_train_json,
     drivelm_val_json,
     nuscenes_dir,
 )
 from src.data.message_formats import MessageFormat
-from src.utils.utils import remove_nones, extract_children
-from src.utils.logger import get_logger
+from src.data.prompts import get_system_prompt
+from src.utils.utils import extract_children, get_logger, remove_nones
 
 logger = get_logger(__name__)
 
@@ -25,7 +24,7 @@ logger = get_logger(__name__)
 def simple_dict_collate(batch: Any):
     messages = [[m] for m, _, _, _, _ in batch]
     questions = [q for _, q, _, _, _ in batch]
-    labels = [l for _, _, l, _, _ in batch]
+    labels = [label for _, _, label, _, _ in batch]
     q_ids = [q_id for _, _, _, q_id, _ in batch]
     qa_types = [qa_types for _, _, _, _, qa_types in batch]
     return messages, questions, labels, q_ids, qa_types
@@ -93,7 +92,8 @@ class DriveLMImageDataset(Dataset):
             for key_frame_id in scene_obj.keys():
                 # NOTE: Only consider FRONT camera images for now
                 image_path = os.path.join(
-                    drivelm_dir, scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"]
+                    drivelm_dir,
+                    scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"],
                 )
 
                 # NOTE: This is a simple workaround if we do not have all files available
@@ -122,7 +122,10 @@ class DriveLMImageDataset(Dataset):
                 )
 
                 for i, qa in enumerate(
-                    qas_perception + qas_prediction + qas_planning + qas_behavior
+                    qas_perception
+                    + qas_prediction
+                    + qas_planning
+                    + qas_behavior
                 ):
                     qa_list.append(
                         {
@@ -149,8 +152,12 @@ class DriveLMImageDataset(Dataset):
         answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
+        system_prompt = get_system_prompt(qa["qa_type"])
+
         return (
-            self.message_format.format(question, key_object_info, image_path),
+            self.message_format.format(
+                question, key_object_info, image_path, system_prompt
+            ),
             question,
             answer,
             qa["id"],

@@ -9,8 +9,8 @@ from src.constants import data_dir
 from src.eval.eval_models import evaluate_model
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
-from src.utils.utils import is_cuda, sanitize_model_name
-
+from src.constants import data_dir
+from src.utils.utils import sanitize_model_name
 
 @pytest.mark.eval
 class TestModelEvaluation(unittest.TestCase):
