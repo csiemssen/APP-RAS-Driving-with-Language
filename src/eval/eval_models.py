@@ -2,7 +2,9 @@ import os
 import json
 import torch
 import numpy as np
+import sys
 from typing import Optional
+from tqdm import tqdm
 from torch.utils.data import DataLoader, Subset
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.data.message_formats import QwenMessageFormat, InternVLMessageFormat
@@ -27,7 +29,7 @@ def evaluate_model(engine, dataset_split: str = "val", batch_size: int = 2, test
 
     results = []
 
-    for batch in dataloader:
+    for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
         messages, questions, labels, q_ids, qa_types = batch
         batch_results = engine.predict_batch(messages)
 
