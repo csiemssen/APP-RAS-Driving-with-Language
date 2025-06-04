@@ -23,11 +23,11 @@ jobs:
             // Define size thresholds
             let sizeLabel;
             if (totalChanges < 50) {
-              sizeLabel = 'size/small';
+              sizeLabel = 'size:small';
             } else if (totalChanges < 200) {
-              sizeLabel = 'size/medium';
+              sizeLabel = 'size:medium';
             } else {
-              sizeLabel = 'size/large';
+              sizeLabel = 'size:large';
             }
 
             // Remove existing size labels
