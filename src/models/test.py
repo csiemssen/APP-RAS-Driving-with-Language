@@ -18,10 +18,6 @@ from src.data.message_formats import QwenMessageFormat
 
 
 def run_inference():
-    if torch.cuda.is_available():
-        print("Running on GPU")
-        torch.cuda.empty_cache()
-
     nf4_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -65,8 +61,6 @@ def run_inference():
             padding_side="left",
         )
         inputs = inputs.to("cuda")
-
-        # TODO: Build output.json as expected by the test server!
 
         # Inference: Generation of the output
         generated_ids = model.generate(**inputs, max_new_tokens=128)
