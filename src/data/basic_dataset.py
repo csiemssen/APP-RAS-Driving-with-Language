@@ -13,7 +13,8 @@ from src.constants import (
 )
 from src.data.message_formats import MessageFormat
 from src.data.prompts import get_system_prompt
-from src.utils.utils import extract_children, get_logger, remove_nones
+from src.utils.logger import get_logger
+from src.utils.utils import extract_children, remove_nones
 
 logger = get_logger(__name__)
 
@@ -122,10 +123,7 @@ class DriveLMImageDataset(Dataset):
                 )
 
                 for i, qa in enumerate(
-                    qas_perception
-                    + qas_prediction
-                    + qas_planning
-                    + qas_behavior
+                    qas_perception + qas_prediction + qas_planning + qas_behavior
                 ):
                     qa_list.append(
                         {

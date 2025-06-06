@@ -9,8 +9,8 @@ from src.constants import data_dir
 from src.eval.eval_models import evaluate_model
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
-from src.constants import data_dir
-from src.utils.utils import sanitize_model_name
+from src.utils.utils import is_cuda, sanitize_model_name
+
 
 @pytest.mark.eval
 class TestModelEvaluation(unittest.TestCase):
@@ -38,9 +38,7 @@ class TestModelEvaluation(unittest.TestCase):
             "output",
             f"{sanitize_model_name(engine.model_path)}_submission.json",
         )
-        self.assertTrue(
-            os.path.exists(output_file), "Output file should be created."
-        )
+        self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
             "Submission file should be created.",
@@ -78,9 +76,7 @@ class TestModelEvaluation(unittest.TestCase):
             "output",
             f"{sanitize_model_name(engine.model_path)}_submission.json",
         )
-        self.assertTrue(
-            os.path.exists(output_file), "Output file should be created."
-        )
+        self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
             "Submission file should be created.",
