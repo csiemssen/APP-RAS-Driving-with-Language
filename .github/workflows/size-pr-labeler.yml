@@ -32,7 +32,7 @@ jobs:
 
             // Remove existing size labels
             const existingLabels = pr.labels || [];
-            const sizeLabels = existingLabels.filter(label => label.name.startsWith('size/'));
+            const sizeLabels = existingLabels.filter(label => label.name.startsWith('size:'));
 
             for (const label of sizeLabels) {
               await github.rest.issues.removeLabel({
