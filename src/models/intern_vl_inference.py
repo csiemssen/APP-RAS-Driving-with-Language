@@ -24,12 +24,13 @@ class InternVLInferenceEngine(BaseInferenceEngine):
         super().__init__(
             model_path=model_path,
             use_4bit=use_4bit,
-            torch_dtype=torch_dtype,
             revision=revision,
             device=device,
         )
+    
         self.model = None
         self.tokenizer = None
+        self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.message_formatter = InternVLMessageFormat()
 
     def load_model(self) -> None:

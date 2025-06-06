@@ -7,7 +7,6 @@ from torch.utils.data import Dataset
 
 from src.constants import (
     drivelm_train_json,
-    data_dir,
     drivelm_dir,
     drivelm_val_json,
     nuscenes_dir,
