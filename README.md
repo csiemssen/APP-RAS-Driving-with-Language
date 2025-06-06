@@ -11,6 +11,7 @@ Citation/Research Manager
 
 ## 💬 Milestone Presentations
 - [Milestone 1](https://docs.google.com/presentation/d/13reSKMykn5WhVyi5zi5oK5OygVjTZljeMWflJejQZlw/edit?slide=id.g32bc6f01e94_0_43#slide=id.g32bc6f01e94_0_43)
+- [Milestone 2](https://docs.google.com/presentation/d/1suusmSruqXyRdfvViq1NKfDEqTpH5-M9w7zgh7HDCAo/edit?slide=id.g32bc6f01e94_0_74#slide=id.g32bc6f01e94_0_74)
 
 ## Setup
 - Download the [NuScenes](https://github.com/OpenDriveLab/DriveLM/tree/main/challenge) training and validation datasets, and place them together in the `data/nuscenes` directory
@@ -31,4 +32,3 @@ docker run --gpus all -v ./data/output:/app/data/output <img-name>
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Qwen_Qwen2.5-VL-3B-Instruct | baseline_eval.json | 0.0 | 67.3456904541242 | 0.23925483214648655 | 0.11544553891542789 | 0.057574440433052446 | 0.020769188970051755 | 0.19079430087529606 | 0.006791738547463531 | 32.46449704142012 | 0.3542940542224235 |
 | OpenGVLab_InternVL3-2B | baseline_eval.json | 0.0 | 68.50231696014829 | 0.19311353330793474 | 0.07443754271197525 | 0.02748667571393649 | 0.009723712529328537 | 0.1677772971700306 | 0.005031769222350847 | 22.62869822485207 | 0.3355647203008346 |
-
