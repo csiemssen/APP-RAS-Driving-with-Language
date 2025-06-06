@@ -1,3 +1,5 @@
+import torch
+
 from src.eval.eval_models import evaluate_model
 from src.models.gemma_inference import GemmaInferenceEngine
 from src.utils.utils import is_cuda
