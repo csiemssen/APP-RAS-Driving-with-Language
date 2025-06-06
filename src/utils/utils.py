@@ -1,3 +1,5 @@
+import shutil
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -30,3 +32,12 @@ def is_mps() -> bool:
 
 def is_cuda() -> bool:
     return torch.cuda.is_available()
+
+
+def extract_children(zip_path: str, out_path: str):
+    tmp = Path(out_path) / "tmp"
+    shutil.unpack_archive(zip_path, tmp)
+    for parent in tmp.iterdir():
+        for child in parent.iterdir():
+            shutil.move(child, out_path)
+    shutil.rmtree(tmp)

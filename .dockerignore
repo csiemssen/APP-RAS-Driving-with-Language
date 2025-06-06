@@ -1,0 +1,13 @@
+courseDocs
+data/drivelm/*
+!data/drivelm/.gitignore
+data/nuscenes/*
+!data/nuscenes/.gitignore
+data/nuscenes_og
+docs
+tests
+venv
+.venv
+win_venv
+.github
+.git
