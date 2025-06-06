@@ -34,6 +34,11 @@ jobs:
             const existingLabels = pr.labels || [];
             const sizeLabels = existingLabels.filter(label => label.name.startsWith('size:'));
 
+            if (sizeLabels.includes(sizeLabel)) {
+              core.info(`Correct size label (${sizeLabel}) already exists. No changes needed.`);
+              return;
+            }
+
             for (const label of sizeLabels) {
               await github.rest.issues.removeLabel({
                 owner: context.repo.owner,
