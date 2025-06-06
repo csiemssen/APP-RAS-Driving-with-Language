@@ -25,7 +25,7 @@ jobs:
 
       - name: Update README.md
         run: |
-          python update_readme.py
+          python3 scripts/update_readme.py
 
       - name: Commit and push changes
         run: |
