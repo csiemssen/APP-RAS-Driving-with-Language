@@ -2,6 +2,8 @@ name: Update README with Eval Results
 
 on:
   push:
+    branches-ignore:
+      - main
     paths:
       - "data/test_server_eval/**" # Trigger on changes in this directory
 
