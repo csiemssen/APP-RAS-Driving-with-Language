@@ -1,6 +1,8 @@
+import torch
+
 from src.eval.eval_models import evaluate_model
 from src.models.intern_vl_inference import InternVLInferenceEngine
-form src.utils.utils import is_cuda
+from src.utils.utils import is_cuda
 
 if __name__ == "__main__":
     # Todo
