@@ -56,7 +56,6 @@ def evaluate_model(
     ) as f:
         json.dump(results, f, indent=2)
 
-    # Todo Input the proper info here once we have it
     with open(
         os.path.join(
             data_dir,
@@ -67,14 +66,17 @@ def evaluate_model(
     ) as f:
         json.dump(
             {
-                "method": "test",
-                "team": "test",
-                "authors": ["test"],
-                "email": "test",
-                "institution": "test",
-                "country": "test",
+                "method": "",
+                "team": "appras-tub",
+                "authors": [
+                    "Veit Laule",
+                    "Caspar Siemssen",
+                ],
+                "email": "v.laule@campus.tu-berlin.de",
+                "institution": "Technische Universität Berlin",
+                "country": "Germany",
                 "results": results,
             },
             f,
-            indent=2,  # Optional: make the JSON nicely formatted
+            indent=2,
         )

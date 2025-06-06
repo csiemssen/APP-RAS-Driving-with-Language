@@ -1,43 +1,28 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
-
+from typing import List, Dict, Optional
 import torch
-
-from src.utils.utils import get_device, is_cuda
+from src.utils.utils import get_device, is_cuda, is_mps
 
 
 class BaseInferenceEngine(ABC):
     def __init__(
         self,
         model_path: str,
-        use_4bit: bool = False,
-        torch_dtype: Optional[torch.dtype] = None,
-        device: Optional[str] = None,
         revision: Optional[str] = None,
+        device: Optional[str] = None,
+        use_4bit: bool = True,
     ):
         self.model_path = model_path
         self.device = device if device is not None else get_device()
-        self.torch_dtype = torch_dtype
-        if torch_dtype is None:
-            self.torch_dtype = torch.bfloat16
-
-        self.revision = revision
-
         self.message_formatter = None
-
-        self.quantization_config = None
-        if is_cuda():
-            self.quantization_config = self._configure_quantization(
-                use_4bit, torch_dtype
-            )
+        self.torch_dtype = torch.float32 if is_mps() else torch.bfloat16
+        self.quantization_config = self.configure_quantization(use_4bit)
+        self.revision = revision
 
         if is_cuda():
             torch.cuda.empty_cache()
 
-    def _configure_quantization(
-        self, use_4bit: bool = False, torch_dtype: Optional[torch.dtype] = None
-    ):
-        self.torch_dtype = torch_dtype  # override init dtype if provided
+    def configure_quantization(self, use_4bit: bool = False):
         if is_cuda():
             from transformers import BitsAndBytesConfig
 
