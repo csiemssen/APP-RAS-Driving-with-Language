@@ -25,7 +25,25 @@ jobs:
         id: get_tag
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
+      - name: Check if Docker image version already exists
+        id: check_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          IMAGE=vdawgg/app-ras-25
+          EXISTS=$(curl -s -o /dev/null -w "%{http_code}" https://hub.docker.com/v2/repositories/${IMAGE}/tags/${VERSION}/)
+          if [ "$EXISTS" -eq 200 ]; then
+            echo "Image version ${VERSION} already exists. Skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          elif [ "$EXISTS" -eq 404 ]; then
+              echo "Image version ${VERSION} does not exist. Proceeding."
+              echo "skip=false" >> $GITHUB_OUTPUT
+          else
+              echo "Failed to check image version. HTTP status: $EXISTS"
+              exit 1
+          fi
+
       - name: Build and push Docker image
+        if: steps.check_version.outputs.skip != 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -33,3 +51,39 @@ jobs:
           tags: |
             - vdawgg/app-ras-25:latest
             - vdawgg/app-ras-25:${{ env.VERSION }}
+
+      - name: Generate changelog from previous tag
+        id: changelog
+        run: |
+          git fetch --tags
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          PREV_TAG=$(git describe --tags --abbrev=0 $(git rev-list --tags --skip=1 --max-count=1))
+
+          echo "Generating changelog from $PREV_TAG to $CURRENT_TAG"
+
+          LOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..$CURRENT_TAG)
+
+          # Handle case where there's no previous tag
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s (%an)" $CURRENT_TAG)
+          fi
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## 🐳 Docker Image
+            ```
+            docker pull vdawgg/app-ras-25:${{ github.ref_name }}
+            ```
+
+            ## 📋 Changelog
+            ${{ steps.changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
