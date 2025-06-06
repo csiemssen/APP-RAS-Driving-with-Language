@@ -3,8 +3,6 @@ name: Publish Docker image
 on:
   push:
     branches: [main]
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+" # Semantic versioning only (no pre-release)
 
 jobs:
   build-and-push:
