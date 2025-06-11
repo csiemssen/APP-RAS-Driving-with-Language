@@ -52,25 +52,13 @@ jobs:
             - caspar00/app-ras-25:latest
             - caspar00/app-ras-25:${{ env.VERSION }}
 
-      - name: Generate changelog from previous tag
+      - name: Generate automatic changelog
         id: changelog
-        run: |
-          git fetch --tags
-          CURRENT_TAG=${GITHUB_REF#refs/tags/}
-          PREV_TAG=$(git describe --tags --abbrev=0 $(git rev-list --tags --skip=1 --max-count=1))
-
-          echo "Generating changelog from $PREV_TAG to $CURRENT_TAG"
-
-          LOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..$CURRENT_TAG)
-
-          # Handle case where there's no previous tag
-          if [ -z "$PREV_TAG" ]; then
-            LOG=$(git log --pretty=format:"- %s (%an)" $CURRENT_TAG)
-          fi
-
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$LOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: ".github/changelog-config.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -79,11 +67,13 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## 🐳 Docker Image
+
             ```
             docker pull caspar00/app-ras-25:${{ github.ref_name }}
             ```
 
             ## 📋 Changelog
+
             ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
