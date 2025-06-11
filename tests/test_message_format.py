@@ -1,6 +1,10 @@
 import unittest
 
-from src.data.message_formats import InternVLMessageFormat, QwenMessageFormat
+from src.data.message_formats import (
+    GemmaMessageFormat,
+    InternVLMessageFormat,
+    QwenMessageFormat,
+)
 
 
 class TestMessageFormat(unittest.TestCase):
@@ -54,6 +58,35 @@ class TestMessageFormat(unittest.TestCase):
             formatted_message,
             expected_message,
             "Formatted message does not match the expected InternVL message format",
+        )
+
+    def test_format_of_gemma_message(self):
+        message_format = GemmaMessageFormat()
+        question = "What is the capital of France?"
+        key_object_info = {"country": "France", "capital": "Paris"}
+        image_path = "/path/to/your/image.jpg"
+        system_prompt = "This is the system prompt"
+        formatted_message = message_format.format(
+            question, key_object_info, image_path, system_prompt
+        )
+
+        expected_message = {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image_path},
+                {"type": "text", "text": system_prompt},
+                {"type": "text", "text": "Question: " + question},
+                {
+                    "type": "text",
+                    "text": "Key object infos:\n{'country': 'France', 'capital': 'Paris'}",
+                },
+            ],
+        }
+
+        self.assertEqual(
+            formatted_message,
+            expected_message,
+            "Formatted message does not match the expected Gemma message format",
         )
 
 

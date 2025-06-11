@@ -12,6 +12,7 @@ from src.constants import (
     nuscenes_dir,
 )
 from src.data.message_formats import MessageFormat
+from src.data.prompts import get_system_prompt
 from src.utils.logger import get_logger
 from src.utils.utils import extract_children, remove_nones
 
@@ -149,8 +150,12 @@ class DriveLMImageDataset(Dataset):
         answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
+        system_prompt = get_system_prompt(qa["qa_type"])
+
         return (
-            self.message_format.format(question, key_object_info, image_path),
+            self.message_format.format(
+                question, key_object_info, image_path, system_prompt
+            ),
             question,
             answer,
             qa["id"],

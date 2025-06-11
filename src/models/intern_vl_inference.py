@@ -27,7 +27,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
             revision=revision,
             device=device,
         )
-    
+
         self.model = None
         self.tokenizer = None
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
@@ -63,9 +63,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
 
         for msg in flat_messages:
             pixel_tensor = (
-                load_image(msg["image_path"])
-                .to(self.device)
-                .to(self.torch_dtype)
+                load_image(msg["image_path"]).to(self.device).to(self.torch_dtype)
             )
             num_patches_list.append(get_num_patches(pixel_tensor))
             pixel_values_list.append(pixel_tensor)
