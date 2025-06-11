@@ -59,8 +59,8 @@ jobs:
           context: .
           push: true
           tags: |
-            - ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:latest
-            - ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ env.VERSION }}
 
       - name: Generate automatic changelog
         id: changelog
