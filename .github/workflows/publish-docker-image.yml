@@ -49,8 +49,8 @@ jobs:
           context: .
           push: true
           tags: |
-            - caspar00/app-ras-25:latest
-            - caspar00/app-ras-25:${{ env.VERSION }}
+            - ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:latest
+            - ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ env.VERSION }}
 
       - name: Generate automatic changelog
         id: changelog
@@ -69,7 +69,7 @@ jobs:
             ## 🐳 Docker Image
 
             ```
-            docker pull caspar00/app-ras-25:${{ github.ref_name }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ github.ref_name }}
             ```
 
             ## 📋 Changelog
