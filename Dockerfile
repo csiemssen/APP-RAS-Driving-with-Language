@@ -5,8 +5,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
 
 RUN apt-get update && \
-    apt-get install -y python3-pip python3-dev python-is-python3 python3.12-venv && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+  apt-get install -y python3-pip python3-dev python-is-python3 python3.12-venv && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -17,8 +17,8 @@ ENV PATH="/app/venv/bin:$PATH"
 COPY requirements.txt /tmp/requirements.txt
 
 RUN pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt && \
-    pip install flash-attn --no-build-isolation
+  pip install --no-cache-dir -r /tmp/requirements.txt && \
+  pip install --no-cache-dir flash-attn --no-build-isolation
 
 
 ## FINAL BUILD
@@ -28,8 +28,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/venv/bin:$PATH"
 
 RUN apt-get update && \
-    apt-get install -y python3-pip python3-dev python-is-python3 python3.12-venv && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+  apt-get install -y python3-pip python3-dev python-is-python3 python3.12-venv && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
