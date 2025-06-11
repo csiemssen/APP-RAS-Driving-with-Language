@@ -1,5 +1,5 @@
 ## BUILD FLASH-ATTN
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS dependencies
+FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu20.04 AS dependencies
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
