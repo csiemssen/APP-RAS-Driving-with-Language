@@ -27,11 +27,11 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         super().__init__(
             model_path=model_path,
             use_4bit=use_4bit,
-            torch_dtype=torch_dtype,
             revision=revision,
             device=device,
         )
         self.model = None
+        self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
         self.message_formatter = QwenMessageFormat()
 
