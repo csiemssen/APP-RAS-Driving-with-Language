@@ -22,7 +22,7 @@ RUN pip install --upgrade pip && \
 
 
 ## FINAL BUILD
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS final
+FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04 AS final
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/venv/bin:$PATH"
