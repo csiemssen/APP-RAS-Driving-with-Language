@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
 
 RUN apt-get update && \
-  apt-get install -y python3-pip python3-dev python-is-python3 python3.12-venv && \
+  apt-get install -y python3-pip python3-dev python-is-python3 python3-venv && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
