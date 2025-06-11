@@ -1,0 +1,55 @@
+name: Assign PR
+
+on:
+  pull_request:
+    types: [review_requested]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  assign_or_unassign_reviewers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign or unassign reviewers
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+
+            if (context.eventName === 'pull_request') {
+              // Handle review requested event
+              const pr = context.payload.pull_request;
+              const reviewers = context.payload.requested_reviewers || [];
+
+              const newAssignees = [
+                ...pr.assignees.map(user => user.login),
+                ...reviewers.map(user => user.login),
+              ];
+
+              // Remove duplicates
+              const uniqueAssignees = [...new Set(newAssignees)];
+
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: pr.number,
+                assignees: uniqueAssignees
+              });
+
+            } else if (context.eventName === 'pull_request_review') {
+              // Handle review submitted event
+              const pr = context.payload.pull_request;
+              const reviewer = context.payload.review.user.login;
+
+              const remainingAssignees = pr.assignees
+                .map(user => user.login)
+                .filter(user => user !== reviewer);
+
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: pr.number,
+                assignees: remainingAssignees
+              });
+            }
