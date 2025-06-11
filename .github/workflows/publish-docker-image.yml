@@ -29,7 +29,7 @@ jobs:
         id: check_version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          IMAGE=vdawgg/app-ras-25
+          IMAGE=caspar00/app-ras-25
           EXISTS=$(curl -s -o /dev/null -w "%{http_code}" https://hub.docker.com/v2/repositories/${IMAGE}/tags/${VERSION}/)
           if [ "$EXISTS" -eq 200 ]; then
             echo "Image version ${VERSION} already exists. Skipping."
@@ -49,8 +49,8 @@ jobs:
           context: .
           push: true
           tags: |
-            - vdawgg/app-ras-25:latest
-            - vdawgg/app-ras-25:${{ env.VERSION }}
+            - caspar00/app-ras-25:latest
+            - caspar00/app-ras-25:${{ env.VERSION }}
 
       - name: Generate changelog from previous tag
         id: changelog
@@ -80,7 +80,7 @@ jobs:
           body: |
             ## 🐳 Docker Image
             ```
-            docker pull vdawgg/app-ras-25:${{ github.ref_name }}
+            docker pull caspar00/app-ras-25:${{ github.ref_name }}
             ```
 
             ## 📋 Changelog
