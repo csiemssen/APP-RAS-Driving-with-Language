@@ -16,40 +16,39 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
+            const action = context.payload.action;
 
-            if (context.eventName === 'pull_request') {
-              // Handle review requested event
+            if (action === 'review_requested') {
               const pr = context.payload.pull_request;
-              const reviewers = context.payload.requested_reviewers || [];
+              const reviewer = context.payload.requested_reviewer;
 
-              const newAssignees = [
-                ...pr.assignees.map(user => user.login),
-                ...reviewers.map(user => user.login),
-              ];
+              if (reviewer) {
+                const assignees = [...new Set([
+                  ...pr.assignees.map(u => u.login),
+                  reviewer.login
+                ])];
 
-              // Remove duplicates
-              const uniqueAssignees = [...new Set(newAssignees)];
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  assignees
+                });
+              }
+            }
 
-              await github.rest.issues.update({
-                owner,
-                repo,
-                issue_number: pr.number,
-                assignees: uniqueAssignees
-              });
-
-            } else if (context.eventName === 'pull_request_review') {
-              // Handle review submitted event
+            if (context.eventName === 'pull_request_review' && action === 'submitted') {
               const pr = context.payload.pull_request;
               const reviewer = context.payload.review.user.login;
 
-              const remainingAssignees = pr.assignees
-                .map(user => user.login)
-                .filter(user => user !== reviewer);
+              const assignees = pr.assignees
+                .map(u => u.login)
+                .filter(login => login !== reviewer);
 
               await github.rest.issues.update({
                 owner,
                 repo,
                 issue_number: pr.number,
-                assignees: remainingAssignees
+                assignees
               });
             }
