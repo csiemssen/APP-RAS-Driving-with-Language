@@ -5,6 +5,7 @@ on: push
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: DockerHub # 👈 this gives the job access to that env's secrets
 
     steps:
       - name: Checkout code
@@ -15,7 +16,7 @@ jobs:
           echo "Checking if required secrets are set and not empty..."
 
           if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            echo "Required secrets are not set or empty. Exiting."
+            echo "Required secrets are not set or empty"
             exit 1
           fi
 
