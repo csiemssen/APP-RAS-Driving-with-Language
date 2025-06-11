@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
+
 import torch
+
 from src.utils.utils import get_device, is_cuda, is_mps
 
 

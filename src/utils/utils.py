@@ -6,7 +6,7 @@ import torch
 
 
 def flatten(list_of_lists: list[list[Any]]) -> list[Any]:
-    return [x for l in list_of_lists for x in l]
+    return [x for sublist in list_of_lists for x in sublist]
 
 
 def remove_nones(d: dict[str, Any]) -> dict[str, Any]:

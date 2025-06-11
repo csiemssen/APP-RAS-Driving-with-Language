@@ -38,9 +38,7 @@ class TestModelEvaluation(unittest.TestCase):
             "output",
             f"{sanitize_model_name(engine.model_path)}_submission.json",
         )
-        self.assertTrue(
-            os.path.exists(output_file), "Output file should be created."
-        )
+        self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
             "Submission file should be created.",
@@ -78,9 +76,7 @@ class TestModelEvaluation(unittest.TestCase):
             "output",
             f"{sanitize_model_name(engine.model_path)}_submission.json",
         )
-        self.assertTrue(
-            os.path.exists(output_file), "Output file should be created."
-        )
+        self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
             "Submission file should be created.",

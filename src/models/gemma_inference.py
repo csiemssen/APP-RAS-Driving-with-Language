@@ -1,14 +1,13 @@
 from typing import Dict, List, Optional
 
-from PIL import Image
 import torch
-from transformers import Gemma3ForConditionalGeneration, AutoProcessor
+from PIL import Image
+from transformers import AutoProcessor, Gemma3ForConditionalGeneration
 
 from src.data.message_formats import GemmaMessageFormat
 from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
 from src.utils.utils import is_mps
-
 
 logger = get_logger(__name__)
 
