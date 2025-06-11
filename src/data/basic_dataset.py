@@ -6,14 +6,14 @@ import gdown
 from torch.utils.data import Dataset
 
 from src.constants import (
-    drivelm_train_json,
     drivelm_dir,
+    drivelm_train_json,
     drivelm_val_json,
     nuscenes_dir,
 )
 from src.data.message_formats import MessageFormat
-from src.utils.utils import remove_nones, extract_children
 from src.utils.logger import get_logger
+from src.utils.utils import extract_children, remove_nones
 
 logger = get_logger(__name__)
 
@@ -92,7 +92,8 @@ class DriveLMImageDataset(Dataset):
             for key_frame_id in scene_obj.keys():
                 # NOTE: Only consider FRONT camera images for now
                 image_path = os.path.join(
-                    drivelm_dir, scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"]
+                    drivelm_dir,
+                    scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"],
                 )
 
                 # NOTE: This is a simple workaround if we do not have all files available
