@@ -1,9 +1,6 @@
 name: Publish Docker image
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+on: push
 
 jobs:
   build-and-push:
@@ -12,6 +9,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check secrets availability and length of secrets
+        run: |
+          echo "Checking if required secrets are set and not empty..."
+
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "Required secrets are not set or empty. Exiting."
+            exit 1
+          fi
+
+          echo "Secrets are set"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
