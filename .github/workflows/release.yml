@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: DockerHub
 
     steps:
       - name: Checkout code
@@ -29,7 +30,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## 🐳 Docker Image
-            Docker Hub URL: [View Package](https://hub.docker.com/repository/docker/caspar00/app-ras-25/tags)
+            Docker Hub URL: [View Package](https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25/tags)
 
             ```
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ github.ref_name }}
