@@ -20,8 +20,9 @@ def get_relative_position(cam_name: str) -> str:
 def generate_descriptor_qa(obj_id, obj_info):
     desc = obj_info["Visual_description"]
     status = obj_info["Status"] or "unknown"
-    cam = obj_id.split(",")[1]
-    coords = obj_id.split(",")[2:]
+    obj_id_parts = obj_id.split(",")
+    cam = obj_id_parts[1]
+    coords = obj_id_parts[2:]
     pos = get_relative_position(cam)
     coord_str = f"({coords[0]},{coords[1]})"
     question = (
