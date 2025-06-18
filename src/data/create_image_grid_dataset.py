@@ -1,6 +1,11 @@
+import os
+
 from PIL import Image, ImageDraw, ImageFont
 
-from src.constants import fonts_dir
+from src.constants import drivelm_dir, fonts_dir, grid_dir
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def create_grid_image_with_labels(
@@ -79,3 +84,25 @@ def create_grid_image_with_labels(
             print(f"Error processing {cam}: {e}")
 
     return grid_img
+
+
+def create_image_grid_dataset(data, override=False):
+    grid_dir.mkdir(parents=True, exist_ok=True)
+
+    for scene_id, scene_data in data.items():
+        for key_frame_id, key_frame_data in scene_data["key_frames"].items():
+            image_paths = key_frame_data["image_paths"]
+            image_name = f"{scene_id}_{key_frame_id}__GRID.jpg"
+            grid_path = grid_dir / image_name
+            image_paths["GRID"] = "../nuscenes/samples/GRID/" + image_name
+
+            if not grid_path.exists() or override:
+                image_paths = {
+                    key: os.path.join(drivelm_dir, path)
+                    for key, path in image_paths.items()
+                }
+                grid_img = create_grid_image_with_labels(image_paths, resize_factor=0.5)
+                grid_img.save(grid_path)
+                logger.info(f"Saved grid image: {grid_path}")
+
+    return data

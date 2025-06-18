@@ -5,11 +5,11 @@ import gdown
 
 from src.constants import (
     drivelm_dir,
-    drivelm_train_augmented_json,
     drivelm_train_json,
     drivelm_val_json,
     nuscenes_dir,
 )
+from src.data.create_image_grid_dataset import create_image_grid_dataset
 from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
@@ -45,30 +45,26 @@ def get_ds(split: str) -> None:
         )
 
 
-def load_or_download_dataset(split: str, use_augmented: bool):
+def load_dataset(split: str, add_augmented: bool = False, use_grid: bool = False):
     dataset_paths = {
-        "train": (drivelm_train_json, drivelm_train_augmented_json),
-        "val": (drivelm_val_json, None),
+        "train": drivelm_train_json,
+        "val": drivelm_val_json,
     }
 
     if split not in dataset_paths:
         raise ValueError(f"Invalid split: {split}. Must be 'train' or 'val'.")
 
-    base_path, augmented_path = dataset_paths[split]
+    base_path = dataset_paths[split]
     if not base_path.is_file():
         get_ds(split)
 
-    if split == "train" and use_augmented:
-        if not augmented_path.is_file():
-            generate_descriptor_qas(
-                input_dir=base_path,
-                output_dir=augmented_path,
-            )
-        data_path = augmented_path
-    else:
-        data_path = base_path
-
-    with open(data_path) as f:
+    with open(base_path) as f:
         data = load(f)
+
+    if split == "train" and add_augmented:
+        data = generate_descriptor_qas(data)
+
+    if use_grid:
+        data = create_image_grid_dataset(data)
 
     return data

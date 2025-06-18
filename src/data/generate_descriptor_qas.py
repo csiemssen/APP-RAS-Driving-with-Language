@@ -1,5 +1,3 @@
-import json
-
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -49,15 +47,10 @@ def augment_frame_with_qas(frame):
     return frame
 
 
-def generate_descriptor_qas(input_dir, output_dir):
-    with open(input_dir, "r") as f:
-        data = json.load(f)
-
+def generate_descriptor_qas(data):
     for scene_id, scene_obj in data.items():
         for key_frame_id, frame in scene_obj["key_frames"].items():
             scene_obj["key_frames"][key_frame_id] = augment_frame_with_qas(frame)
 
-    with open(output_dir, "w") as f:
-        json.dump(data, f, indent=2)
-
-    logger.info(f"Descriptor QAs generated and saved to {output_dir}")
+    logger.info("Descriptor QAs generated")
+    return data
