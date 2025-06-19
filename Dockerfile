@@ -1,5 +1,5 @@
 ## BUILD FLASH-ATTN
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS dependencies
+FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04 AS dependencies
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
@@ -18,11 +18,11 @@ COPY requirements.txt /tmp/requirements.txt
 
 RUN pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt && \
-    pip install flash-attn --no-build-isolation
+    pip install flash-attn==2.8.0.post2 --no-build-isolation
 
 
 ## FINAL BUILD
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS final
+FROM nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04 AS final
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/venv/bin:$PATH"

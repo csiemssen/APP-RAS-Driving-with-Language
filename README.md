@@ -15,7 +15,7 @@ Citation/Research Manager
 
 ## Setup
 - Download the [NuScenes](https://github.com/OpenDriveLab/DriveLM/tree/main/challenge) training and validation datasets, and place them together in the `data/nuscenes` directory
-- Install the package requirements from requirements.txt and run ```pip install flash-attn --no-build-isolation```.
+- Install the package requirements from requirements.txt and run ```pip install flash-attn==2.8.0.post2 --no-build-isolation```.
 - To make sure you can download all of the tested models, authenticate your machine with huggingface using the huggingface-cli, by running ```huggingface-cli login```
 
 ## Docker
