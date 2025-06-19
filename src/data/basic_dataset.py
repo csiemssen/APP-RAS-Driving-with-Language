@@ -1,20 +1,16 @@
 import os
-from json import load
 from typing import Any
 
-import gdown
 from torch.utils.data import Dataset
 
 from src.constants import (
     drivelm_dir,
-    drivelm_train_json,
-    drivelm_val_json,
-    nuscenes_dir,
 )
+from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.prompts import get_system_prompt
 from src.utils.logger import get_logger
-from src.utils.utils import extract_children, remove_nones
+from src.utils.utils import remove_nones
 
 logger = get_logger(__name__)
 
@@ -41,61 +37,37 @@ def prune_key_object_info(koi: dict[str, Any]):
     }
 
 
-def get_ds(split: str) -> None:
-    logger.info("Downloading dataset")
-    if split == "train":
-        out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_train.zip")
-        gdown.download(
-            id="1DeosPGYeM2gXSChjMODGsQChZyYDmaUz",
-            output=out_name,
-        )
-        extract_children(out_name, nuscenes_dir / "samples")
-        gdown.download(
-            id="1CvTPwChKvfnvrZ1Wr0ZNVqtibkkNeGgt",
-            output=os.path.join(drivelm_dir, "v1_1_train_nus.json"),
-        )
-    else:
-        out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_val.zip")
-        gdown.download(
-            id="18f8ygNxGZWat-crUjroYuQbd39Sk9xCo",
-            output=out_name,
-        )
-        extract_children(out_name, nuscenes_dir / "samples")
-        gdown.download(
-            id="1fsVP7jOpvChcpoXVdypaZ4HREX1gA7As",
-            output=os.path.join(drivelm_dir, "v1_1_val_nus_q_only.json"),
-        )
-
-
 # NOTE: This DS does not consider any direct dependencies between the questions
 class DriveLMImageDataset(Dataset):
-    def __init__(self, message_format: MessageFormat, split="train"):
+    def __init__(
+        self,
+        message_format: MessageFormat,
+        split="train",
+        add_augmented=False,
+        use_grid=False,
+    ):
         self.message_format = message_format
         self.split = split
 
-        if split == "train":
-            logger.info("Loading DriveLM training dataset")
-            if not drivelm_train_json.is_file():
-                get_ds(split)
-            with open(drivelm_train_json) as f:
-                data = load(f)
-        else:
-            logger.info("Loading DriveLM validation dataset")
-            if not drivelm_val_json.is_file():
-                get_ds(split)
-            with open(drivelm_val_json) as f:
-                data = load(f)
+        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
 
         removed = 0
         qa_list = []
         for scene_id in data.keys():
             scene_obj = data[scene_id]["key_frames"]
             for key_frame_id in scene_obj.keys():
-                # NOTE: Only consider FRONT camera images for now
-                image_path = os.path.join(
-                    drivelm_dir,
-                    scene_obj[key_frame_id]["image_paths"]["CAM_FRONT"],
-                )
+                # NOTE: Only consider FRONT camera images or GRID images for now
+                image_paths = scene_obj[key_frame_id]["image_paths"]
+                if use_grid:
+                    image_path = os.path.join(
+                        drivelm_dir,
+                        image_paths["GRID"],
+                    )
+                else:
+                    image_path = os.path.join(
+                        drivelm_dir,
+                        image_paths["CAM_FRONT"],
+                    )
 
                 # NOTE: This is a simple workaround if we do not have all files available
                 if not os.path.isfile(image_path):
@@ -122,8 +94,15 @@ class DriveLMImageDataset(Dataset):
                     + ["behavior" for _ in range(len(qas_behavior))]
                 )
 
+                qas_augmented = qas.get("augmented", [])
+                qa_types += ["augmented" for _ in range(len(qas_augmented))]
+
                 for i, qa in enumerate(
-                    qas_perception + qas_prediction + qas_planning + qas_behavior
+                    qas_perception
+                    + qas_prediction
+                    + qas_planning
+                    + qas_behavior
+                    + qas_augmented
                 ):
                     qa_list.append(
                         {

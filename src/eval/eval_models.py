@@ -19,8 +19,11 @@ def evaluate_model(
     dataset_split: str = "val",
     batch_size: int = 2,
     test_set_size: Optional[int] = None,
+    use_grid: bool = False,
 ):
-    dataset = DriveLMImageDataset(engine.message_formatter, dataset_split)
+    dataset = DriveLMImageDataset(
+        engine.message_formatter, dataset_split, use_grid=use_grid
+    )
     if test_set_size is not None:
         num_samples = min(test_set_size, len(dataset))
         dataset = Subset(dataset, np.arange(num_samples))

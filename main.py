@@ -1,5 +1,3 @@
-import torch
-
 from src.eval.eval_models import evaluate_model
 from src.models.gemma_inference import GemmaInferenceEngine
 from src.utils.utils import is_cuda
@@ -14,4 +12,5 @@ if __name__ == "__main__":
         engine=engine,
         dataset_split="val",
         batch_size=30,
+        use_grid=True,
     )
