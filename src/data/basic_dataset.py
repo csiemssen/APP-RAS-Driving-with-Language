@@ -49,7 +49,7 @@ def get_ds(split: str) -> None:
             id="1DeosPGYeM2gXSChjMODGsQChZyYDmaUz",
             output=out_name,
         )
-        extract_children(out_name, nuscenes_dir / "samples")
+        extract_children(out_name, nuscenes_dir)
         gdown.download(
             id="1CvTPwChKvfnvrZ1Wr0ZNVqtibkkNeGgt",
             output=os.path.join(drivelm_dir, "v1_1_train_nus.json"),
@@ -60,7 +60,7 @@ def get_ds(split: str) -> None:
             id="18f8ygNxGZWat-crUjroYuQbd39Sk9xCo",
             output=out_name,
         )
-        extract_children(out_name, nuscenes_dir / "samples")
+        extract_children(out_name, nuscenes_dir)
         gdown.download(
             id="1fsVP7jOpvChcpoXVdypaZ4HREX1gA7As",
             output=os.path.join(drivelm_dir, "v1_1_val_nus_q_only.json"),
@@ -154,7 +154,7 @@ class DriveLMImageDataset(Dataset):
 
         return (
             self.message_format.format(
-                question, key_object_info, image_path, system_prompt
+                question, key_object_info, image_path, system_prompt, answer
             ),
             question,
             answer,
