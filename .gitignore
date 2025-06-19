@@ -180,11 +180,14 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# ignore data files
-data/nuscenes
-data/val_data
-data/drivelm
-data/output
+# ignore data directories
+data/nuscenes/*
+data/val_data/*
+data/drivelm/*
+data/output/*
+# except for the gitkeeps to make sure, that the dirs exist
+!data/nuscenes/.gitkeep
+!data/drivelm/.gitkeep
 
 # ignore mac OS files
 .DS_Store
