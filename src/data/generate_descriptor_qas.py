@@ -24,10 +24,9 @@ def generate_descriptor_qa(obj_id, obj_info):
     pos = get_relative_position(cam)
     coord_str = f"({coords[0]},{coords[1]})"
     question = (
-        f"The width and height of the image are 1600 and 900 respectively. "
-        f"{obj_id} represents the key object that the center coordinates of the bounding box "
-        f"in the {cam} image are {coord_str}. "
-        f"What is the object {obj_id}? What is the state of it?"
+        f"The image has a width of 1600 and a height of 900. "
+        f"The key object, identified as {obj_id}, has its bounding box center coordinates at {coord_str} in the {cam} image. "
+        f"What is the object {obj_id}? What is its state?"
     )
 
     answer = (
