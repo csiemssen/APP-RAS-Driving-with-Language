@@ -1,4 +1,4 @@
-# Further adopted from https://github.com/QwenLM/Qwen2.5-VL/blob/main/qwen-vl-finetune/qwenvl/train/train_qwen.py
+# Further adopted from https://github.com/QwenLM/Qwen2.5-VL
 
 # Adopted from https://github.com/lm-sys/FastChat. Below is the original copyright:
 # Adopted from tatsu-lab@stanford_alpaca. Below is the original copyright:
@@ -23,8 +23,8 @@ from typing import Any, Optional
 import transformers
 import pandas as pd
 from peft import LoraConfig
-from torch.utils.data import Subset
 from transformers import Trainer
+from transformers.trainer import ALL_LAYERNORM_LAYERS, get_parameter_names
 from qwen_vl_utils import process_vision_info
 
 from src.constants import model_output_dir, model_log_dir
@@ -77,6 +77,184 @@ def set_model(model):
     for n, p in model.model.named_parameters():
         p.requires_grad = True
     model.lm_head.requires_grad = True
+
+
+def create_optimizer(self):
+
+    opt_model = self.model
+
+    if self.optimizer is None:
+        decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
+        decay_parameters = [name for name in decay_parameters if "bias" not in name]
+        if self.args.mm_projector_lr is not None and self.args.mm_projector_lr != 0:
+            projector_parameters = [
+                name for name, _ in opt_model.named_parameters() if "merger" in name
+            ]
+            if self.args.vision_tower_lr is not None and self.args.vision_tower_lr != 0:
+                vision_tower_parameters = [
+                    name for name, _ in opt_model.named_parameters() if "visual" in name
+                ]
+                optimizer_grouped_parameters = [
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n in decay_parameters
+                                and n not in projector_parameters
+                                and n not in vision_tower_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": self.args.weight_decay,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n in decay_parameters
+                                and n not in projector_parameters
+                                and n in vision_tower_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": self.args.weight_decay,
+                        "lr": self.args.vision_tower_lr,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n not in decay_parameters
+                                and n not in projector_parameters
+                                and n not in vision_tower_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": 0.0,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n not in decay_parameters
+                                and n not in projector_parameters
+                                and n in vision_tower_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": 0.0,
+                        "lr": self.args.vision_tower_lr,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n in decay_parameters
+                                and n in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": self.args.weight_decay,
+                        "lr": self.args.mm_projector_lr,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n not in decay_parameters
+                                and n in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": 0.0,
+                        "lr": self.args.mm_projector_lr,
+                    },
+                ]
+            else:
+                optimizer_grouped_parameters = [
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n in decay_parameters
+                                and n not in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": self.args.weight_decay,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n not in decay_parameters
+                                and n not in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": 0.0,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n in decay_parameters
+                                and n in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": self.args.weight_decay,
+                        "lr": self.args.mm_projector_lr,
+                    },
+                    {
+                        "params": [
+                            p
+                            for n, p in opt_model.named_parameters()
+                            if (
+                                n not in decay_parameters
+                                and n in projector_parameters
+                                and p.requires_grad
+                            )
+                        ],
+                        "weight_decay": 0.0,
+                        "lr": self.args.mm_projector_lr,
+                    },
+                ]
+        else:
+            optimizer_grouped_parameters = [
+                {
+                    "params": [
+                        p
+                        for n, p in opt_model.named_parameters()
+                        if (n in decay_parameters and p.requires_grad)
+                    ],
+                    "weight_decay": self.args.weight_decay,
+                },
+                {
+                    "params": [
+                        p
+                        for n, p in opt_model.named_parameters()
+                        if (n not in decay_parameters and p.requires_grad)
+                    ],
+                    "weight_decay": 0.0,
+                },
+            ]
+
+        optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(
+            self.args
+        )
+        self.optimizer = optimizer_cls(optimizer_grouped_parameters, **optimizer_kwargs)
+
+    return self.optimizer
 
 
 # TODO: Look into the deepspeed config
@@ -159,6 +337,7 @@ def train(approach_name: str, test_set_size: Optional[int | None]=None):
         train_dataset=dataset,
         data_collator=collator,
     )
+    Trainer.create_optimizer = create_optimizer
     trainer.train()
 
     logger.info(f"Done training. Saving the model to: {model_output_dir / name}")
