@@ -17,10 +17,16 @@ if __name__ == "__main__":
         help="Set to evaluate the current model",
         action="store_true"
     )
+    parser.add_argument(
+        "--aproach",
+        help="The name of the current approach (used for naming of the resulting files).",
+        type=str,
+        required=True,
+    )
     args = parser.parse_args()
 
     if args.train:
-        train()
+        train(args.approach)
     elif args.eval:
         if is_cuda():
             engine = InternVLInferenceEngine(use_4bit=True)

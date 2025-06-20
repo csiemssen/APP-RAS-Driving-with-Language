@@ -16,29 +16,56 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Optional
 
-import torch
 import transformers
+import pandas as pd
 from peft import LoraConfig
 from transformers import Trainer
 from qwen_vl_utils import process_vision_info
 
-from src.constants import data_dir
+from src.constants import model_output_dir, model_log_dir
 from src.data.basic_dataset import DriveLMImageDataset
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
+from src.utils.logger import get_logger
+
+
+logger = get_logger(__name__)
+
+
+@dataclass
+class TrainingArguments(transformers.TrainingArguments):
+    cache_dir: Optional[str] = field(default=None)
+    optim: str = field(default="adamw_torch")
+    model_max_length: int = field(
+        default=512,
+        metadata={
+            "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
+        },
+    )
+    mm_projector_lr: Optional[float] = None
+    vision_tower_lr: Optional[float] = None
+
+
+def log_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    logger.info(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
+    )
 
 
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
     """Collects the state dict and dump to disk."""
-
-    if trainer.deepspeed:
-        torch.cuda.synchronize()
-        trainer.save_model(output_dir)
-        return
-
     state_dict = trainer.model.state_dict()
     if trainer.args.should_save:
         cpu_state_dict = {key: value.cpu() for key, value in state_dict.items()}
@@ -59,25 +86,13 @@ def set_model(model):
     model.lm_head.requires_grad = True
 
 
-@dataclass
-class TrainingArguments(transformers.TrainingArguments):
-    cache_dir: Optional[str] = field(default=None)
-    optim: str = field(default="adamw_torch")
-    model_max_length: int = field(
-        default=512,
-        metadata={
-            "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
-        },
-    )
-    mm_projector_lr: Optional[float] = None
-    vision_tower_lr: Optional[float] = None
-
-
 # TODO: Look into the deepspeed config
 # TODO: We will have to look into fixing the resolution -> This should likely allways be 1600 x 900
 #       -> Seemingly important for fine tuning
 # TODO: Test full pipeline with tiny DS
-def train():
+# TODO: Look through the warnings
+# TODO: Check whether we can optimize further.
+def train(approach_name: str):
     engine = QwenVLInferenceEngine(use_4bit=True, training=True)
 
     def collator(batch: Any):
@@ -137,6 +152,8 @@ def train():
     engine.model.config.use_cache = False
     engine.model.gradient_checkpointing_enable()
 
+    log_trainable_parameters(engine.model)
+
     trainer = Trainer(
         model=engine.model, 
         processing_class=engine.processor.tokenizer,
@@ -144,17 +161,17 @@ def train():
             remove_unused_columns=False,
             bf16=True,
             tf32=True,
+            
         ),
         train_dataset=dataset,
         data_collator=collator,
     )
 
-    if list(data_dir.glob("checkpoint-*")):
-        logging.info("checkpoint found, resume training")
-        trainer.train(resume_from_checkpoint=True)
-    else:
-        trainer.train()
+    trainer.train()
     trainer.save_state()
 
-    # TODO: Set this to the proper dir
-    safe_save_model_for_hf_trainer(trainer=trainer, output_dir=data_dir)
+    name = approach_name + datetime.now()
+    safe_save_model_for_hf_trainer(trainer=trainer, output_dir=model_output_dir / name)
+    pd.DataFrame(trainer.state.log_history).to_csv(
+        model_log_dir / name + ".csv"
+    )

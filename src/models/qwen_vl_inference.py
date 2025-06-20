@@ -9,7 +9,6 @@ from transformers import (
 
 from src.data.message_formats import QwenMessageFormat, QwenTrainingMessageFormat
 from src.models.base_inference import BaseInferenceEngine
-from src.train.trainer import replace_qwen2_vl_attention_class
 from src.utils.logger import get_logger
 from src.utils.utils import is_mps
 
