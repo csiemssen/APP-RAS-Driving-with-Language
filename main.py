@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from src.eval.eval_models import evaluate_model
-from src.models.intern_vl_inference import InternVLInferenceEngine
+from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.utils.utils import is_cuda
 from src.train.train_qwen import train
 
@@ -18,25 +18,30 @@ if __name__ == "__main__":
         action="store_true"
     )
     parser.add_argument(
-        "--aproach",
+        "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        type=str,
         required=True,
+    )
+    parser.add_argument(
+        "--test_set_size",
+        help="Number of samples to test the current approach and pipeline with.",
+        default=None,
     )
     args = parser.parse_args()
 
     if args.train:
-        train(args.approach)
+        train(args.approach, args.test_set_size)
     elif args.eval:
         if is_cuda():
-            engine = InternVLInferenceEngine(use_4bit=True)
+            engine = QwenVLInferenceEngine(use_4bit=True)
         else:
-            engine = InternVLInferenceEngine()
+            engine = QwenVLInferenceEngine()
 
         evaluate_model(
             engine=engine,
             dataset_split="val",
             batch_size=30,
+            test_set_size=args.test_set_size,
         )
     else:
         parser.print_help()

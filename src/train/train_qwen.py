@@ -23,6 +23,7 @@ from typing import Any, Optional
 import transformers
 import pandas as pd
 from peft import LoraConfig
+from torch.utils.data import Subset
 from transformers import Trainer
 from qwen_vl_utils import process_vision_info
 
@@ -30,6 +31,7 @@ from src.constants import model_output_dir, model_log_dir
 from src.data.basic_dataset import DriveLMImageDataset
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.utils.logger import get_logger
+from src.utils.utils import create_subset_for_testing
 
 
 logger = get_logger(__name__)
@@ -64,15 +66,6 @@ def log_trainable_parameters(model):
     )
 
 
-def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
-    """Collects the state dict and dump to disk."""
-    state_dict = trainer.model.state_dict()
-    if trainer.args.should_save:
-        cpu_state_dict = {key: value.cpu() for key, value in state_dict.items()}
-        del state_dict
-        trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
-
-
 def set_model(model):
     """
     Set grad to True for LLM part of the model only.
@@ -89,10 +82,10 @@ def set_model(model):
 # TODO: Look into the deepspeed config
 # TODO: We will have to look into fixing the resolution -> This should likely allways be 1600 x 900
 #       -> Seemingly important for fine tuning
-# TODO: Test full pipeline with tiny DS
 # TODO: Look through the warnings
 # TODO: Check whether we can optimize further.
-def train(approach_name: str):
+def train(approach_name: str, test_set_size: Optional[int | None]=None):
+    name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
     engine = QwenVLInferenceEngine(use_4bit=True, training=True)
 
     def collator(batch: Any):
@@ -122,9 +115,11 @@ def train(approach_name: str):
         return batch
 
 
+    dataset = DriveLMImageDataset(engine.training_message_formatter, split="train")
+    if test_set_size is not None:
+        dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataset = [
-        message for message, _, _, _, _ in
-        DriveLMImageDataset(engine.training_message_formatter, split="train")
+        message for message, _, _, _, _ in dataset
     ]
 
     engine.load_model()
@@ -161,17 +156,17 @@ def train(approach_name: str):
             remove_unused_columns=False,
             bf16=True,
             tf32=True,
-            
+            output_dir=model_output_dir / name,
         ),
         train_dataset=dataset,
         data_collator=collator,
     )
-
     trainer.train()
+
+    logger.info(f"Done training. Saving the model to: {model_output_dir / name}")
+
     trainer.save_state()
 
-    name = approach_name + datetime.now()
-    safe_save_model_for_hf_trainer(trainer=trainer, output_dir=model_output_dir / name)
     pd.DataFrame(trainer.state.log_history).to_csv(
-        model_log_dir / name + ".csv"
+        model_log_dir / (name + ".csv")
     )

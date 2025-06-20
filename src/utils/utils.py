@@ -3,7 +3,12 @@ from pathlib import Path
 from typing import Any
 
 import torch
+import numpy as np
+from torch.utils.data import Dataset, Subset
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def flatten(list_of_lists: list[list[Any]]) -> list[Any]:
     return [x for sublist in list_of_lists for x in sublist]
@@ -41,3 +46,10 @@ def extract_children(zip_path: str, out_path: str):
         for child in parent.iterdir():
             shutil.move(child, out_path)
     shutil.rmtree(tmp)
+
+def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
+    logger.info(f"Creating subset with size {test_set_size}")
+    num_samples = min(test_set_size, len(ds))
+    subset = Subset(ds, np.arange(num_samples))
+    logger.info(f"Created subset with size {len(subset)}")
+    return subset
