@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
+        choices=["front_cam", "image_grid"],
         required=True,
     )
     parser.add_argument(
@@ -29,8 +30,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # This should be continually added to so we can just pass this dict every time a new approach is added
+    kwargs = {}
+    if args.approach == "image_grid":
+        kwargs["use_grid"] = True
+
     if args.train:
-        train(args.approach, args.test_set_size)
+            train(
+                args.approach,
+                args.test_set_size,
+                **kwargs,
+            )
     elif args.eval:
         if is_cuda():
             engine = QwenVLInferenceEngine(use_4bit=True)
@@ -42,6 +52,7 @@ if __name__ == "__main__":
             dataset_split="val",
             batch_size=30,
             test_set_size=args.test_set_size,
+            **kwargs,
         )
     else:
         parser.print_help()

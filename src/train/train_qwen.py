@@ -258,8 +258,11 @@ def create_optimizer(self):
 
 
 # TODO: Look into the deepspeed config
-# TODO: Check whether we can optimize further.
-def train(approach_name: str, test_set_size: Optional[int | None]=None):
+def train(
+        approach_name: str, 
+        test_set_size: Optional[int | None]=None,
+        use_grid: bool=False,
+    ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
     engine = QwenVLInferenceEngine(use_4bit=True, training=True)
 
@@ -289,8 +292,11 @@ def train(approach_name: str, test_set_size: Optional[int | None]=None):
         
         return batch
 
-
-    dataset = DriveLMImageDataset(engine.training_message_formatter, split="train")
+    dataset = DriveLMImageDataset(
+        engine.training_message_formatter, 
+        split="train",
+        use_grid=use_grid,
+    )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataset = [
