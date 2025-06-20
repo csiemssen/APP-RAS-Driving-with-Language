@@ -20,6 +20,7 @@ class TestModelEvaluation(unittest.TestCase):
                 "OpenGVLab/InternVL3-2B",
                 use_4bit=True,
                 torch_dtype=torch.bfloat16,
+                use_grid=True,
             )
         else:
             engine = InternVLInferenceEngine("OpenGVLab/InternVL3-2B")
@@ -58,6 +59,7 @@ class TestModelEvaluation(unittest.TestCase):
                 "Qwen/Qwen2.5-VL-3B-Instruct",
                 use_4bit=True,
                 torch_dtype=torch.bfloat16,
+                use_grid=True,
             )
         else:
             engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")

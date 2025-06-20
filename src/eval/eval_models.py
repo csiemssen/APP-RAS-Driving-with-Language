@@ -18,8 +18,11 @@ def evaluate_model(
     dataset_split: str = "val",
     batch_size: int = 2,
     test_set_size: Optional[int] = None,
+    use_grid: bool = False,
 ):
-    dataset = DriveLMImageDataset(engine.message_formatter, dataset_split)
+    dataset = DriveLMImageDataset(
+        engine.message_formatter, dataset_split, use_grid=use_grid
+    )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataloader = DataLoader(

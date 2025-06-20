@@ -26,9 +26,7 @@ class TestInternVLInference(unittest.TestCase):
             )
 
         engine.load_model()
-        self.assertIsNotNone(
-            engine.model, "Model should be loaded successfully."
-        )
+        self.assertIsNotNone(engine.model, "Model should be loaded successfully.")
         self.assertIsNotNone(
             engine.tokenizer, "Tokenizer should be loaded successfully."
         )
@@ -47,11 +45,11 @@ class TestInternVLInference(unittest.TestCase):
 
         engine.load_model()
 
-        dataset = DriveLMImageDataset(InternVLMessageFormat(), "val")
-        test_set = Subset(dataset, np.arange(1))
-        dataloader = DataLoader(
-            test_set, batch_size=1, collate_fn=simple_dict_collate
+        dataset = DriveLMImageDataset(
+            InternVLMessageFormat(), split="val", use_grid=True
         )
+        test_set = Subset(dataset, np.arange(1))
+        dataloader = DataLoader(test_set, batch_size=1, collate_fn=simple_dict_collate)
 
         results = []
         for batch in dataloader:
@@ -64,6 +62,4 @@ class TestInternVLInference(unittest.TestCase):
                 "Predictions should match the number of messages.",
             )
 
-        self.assertGreater(
-            len(results), 0, "There should be some predictions made."
-        )
+        self.assertGreater(len(results), 0, "There should be some predictions made.")
