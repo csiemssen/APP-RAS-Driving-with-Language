@@ -21,7 +21,7 @@ class QwenMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: str,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
         return {
             "role": "user",
@@ -98,7 +98,7 @@ class InternVLMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: str,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
         full_prompt = system_prompt + "\n\nQuestion: " + question
         if key_object_info:
@@ -117,7 +117,7 @@ class GemmaMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: str,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
         return {
             "role": "user",
