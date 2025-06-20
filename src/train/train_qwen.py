@@ -80,9 +80,6 @@ def set_model(model):
 
 
 # TODO: Look into the deepspeed config
-# TODO: We will have to look into fixing the resolution -> This should likely allways be 1600 x 900
-#       -> Seemingly important for fine tuning
-# TODO: Look through the warnings
 # TODO: Check whether we can optimize further.
 def train(approach_name: str, test_set_size: Optional[int | None]=None):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
@@ -157,6 +154,7 @@ def train(approach_name: str, test_set_size: Optional[int | None]=None):
             bf16=True,
             tf32=True,
             output_dir=model_output_dir / name,
+            num_train_epochs=1,
         ),
         train_dataset=dataset,
         data_collator=collator,

@@ -56,8 +56,16 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         else:
             self.model = self.model.eval()
 
+        h, w = 900, 1600
+        patch_size = 28
+        num_img_tokens = (h // patch_size) * (w // patch_size)
+        num_img_pixel = num_img_tokens * patch_size * patch_size
+
         self.processor = AutoProcessor.from_pretrained(
-            self.model_path, revision=self.revision
+            self.model_path, 
+            revision=self.revision,
+            min_pixels=num_img_pixel-(num_img_pixel*.1), # Allow for some leeway to be sure
+            max_pixels=num_img_pixel+(num_img_pixel*.1)
         )
 
         logger.info(f"{self.model_path} loaded and ready.")
