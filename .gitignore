@@ -196,3 +196,6 @@ models/logs/*
 # ignore mac OS files
 .DS_Store
 backup/
+
+# ignore vscode config
+.vscode/
