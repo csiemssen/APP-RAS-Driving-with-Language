@@ -7,7 +7,7 @@ from transformers import (
     Qwen2_5_VLForConditionalGeneration,
 )
 
-from src.data.message_formats import QwenMessageFormat
+from src.data.message_formats import QwenMessageFormat, QwenTrainingMessageFormat
 from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
 from src.utils.utils import is_mps
@@ -23,6 +23,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
         device: Optional[str] = None,
+        training: bool = False
     ):
         super().__init__(
             model_path=model_path,
@@ -34,6 +35,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
         self.message_formatter = QwenMessageFormat()
+        self.training_message_formatter = QwenTrainingMessageFormat()
+        self.training = training
 
     def load_model(self) -> None:
         attn_implementation = "eager" if is_mps() else "flash_attention_2"
@@ -44,11 +47,25 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             torch_dtype=self.torch_dtype,
             attn_implementation=attn_implementation,
             quantization_config=self.quantization_config,
-            device_map=self.device,
-        ).eval()
+            device_map="auto",
+        )
+
+        if self.training:
+            # replace_qwen2_vl_attention_class()
+            pass
+        else:
+            self.model = self.model.eval()
+
+        h, w = 900, 1600
+        patch_size = 28
+        num_img_tokens = (h // patch_size) * (w // patch_size)
+        num_img_pixel = num_img_tokens * patch_size * patch_size
 
         self.processor = AutoProcessor.from_pretrained(
-            self.model_path, revision=self.revision
+            self.model_path, 
+            revision=self.revision,
+            min_pixels=num_img_pixel-(num_img_pixel*.1), # Allow for some leeway to be sure
+            max_pixels=num_img_pixel+(num_img_pixel*.1)
         )
 
         logger.info(f"{self.model_path} loaded and ready.")

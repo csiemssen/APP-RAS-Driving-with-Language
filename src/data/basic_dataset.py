@@ -133,7 +133,7 @@ class DriveLMImageDataset(Dataset):
 
         return (
             self.message_format.format(
-                question, key_object_info, image_path, system_prompt
+                question, key_object_info, image_path, system_prompt, answer
             ),
             question,
             answer,

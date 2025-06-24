@@ -2,14 +2,13 @@ import json
 import os
 from typing import Optional
 
-import numpy as np
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.utils.logger import get_logger
-from src.utils.utils import sanitize_model_name
+from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
 logger = get_logger(__name__)
 
@@ -25,8 +24,7 @@ def evaluate_model(
         engine.message_formatter, dataset_split, use_grid=use_grid
     )
     if test_set_size is not None:
-        num_samples = min(test_set_size, len(dataset))
-        dataset = Subset(dataset, np.arange(num_samples))
+        dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataloader = DataLoader(
         dataset, batch_size=batch_size, collate_fn=simple_dict_collate
     )
