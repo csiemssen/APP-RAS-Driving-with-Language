@@ -30,10 +30,16 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## 🐳 Docker Image
-            Docker Hub URL: [View Package](https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25/tags)
+            Docker Hub URL: [View Packages](https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25/tags)
 
+            Evaluation Image:
+            ``` bash
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:eval-${{ github.ref_name }}
             ```
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:${{ github.ref_name }}
+
+            Training Image:
+            ``` bash
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25:train-${{ github.ref_name }}
             ```
 
             ## 📋 Changelog
