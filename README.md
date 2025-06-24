@@ -21,8 +21,15 @@ Citation/Research Manager
 ## Docker
 
 Make sure you have the correct CUDA and driver version (>=12.8) available on your system.
-After building the image, run the container with the output directory mounted:
 
+We will supply two images for every release on the [docker hub](https://hub.docker.com/repository/docker/vdawgg/app-ras-25). One for running the eval of the current implementation and one for running the training loop.
+
+To run the training, make sure to mount the models directory:
+```shell
+docker run --gpus all -v ./models:/app/models <img-name>
+```
+
+To run the eval, make sure to mount the output directory:
 ```shell
 docker run --gpus all -v ./data/output:/app/data/output <img-name>
 ```
