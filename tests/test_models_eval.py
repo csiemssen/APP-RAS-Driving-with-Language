@@ -26,7 +26,12 @@ class TestModelEvaluation(unittest.TestCase):
             engine = InternVLInferenceEngine("OpenGVLab/InternVL3-2B")
 
         evaluate_model(
-            engine=engine, dataset_split="val", batch_size=1, test_set_size=1
+            engine=engine,
+            dataset_split="val",
+            batch_size=1,
+            test_set_size=1,
+            use_reasoning=True,
+            use_grid=True,
         )
 
         output_file = os.path.join(

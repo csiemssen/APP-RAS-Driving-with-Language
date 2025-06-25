@@ -26,4 +26,4 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests --disable-warnings -m "not dataset and not inference and not eval"
+          pytest tests --disable-warnings -m "not dataset and not inference and not eval and not reasoning"

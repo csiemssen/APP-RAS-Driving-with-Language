@@ -8,7 +8,10 @@ from torch.utils.data import DataLoader, Subset
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.data.message_formats import InternVLMessageFormat
 from src.models.intern_vl_inference import InternVLInferenceEngine
+from src.utils.logger import get_logger
 from src.utils.utils import is_cuda
+
+logger = get_logger(__name__)
 
 
 @pytest.mark.inference
@@ -53,13 +56,15 @@ class TestInternVLInference(unittest.TestCase):
 
         results = []
         for batch in dataloader:
-            messages, questions, labels, q_ids, qa_types = batch
-            predictions = engine.predict_batch(messages)
+            query_items = batch
+            formatted_messages = [[item.formatted_message for item in query_items]]
+
+            predictions = engine.predict_batch(formatted_messages)
             results.extend(predictions)
             self.assertEqual(
                 len(predictions),
-                len(messages),
-                "Predictions should match the number of messages.",
+                len(query_items),
+                "Predictions should match the number of query items in the batch.",
             )
 
         self.assertGreater(len(results), 0, "There should be some predictions made.")
