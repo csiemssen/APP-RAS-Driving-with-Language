@@ -4,6 +4,7 @@ from typing import Any, List
 from torch.utils.data import Dataset
 
 from src.constants import drivelm_dir
+from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.prompts import get_system_prompt
@@ -38,9 +39,11 @@ class DriveLMImageDataset(Dataset):
         split="train",
         add_augmented=False,
         use_grid=False,
+        add_reasoning_context=False,
     ):
         self.message_format = message_format
         self.split = split
+        self.add_reasoning_context = add_reasoning_context
 
         data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
 
@@ -134,6 +137,8 @@ class DriveLMImageDataset(Dataset):
             ground_truth_answer=answer,
         )
 
+        if self.add_reasoning_context and self.split == "train":
+            query_item.context_pairs = generate_reasoning_context(query_item)
         query_item.formatted_message = query_item.format_message(self.message_format)
 
         return query_item

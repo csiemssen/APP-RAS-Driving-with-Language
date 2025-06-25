@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
+from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
@@ -15,11 +16,11 @@ logger = get_logger(__name__)
 
 def evaluate_model(
     engine,
-    reasoning_engine=None,
     dataset_split: str = "val",
     batch_size: int = 2,
     test_set_size: Optional[int] = None,
     use_grid: bool = False,
+    use_reasoning: bool = False,
 ):
     dataset = DriveLMImageDataset(
         engine.message_formatter, dataset_split, use_grid=use_grid
@@ -30,12 +31,15 @@ def evaluate_model(
         dataset, batch_size=batch_size, collate_fn=simple_dict_collate
     )
 
+    if use_reasoning:
+        reasoning_engine = ReasoningEngine(engine)
+
     engine.load_model()
 
     results = []
 
     for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
-        if reasoning_engine is not None:
+        if use_reasoning is not None:
             batch = reasoning_engine.process_batch(batch)
 
         formatted_messages = [[item.formatted_message for item in batch]]

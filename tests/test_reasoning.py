@@ -10,7 +10,10 @@ from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.data.message_formats import InternVLMessageFormat
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.reasoning.reasoning_engine import ReasoningEngine
+from src.utils.logger import get_logger
 from src.utils.utils import is_cuda
+
+logger = get_logger(__name__)
 
 
 @pytest.mark.reasoning

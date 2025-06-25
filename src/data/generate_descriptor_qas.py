@@ -1,3 +1,5 @@
+from typing import List
+
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -15,25 +17,44 @@ def get_relative_position(cam_name: str) -> str:
     return mapping.get(cam_name, "unknown")
 
 
-def generate_descriptor_qa(obj_id, obj_info):
+def generate_descriptor_core_question(obj_ids: List[str]) -> str:
+    if not obj_ids:
+        raise ValueError("Object IDs list cannot be empty.")
+
+    key_objects = ", ".join([f"{obj_id}" for obj_id in obj_ids])
+    if len(obj_ids) == 1:
+        return f"What is the object {key_objects}? What is its state?"
+    return f"What are the objects {key_objects}? What are their states?"
+
+
+def generate_descriptor_question(obj_id: str, obj_info: dict) -> str:
+    obj_id_parts = obj_id.split(",")
+    cam = obj_id_parts[1]
+    coords = obj_id_parts[2:]
+    coords = [coord.strip(">").strip() for coord in coords]
+    coord_str = f"({coords[0]},{coords[1]})"
+    core_question = generate_descriptor_core_question([obj_id])
+    question = (
+        f"The image has a width of 1600 and a height of 900. "
+        f"The key object, identified as {obj_id}, has its bounding box center coordinates at {coord_str} in the {cam} image. "
+        f"{core_question} "
+    )
+    return question
+
+
+def generate_descriptor_answer(obj_id: str, obj_info: dict) -> str:
     desc = obj_info["Visual_description"]
     status = obj_info["Status"] or "unknown"
     obj_id_parts = obj_id.split(",")
     cam = obj_id_parts[1]
-    coords = obj_id_parts[2:]
     pos = get_relative_position(cam)
-    coord_str = f"({coords[0]},{coords[1]})"
-    question = (
-        f"The image has a width of 1600 and a height of 900. "
-        f"The key object, identified as {obj_id}, has its bounding box center coordinates at {coord_str} in the {cam} image. "
-        f"What is the object {obj_id}? What is its state?"
-    )
+    answer = f"{obj_id} is a {desc} to the {pos} of the ego vehicle. It is {status}."
+    return answer
 
-    answer = (
-        f"{obj_id} is a {desc.lower()} to the {pos} of the ego vehicle. "
-        f"It is {status.lower()}."
-    )
 
+def generate_descriptor_qa(obj_id: str, obj_info: dict) -> dict:
+    question = generate_descriptor_question(obj_id, obj_info)
+    answer = generate_descriptor_answer(obj_id, obj_info)
     return {"Q": question, "A": answer}
 
 
@@ -42,7 +63,7 @@ def augment_frame_with_qas(frame):
     qa_aug = [
         generate_descriptor_qa(obj_id, obj_info) for obj_id, obj_info in koi.items()
     ]
-    frame["QA_augmented"] = qa_aug
+    frame["QA"]["augmented"] = qa_aug
     return frame
 
 
