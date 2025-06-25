@@ -42,7 +42,7 @@ def augment_frame_with_qas(frame):
     qa_aug = [
         generate_descriptor_qa(obj_id, obj_info) for obj_id, obj_info in koi.items()
     ]
-    frame["QA_augmented"] = qa_aug
+    frame["QA"]["augmented"] = qa_aug
     return frame
 
 
