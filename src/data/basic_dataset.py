@@ -1,30 +1,23 @@
 import os
-from typing import Any
+from typing import Any, List
 
 from torch.utils.data import Dataset
 
-from src.constants import (
-    drivelm_dir,
-)
+from src.constants import drivelm_dir
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.prompts import get_system_prompt
+from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 from src.utils.utils import remove_nones
 
 logger = get_logger(__name__)
 
+
 # With the current dataset structure and the specific qugestioning of bounding boxes, it is unclear whether the
 # eval will even be transferable to video.
-
-
-def simple_dict_collate(batch: Any):
-    messages = [[m] for m, _, _, _, _ in batch]
-    questions = [q for _, q, _, _, _ in batch]
-    labels = [label for _, _, label, _, _ in batch]
-    q_ids = [q_id for _, _, _, q_id, _ in batch]
-    qa_types = [qa_types for _, _, _, _, qa_types in batch]
-    return messages, questions, labels, q_ids, qa_types
+def simple_dict_collate(batch: List[QueryItem]) -> List[QueryItem]:
+    return batch
 
 
 def prune_key_object_info(koi: dict[str, Any]):
@@ -131,12 +124,16 @@ class DriveLMImageDataset(Dataset):
         image_path = qa["image_path"]
         system_prompt = get_system_prompt(qa["qa_type"])
 
-        return (
-            self.message_format.format(
-                question, key_object_info, image_path, system_prompt, answer
-            ),
-            question,
-            answer,
-            qa["id"],
-            qa["qa_type"],
+        query_item = QueryItem(
+            question=question,
+            image_path=image_path,
+            qa_id=qa["id"],
+            qa_type=qa["qa_type"],
+            key_object_info=key_object_info,
+            system_prompt=system_prompt,
+            ground_truth_answer=answer,
         )
+
+        query_item.formatted_message = query_item.format_message(self.message_format)
+
+        return query_item

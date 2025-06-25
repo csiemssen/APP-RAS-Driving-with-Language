@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 
 def evaluate_model(
     engine,
+    reasoning_engine=None,
     dataset_split: str = "val",
     batch_size: int = 2,
     test_set_size: Optional[int] = None,
@@ -34,14 +35,18 @@ def evaluate_model(
     results = []
 
     for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
-        messages, questions, labels, q_ids, qa_types = batch
-        batch_results = engine.predict_batch(messages)
+        if reasoning_engine is not None:
+            batch = reasoning_engine.process_batch(batch)
+
+        formatted_messages = [[item.formatted_message for item in batch]]
+
+        batch_results = engine.predict_batch(formatted_messages)
 
         for i, result in enumerate(batch_results):
             results.append(
                 {
-                    "id": q_ids[i],
-                    "question": questions[i],
+                    "id": batch[i].qa_id,
+                    "question": batch[i].question,
                     "answer": result,
                 }
             )
