@@ -30,7 +30,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## 🐳 Docker Image
-            Docker Hub URL: [View Packages](https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25/tags)
+            Docker Hub URL: [View Packages](https://hub.docker.com/r/${{ secrets.DOCKERHUB_USERNAME }}/app-ras-25/tags)
 
             Evaluation Image:
             ``` bash
