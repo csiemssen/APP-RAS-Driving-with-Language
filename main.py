@@ -3,7 +3,10 @@ from argparse import ArgumentParser
 from src.eval.eval_models import evaluate_model
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
+from src.utils.logger import get_logger
 from src.utils.utils import is_cuda
+
+logger = get_logger(__name__)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -40,10 +43,14 @@ if __name__ == "__main__":
         if approach in approach_kwargs_map:
             kwargs.update(approach_kwargs_map[approach])
 
+    approach_name = "_".join(args.approach)
+
+    logger.info(f"Running with approach: {approach_name}")
+
     if args.train:
         train(
-            args.approach,
-            args.test_set_size,
+            approach_name=approach_name,
+            test_set_size=args.test_set_size,
             **kwargs,
         )
     elif args.eval:
