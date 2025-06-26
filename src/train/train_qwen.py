@@ -20,19 +20,18 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 
-import transformers
 import pandas as pd
+import transformers
 from peft import LoraConfig
+from qwen_vl_utils import process_vision_info
 from transformers import Trainer
 from transformers.trainer import ALL_LAYERNORM_LAYERS, get_parameter_names
-from qwen_vl_utils import process_vision_info
 
-from src.constants import model_output_dir, model_log_dir
+from src.constants import model_log_dir, model_output_dir
 from src.data.basic_dataset import DriveLMImageDataset
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing
-
 
 logger = get_logger(__name__)
 
@@ -80,7 +79,6 @@ def set_model(model):
 
 
 def create_optimizer(self):
-
     opt_model = self.model
 
     if self.optimizer is None:
@@ -259,18 +257,17 @@ def create_optimizer(self):
 
 # TODO: Look into the deepspeed config
 def train(
-        approach_name: str, 
-        test_set_size: Optional[int | None]=None,
-        use_grid: bool=False,
-    ):
+    approach_name: str,
+    test_set_size: Optional[int | None] = None,
+    use_grid: bool = False,
+    use_augmented: bool = False,
+):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
     engine = QwenVLInferenceEngine(use_4bit=True, training=True)
 
     def collator(batch: Any):
         texts = [
-            engine.processor.apply_chat_template(
-                data["messages"], tokenize=False
-            )
+            engine.processor.apply_chat_template(data["messages"], tokenize=False)
             for data in batch
         ]
         image_inputs, video_inputs = process_vision_info(
@@ -289,19 +286,18 @@ def train(
         labels = batch["input_ids"].clone()
         labels[labels == engine.processor.tokenizer.pad_token_id] = -100
         batch["labels"] = labels
-        
+
         return batch
 
     dataset = DriveLMImageDataset(
-        engine.training_message_formatter, 
+        engine.training_message_formatter,
         split="train",
         use_grid=use_grid,
+        add_augmented=use_augmented,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
-    dataset = [
-        message for message, _, _, _, _ in dataset
-    ]
+    dataset = [message for message, _, _, _, _ in dataset]
 
     engine.load_model()
 
@@ -312,17 +308,19 @@ def train(
         def make_inputs_require_grad(module, input, output):
             output.requires_grad_(True)
 
-        engine.model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
+        engine.model.get_input_embeddings().register_forward_hook(
+            make_inputs_require_grad
+        )
 
     set_model(engine.model)
 
     lora_config = LoraConfig(
         lora_alpha=16,
-        lora_dropout=.05,
+        lora_dropout=0.05,
         r=8,
         bias="none",
         target_modules=["q_proj", "v_proj"],
-        task_type="CAUSAL_LM"
+        task_type="CAUSAL_LM",
     )
     engine.model.add_adapter(lora_config)
     engine.model.config.use_cache = False
@@ -331,7 +329,7 @@ def train(
     log_trainable_parameters(engine.model)
 
     trainer = Trainer(
-        model=engine.model, 
+        model=engine.model,
         processing_class=engine.processor.tokenizer,
         args=TrainingArguments(
             remove_unused_columns=False,
@@ -350,6 +348,4 @@ def train(
 
     trainer.save_state()
 
-    pd.DataFrame(trainer.state.log_history).to_csv(
-        model_log_dir / (name + ".csv")
-    )
+    pd.DataFrame(trainer.state.log_history).to_csv(model_log_dir / (name + ".csv"))

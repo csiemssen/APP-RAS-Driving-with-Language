@@ -2,25 +2,27 @@ from argparse import ArgumentParser
 
 from src.eval.eval_models import evaluate_model
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
-from src.utils.utils import is_cuda
 from src.train.train_qwen import train
+from src.utils.logger import get_logger
+from src.utils.utils import is_cuda
+
+logger = get_logger(__name__)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
-        "--train", 
+        "--train",
         help="Set to finetune the current model",
         action="store_true",
     )
     parser.add_argument(
-        "--eval",
-        help="Set to evaluate the current model",
-        action="store_true"
+        "--eval", help="Set to evaluate the current model", action="store_true"
     )
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid"],
+        choices=["front_cam", "image_grid", "descriptor_qas"],
+        nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )
     parser.add_argument(
@@ -30,17 +32,27 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # This should be continually added to so we can just pass this dict every time a new approach is added
+    approach_kwargs_map = {
+        "image_grid": {"use_grid": True},
+        "descriptor_qas": {"use_augmented": True},
+        # Add more approaches here as needed
+    }
+
     kwargs = {}
-    if args.approach == "image_grid":
-        kwargs["use_grid"] = True
+    for approach in args.approach:
+        if approach in approach_kwargs_map:
+            kwargs.update(approach_kwargs_map[approach])
+
+    approach_name = "_".join(args.approach)
+
+    logger.info(f"Running with approach: {approach_name}")
 
     if args.train:
-            train(
-                args.approach,
-                args.test_set_size,
-                **kwargs,
-            )
+        train(
+            approach_name=approach_name,
+            test_set_size=args.test_set_size,
+            **kwargs,
+        )
     elif args.eval:
         if is_cuda():
             engine = QwenVLInferenceEngine(use_4bit=True)
