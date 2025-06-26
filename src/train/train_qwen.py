@@ -308,6 +308,7 @@ def train(
         model=model, 
         processing_class=engine.processor.tokenizer,
         args=TrainingArguments(
+            report_to="none",
             remove_unused_columns=False,
             bf16=True,
             output_dir=model_output_dir / name,
