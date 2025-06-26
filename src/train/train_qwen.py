@@ -339,6 +339,7 @@ def train(
             tf32=True,
             output_dir=model_output_dir / name,
             num_train_epochs=1,
+            auto_find_batch_size=True,
         ),
         train_dataset=dataset,
         data_collator=collator,
