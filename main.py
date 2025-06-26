@@ -18,7 +18,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid"],
+        choices=["front_cam", "image_grid", "descriptor_qas"],
+        nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )
     parser.add_argument(
@@ -28,13 +29,16 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # This should be continually added to so we can just pass this dict every time a new approach is added
-    kwargs = {}
-    if args.approach == "image_grid":
-        kwargs["use_grid"] = True
+    approach_kwargs_map = {
+        "image_grid": {"use_grid": True},
+        "descriptor_qas": {"use_augmented": True},
+        # Add more approaches here as needed
+    }
 
-    if args.approach == "descriptor_qas":
-        kwargs["use_augmented"] = True
+    kwargs = {}
+    for approach in args.approach:
+        if approach in approach_kwargs_map:
+            kwargs.update(approach_kwargs_map[approach])
 
     if args.train:
         train(
