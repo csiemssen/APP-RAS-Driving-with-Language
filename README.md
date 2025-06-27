@@ -33,6 +33,12 @@ To run the eval, make sure to mount the output directory:
 ```shell
 docker run --gpus all -v ./data/output:/app/data/output <img-name>
 ```
+
+## Notebooks
+You can find the notebooks in the `notebooks` directory. The notebooks are used to run the training and evaluation of the models. 
+[![Open Training Notebook In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/train.ipynb)]
+- [Open Eval Notebook In Colab](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/eval.ipynb)
+
 ## Eval results
 
 | Folder | File | accuracy | chatgpt | language/Bleu_1 | language/Bleu_2 | language/Bleu_3 | language/Bleu_4 | language/ROUGE_L | language/CIDEr | match | final_score |
