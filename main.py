@@ -30,6 +30,11 @@ if __name__ == "__main__":
         help="Number of samples to test the current approach and pipeline with.",
         default=None,
     )
+    parser.add_argument(
+        "--batch_size",
+        help="The batch size to use for training / evaluation.",
+        default="1",
+    )
     args = parser.parse_args()
 
     approach_kwargs_map = {
@@ -50,6 +55,7 @@ if __name__ == "__main__":
     if args.train:
         train(
             approach_name=approach_name,
+            batch_size=args.batch_size,
             test_set_size=args.test_set_size,
             **kwargs,
         )
@@ -62,7 +68,7 @@ if __name__ == "__main__":
         evaluate_model(
             engine=engine,
             dataset_split="val",
-            batch_size=30,
+            batch_size=args.batch_size,
             test_set_size=args.test_set_size,
             **kwargs,
         )

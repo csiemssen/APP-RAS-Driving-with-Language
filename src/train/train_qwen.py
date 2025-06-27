@@ -245,7 +245,8 @@ def create_optimizer(self):
 # TODO: Look into the deepspeed config
 def train(
     approach_name: str,
-    test_set_size: Optional[int | None] = None,
+    batch_size: str,
+    test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_augmented: bool = False,
 ):
@@ -309,7 +310,7 @@ def train(
             bf16=True,
             output_dir=model_output_dir / name,
             num_train_epochs=1,
-            per_device_train_batch_size=4,
+            per_device_train_batch_size=int(batch_size),
             gradient_accumulation_steps=4,
             warmup_steps=2,
         ),

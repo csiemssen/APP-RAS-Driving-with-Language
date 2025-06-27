@@ -50,10 +50,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             device_map="auto",
         )
 
-        if self.training:
-            # replace_qwen2_vl_attention_class()
-            pass
-        else:
+        if not self.training:
             self.model = self.model.eval()
 
         h, w = 900, 1600
