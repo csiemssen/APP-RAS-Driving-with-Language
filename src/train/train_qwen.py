@@ -258,6 +258,7 @@ def create_optimizer(self):
 # TODO: Look into the deepspeed config
 def train(
     approach_name: str,
+    resize_factor: float,
     test_set_size: Optional[int | None] = None,
     use_grid: bool = False,
     use_augmented: bool = False,
@@ -291,6 +292,7 @@ def train(
 
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
+        resize_factor=resize_factor,
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,

@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 class QwenVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
+        resize_factor: float,
         model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct",
         use_4bit: bool = False,
         torch_dtype: Optional[torch.dtype] = None,
@@ -31,6 +32,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             revision=revision,
             device=device,
         )
+        self.resize_factor = resize_factor
         self.model = None
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
@@ -56,7 +58,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         else:
             self.model = self.model.eval()
 
-        h, w = 900, 1600
+        h = 900 * 2 * self.resize_factor
+        w = 1600 * 3 * self.resize_factor
         patch_size = 28
         num_img_tokens = (h // patch_size) * (w // patch_size)
         num_img_pixel = num_img_tokens * patch_size * patch_size

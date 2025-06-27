@@ -38,14 +38,14 @@ def get_ds(split: str) -> None:
             id="18f8ygNxGZWat-crUjroYuQbd39Sk9xCo",
             output=out_name,
         )
-        extract_children(out_name, nuscenes_dir)
+        extract_children(out_name, nuscenes_dir / "samples")
         gdown.download(
             id="1fsVP7jOpvChcpoXVdypaZ4HREX1gA7As",
             output=os.path.join(drivelm_dir, "v1_1_val_nus_q_only.json"),
         )
 
 
-def load_dataset(split: str, add_augmented: bool = False, use_grid: bool = False):
+def load_dataset(split: str, resize_factor: float, add_augmented: bool = False, use_grid: bool = False):
     dataset_paths = {
         "train": drivelm_train_json,
         "val": drivelm_val_json,
@@ -65,6 +65,6 @@ def load_dataset(split: str, add_augmented: bool = False, use_grid: bool = False
         data = generate_descriptor_qas(data)
 
     if use_grid:
-        data = create_image_grid_dataset(data)
+        data = create_image_grid_dataset(data, resize_factor)
 
     return data
