@@ -1,5 +1,5 @@
 ## BUILD FLASH-ATTN
-FROM nvidia/cuda:12.9.0-cudnn-devel-ubuntu24.04 AS dependencies
+FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS dependencies
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/root/.local/bin:$PATH"
@@ -22,7 +22,7 @@ RUN pip install --upgrade pip && \
 
 
 ## FINAL BUILD
-FROM nvidia/cuda:12.9.0-cudnn-devel-ubuntu24.04 AS final
+FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 AS final
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/venv/bin:$PATH"
@@ -38,4 +38,4 @@ COPY --from=dependencies /app/venv /app/venv
 # Copy project files
 COPY . /app
 
-CMD ["python", "main.py", "--eval", "--approach", "image_grid"]
+CMD ["python", "main.py", "--eval", "--batch_size", "30", "--approach", "image_grid"]
