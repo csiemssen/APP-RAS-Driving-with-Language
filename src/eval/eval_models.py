@@ -16,21 +16,23 @@ logger = get_logger(__name__)
 def evaluate_model(
     engine,
     resize_factor: float,
+    batch_size: str,
     dataset_split: str = "val",
-    batch_size: int = 2,
-    test_set_size: Optional[int] = None,
+    test_set_size: Optional[str] = None,
     use_grid: bool = False,
+    use_augmented: bool = False,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         resize_factor=resize_factor,
         split=dataset_split,
         use_grid=use_grid,
+        add_augmented=use_augmented,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataloader = DataLoader(
-        dataset, batch_size=batch_size, collate_fn=simple_dict_collate
+        dataset, batch_size=int(batch_size), collate_fn=simple_dict_collate
     )
 
     engine.load_model()
