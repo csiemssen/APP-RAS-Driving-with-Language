@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 
 def evaluate_model(
     engine,
+    resize_factor: float,
     batch_size: str,
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,
@@ -22,8 +23,9 @@ def evaluate_model(
     use_augmented: bool = False,
 ):
     dataset = DriveLMImageDataset(
-        engine.message_formatter,
-        dataset_split,
+        message_format=engine.message_formatter,
+        resize_factor=resize_factor,
+        split=dataset_split,
         use_grid=use_grid,
         add_augmented=use_augmented,
     )
