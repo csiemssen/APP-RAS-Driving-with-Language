@@ -246,7 +246,6 @@ def create_optimizer(self):
 def train(
     approach_name: str,
     resize_factor: float,
-    test_set_size: Optional[int | None] = None,
     batch_size: str,
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
