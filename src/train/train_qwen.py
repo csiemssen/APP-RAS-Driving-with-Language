@@ -262,7 +262,7 @@ def train(
             [data["messages"][0] for data in batch]
         )
 
-        batch = engine.processor(
+        processed_batch = engine.processor(
             text=texts,
             images=image_inputs,
             videos=video_inputs,
@@ -271,11 +271,24 @@ def train(
             padding_side="left",
         )
 
-        labels = batch["input_ids"].clone()
-        labels[labels == engine.processor.tokenizer.pad_token_id] = -100
-        batch["labels"] = labels
+        labels = processed_batch["input_ids"].clone()
 
-        return batch
+        for i, data in enumerate(batch):
+            assistant_idx = next(
+                j for data in batch for j, m in 
+                enumerate(data["messages"]) if m["role"] == "assistant"
+            )
+
+            pre_text = engine.processor.apply_chat_template(data["messages"][:assistant_idx], tokenize=False)
+            pre_tokens = engine.processor.tokenizer(pre_text, return_tensors="pt")["input_ids"]
+
+            # Mask everything up to assistant
+            labels[i, : pre_tokens[0].shape[0]] = -100
+
+        labels[labels == engine.processor.tokenizer.pad_token_id] = -100
+        processed_batch["labels"] = labels
+
+        return processed_batch
 
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
