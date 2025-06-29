@@ -252,7 +252,7 @@ def train(
     use_augmented: bool = False,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
-    engine = QwenVLInferenceEngine(use_4bit=True, training=True)
+    engine = QwenVLInferenceEngine(use_4bit=True, training=True, resize_factor=resize_factor)
 
     def collator(batch: Any):
         texts = [
