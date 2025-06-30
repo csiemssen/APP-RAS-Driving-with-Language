@@ -324,7 +324,6 @@ def train(
             report_to="none",
             remove_unused_columns=False,
             bf16=True,
-            output_dir=model_output_dir / name,
             num_train_epochs=1,
             per_device_train_batch_size=int(batch_size),
             gradient_accumulation_steps=4,
@@ -338,6 +337,6 @@ def train(
 
     logger.info(f"Done training. Saving the model to: {model_output_dir / name}")
 
-    trainer.save_state()
+    trainer.model.save_pretrained(model_output_dir / name)
 
     pd.DataFrame(trainer.state.log_history).to_csv(model_log_dir / (name + ".csv"))
