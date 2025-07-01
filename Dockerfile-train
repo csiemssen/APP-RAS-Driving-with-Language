@@ -38,4 +38,4 @@ COPY --from=dependencies /app/venv /app/venv
 # Copy project files
 COPY . /app
 
-CMD ["python", "main.py", "--train", "--test_set_size", "37795", "--batch_size", "4", "--approach", "image_grid", "descriptor_qas"]
+CMD ["python", "main.py", "--train", "--test_set_size", "37795", "--batch_size", "4", "--approach", "image_grid", "descriptor_qas", "reasoning"]
