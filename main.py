@@ -33,6 +33,11 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
+        "--resize_factor",
+        help="Resize factor to apply to the images. Original size is (1600 x 900). Currently only applied if using image_grid approach.",
+        default="1.0",
+    )
+    parser.add_argument(
         "--batch_size",
         help="The batch size to use for training / evaluation.",
         default="1",
@@ -54,6 +59,8 @@ if __name__ == "__main__":
         # Add more approaches here as needed
     }
 
+    resize_factor = float(args.resize_factor)
+
     kwargs = {}
     for approach in args.approach:
         if approach in approach_kwargs_map:
@@ -68,22 +75,25 @@ if __name__ == "__main__":
             approach_name=approach_name,
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
+            resize_factor=resize_factor,
             **kwargs,
         )
     elif args.eval:
         if is_cuda():
             engine = QwenVLInferenceEngine(
                 model_path=model_path,
-                use_4bit=True
+                use_4bit=True,
+                resize_factor=resize_factor,
             )
         else:
-            engine = QwenVLInferenceEngine()
+            engine = QwenVLInferenceEngine(resize_factor=resize_factor)
 
         evaluate_model(
             engine=engine,
             dataset_split="val",
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
+            resize_factor=resize_factor,
             **kwargs,
         )
     else:

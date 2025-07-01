@@ -42,6 +42,7 @@ class DriveLMImageDataset(Dataset):
     def __init__(
         self,
         message_format: MessageFormat,
+        resize_factor: float,
         split="train",
         add_augmented=False,
         use_grid=False,
@@ -49,7 +50,7 @@ class DriveLMImageDataset(Dataset):
         self.message_format = message_format
         self.split = split
 
-        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
+        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid, resize_factor=resize_factor)
 
         removed = 0
         qa_list = []
