@@ -106,6 +106,6 @@ def create_image_grid_dataset(data, override=False):
                 }
                 grid_img = create_grid_image_with_labels(image_paths, resize_factor=0.5)
                 grid_img.save(grid_path)
-                logger.info(f"Saved grid image: {grid_path}")
+                logger.debug(f"Saved grid image: {grid_path}")
 
     return data
