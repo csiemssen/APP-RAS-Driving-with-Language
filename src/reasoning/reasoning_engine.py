@@ -27,6 +27,11 @@ class ReasoningEngine:
                 continue
 
             key_objects = parse_key_objects(item.question)
+            if not key_objects:
+                logger.debug(
+                    f"No key objects found in question: {item.question}. Skipping reasoning context generation."
+                )
+                continue
             descriptor_question = generate_descriptor_core_question(key_objects)
 
             if descriptor_question:
