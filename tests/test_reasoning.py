@@ -32,7 +32,6 @@ class TestReasoningInternVL(unittest.TestCase):
 
         reasoning_engine = ReasoningEngine(engine)
 
-        # Load the dataset
         dataset = DriveLMImageDataset(
             InternVLMessageFormat(), split="val", use_grid=True
         )
@@ -49,7 +48,6 @@ class TestReasoningInternVL(unittest.TestCase):
         for batch in dataloader:
             processed_batch = reasoning_engine.process_batch(batch)
 
-            # Verify that context pairs were added
             for original_item, processed_item in zip(batch, processed_batch):
                 self.assertEqual(
                     original_item.qa_id,

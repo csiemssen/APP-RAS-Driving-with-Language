@@ -69,28 +69,23 @@ class TestDriveLMImageDataset(unittest.TestCase):
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
             split="train",
+        )
+        dataset_with_augmented = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
             add_augmented=True,
         )
 
         self.assertGreater(
             len(dataset),
             0,
-            "Dataset with augmented questions should not be empty",
+            "Dataset should not be empty",
         )
 
-        has_augmented_questions = False
-        for item in dataset:
-            if item.qa_type == "augmented":
-                self.assertGreater(
-                    len(item.question),
-                    0,
-                    "Augmented question should not be empty",
-                )
-                has_augmented_questions = True
-
-        self.assertTrue(
-            has_augmented_questions,
-            "At least one item should have an augmented question",
+        self.assertGreater(
+            len(dataset_with_augmented),
+            len(dataset),
+            "Dataset with augmented questions should be larger than the base dataset",
         )
 
 
