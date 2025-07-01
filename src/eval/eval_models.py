@@ -21,13 +21,11 @@ def evaluate_model(
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_reasoning: bool = False,
-    use_augmented: bool = False,
 ):
     dataset = DriveLMImageDataset(
         engine.message_formatter,
         dataset_split,
         use_grid=use_grid,
-        add_augmented=use_augmented,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
