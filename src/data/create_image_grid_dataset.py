@@ -81,7 +81,10 @@ def create_grid_image_with_labels(
 
             draw.text((label_x, label_y), label_text, fill="red", font=font)
         except Exception as e:
-            print(f"Error processing {cam}: {e}")
+            logger.error(f"Error processing {cam}: {e}")
+            raise RuntimeError(
+                f"Failed to process image {img_path}. Ensure the file exists and is a valid image."
+            )
 
     return grid_img
 
