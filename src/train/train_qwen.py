@@ -22,7 +22,7 @@ from typing import Any, Optional
 
 import pandas as pd
 import transformers
-from peft import LoraConfig
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from qwen_vl_utils import process_vision_info
 from transformers import Trainer
 from transformers.trainer import ALL_LAYERNORM_LAYERS, get_parameter_names
@@ -63,19 +63,6 @@ def log_trainable_parameters(model):
     logger.info(
         f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
     )
-
-
-def set_model(model):
-    """
-    Set grad to True for LLM part of the model only.
-    """
-    for n, p in model.visual.named_parameters():
-        p.requires_grad = False
-    for n, p in model.visual.merger.named_parameters():
-        p.requires_grad = False
-    for n, p in model.model.named_parameters():
-        p.requires_grad = True
-    model.lm_head.requires_grad = True
 
 
 def create_optimizer(self):
@@ -258,8 +245,10 @@ def create_optimizer(self):
 # TODO: Look into the deepspeed config
 def train(
     approach_name: str,
-    test_set_size: Optional[int | None] = None,
+    batch_size: str,
+    test_set_size: Optional[str] = None,
     use_grid: bool = False,
+    use_augmented: bool = False,
     use_reasoning: bool = False,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
@@ -294,25 +283,16 @@ def train(
         split="train",
         use_grid=use_grid,
         add_reasoning_context=use_reasoning,
+        add_augmented=use_augmented,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataset = [message for message, _, _, _, _ in dataset]
 
-    engine.load_model()
-
-    if hasattr(engine.model, "enable_input_require_grads"):
-        engine.model.enable_input_require_grads()
-    else:
-
-        def make_inputs_require_grad(module, input, output):
-            output.requires_grad_(True)
-
-        engine.model.get_input_embeddings().register_forward_hook(
-            make_inputs_require_grad
-        )
-
-    set_model(engine.model)
+    engine.load_model(flash_attn=False)
+    model = prepare_model_for_kbit_training(
+        engine.model, use_gradient_checkpointing=True
+    )
 
     lora_config = LoraConfig(
         lora_alpha=16,
@@ -322,21 +302,21 @@ def train(
         target_modules=["q_proj", "v_proj"],
         task_type="CAUSAL_LM",
     )
-    engine.model.add_adapter(lora_config)
-    engine.model.config.use_cache = False
-    engine.model.gradient_checkpointing_enable()
-
-    log_trainable_parameters(engine.model)
+    model = get_peft_model(engine.model, lora_config)
+    log_trainable_parameters(model)
 
     trainer = Trainer(
-        model=engine.model,
+        model=model,
         processing_class=engine.processor.tokenizer,
         args=TrainingArguments(
+            report_to="none",
             remove_unused_columns=False,
             bf16=True,
-            tf32=True,
             output_dir=model_output_dir / name,
             num_train_epochs=1,
+            per_device_train_batch_size=int(batch_size),
+            gradient_accumulation_steps=4,
+            warmup_steps=2,
         ),
         train_dataset=dataset,
         data_collator=collator,

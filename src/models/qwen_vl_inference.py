@@ -38,8 +38,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         self.training_message_formatter = QwenTrainingMessageFormat()
         self.training = training
 
-    def load_model(self) -> None:
-        attn_implementation = "eager" if is_mps() else "flash_attention_2"
+    def load_model(self, flash_attn: bool = True) -> None:
+        attn_implementation = "flash_attention_2" if flash_attn else None
 
         self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             self.model_path,
@@ -50,10 +50,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             device_map="auto",
         )
 
-        if self.training:
-            # replace_qwen2_vl_attention_class()
-            pass
-        else:
+        if not self.training:
             self.model = self.model.eval()
 
         h, w = 900, 1600
