@@ -199,3 +199,6 @@ backup/
 
 # ignore vscode config
 .vscode/
+
+# ignore external dependencies
+/external/*
