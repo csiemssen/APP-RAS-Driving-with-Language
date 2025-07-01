@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional
 
 import torch
+from peft import PeftModel
 from qwen_vl_utils import process_vision_info
 from transformers import (
     AutoProcessor,
@@ -19,7 +20,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
         resize_factor: float,
-        model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct",
+        model_path: Optional[str] = None,
         use_4bit: bool = False,
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
@@ -33,6 +34,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             device=device,
         )
         self.resize_factor = resize_factor
+        self.processor_path = "Qwen/Qwen2.5-VL-3B-Instruct"
+        self.model_path = self.processor_path if model_path is None else model_path
         self.model = None
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
@@ -62,7 +65,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         num_img_pixel = num_img_tokens * patch_size * patch_size
 
         self.processor = AutoProcessor.from_pretrained(
-            self.model_path, 
+            self.processor_path, 
             revision=self.revision,
             min_pixels=num_img_pixel-(num_img_pixel*.1), # Allow for some leeway to be sure
             max_pixels=num_img_pixel+(num_img_pixel*.1)
