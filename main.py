@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from src.eval.eval_models import evaluate_model
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
+from src.utils.approach import get_approach_kwargs, get_approach_name
 from src.utils.logger import get_logger
 from src.utils.utils import is_cuda
 
@@ -37,19 +38,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    approach_kwargs_map = {
-        "image_grid": {"use_grid": True},
-        "descriptor_qas": {"use_augmented": True},
-        "reasoning": {"use_reasoning": True},
-        # Add more approaches here as needed
-    }
+    # add more approaches in get_approach_kwargs
+    kwargs = get_approach_kwargs(args.approach)
 
-    kwargs = {}
-    for approach in args.approach:
-        if approach in approach_kwargs_map:
-            kwargs.update(approach_kwargs_map[approach])
-
-    approach_name = "_".join(args.approach)
+    approach_name = get_approach_name(args.approach)
 
     logger.info(f"Running with approach: {approach_name}")
 
