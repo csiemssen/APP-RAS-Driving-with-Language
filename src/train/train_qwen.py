@@ -282,8 +282,8 @@ def train(
         engine.training_message_formatter,
         split="train",
         use_grid=use_grid,
-        add_reasoning_context=use_reasoning,
         add_augmented=use_augmented,
+        add_reasoning_context=use_reasoning,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))

@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid", "descriptor_qas"],
+        choices=["front_cam", "image_grid", "descriptor_qas", "reasoning"],
         nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )
@@ -40,6 +40,7 @@ if __name__ == "__main__":
     approach_kwargs_map = {
         "image_grid": {"use_grid": True},
         "descriptor_qas": {"use_augmented": True},
+        "reasoning": {"use_reasoning": True},
         # Add more approaches here as needed
     }
 
@@ -51,9 +52,6 @@ if __name__ == "__main__":
     approach_name = "_".join(args.approach)
 
     logger.info(f"Running with approach: {approach_name}")
-
-    if args.approach == "reasoning":
-        kwargs["use_reasoning"] = True
 
     if args.train:
         train(
