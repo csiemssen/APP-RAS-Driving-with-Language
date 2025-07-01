@@ -1,5 +1,6 @@
 import os
 
+import tqdm
 from PIL import Image, ImageDraw, ImageFont
 
 from src.constants import drivelm_dir, fonts_dir, grid_dir
@@ -92,7 +93,9 @@ def create_grid_image_with_labels(
 def create_image_grid_dataset(data, override=False):
     grid_dir.mkdir(parents=True, exist_ok=True)
 
-    for scene_id, scene_data in data.items():
+    for scene_id, scene_data in tqdm.tqdm(
+        data.items(), desc="Creating grid images for scenes"
+    ):
         for key_frame_id, key_frame_data in scene_data["key_frames"].items():
             image_paths = key_frame_data["image_paths"]
             image_name = f"{scene_id}_{key_frame_id}__GRID.jpg"
