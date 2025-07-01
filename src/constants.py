@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 
 src_dir = Path(__file__).parent.resolve()
@@ -14,7 +13,4 @@ model_dir = src_dir / ".." / "models"
 model_output_dir = model_dir / "hf_dumps"
 model_log_dir = model_dir / "logs"
 fonts_dir = data_dir / "fonts"
-
 pointbev_dir = project_root / "external" / "pointbev"
-if str(pointbev_dir) not in sys.path:
-    sys.path.append(str(pointbev_dir))
