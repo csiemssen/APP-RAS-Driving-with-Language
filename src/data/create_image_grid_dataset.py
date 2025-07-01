@@ -9,7 +9,6 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-# TODO: We should make the resize factor settable more easilly
 def create_grid_image_with_labels(
     image_paths: dict,
     resize_factor: float,
