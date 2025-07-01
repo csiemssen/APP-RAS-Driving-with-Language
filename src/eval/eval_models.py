@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
+from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 
 
 def evaluate_model(
-    engine,
+    engine: BaseInferenceEngine,
     batch_size: str,
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,

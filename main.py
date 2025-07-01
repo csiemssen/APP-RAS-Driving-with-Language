@@ -1,5 +1,7 @@
+import os
 from argparse import ArgumentParser
 
+from src.constants import model_dir
 from src.eval.eval_models import evaluate_model
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
@@ -35,7 +37,16 @@ if __name__ == "__main__":
         help="The batch size to use for training / evaluation.",
         default="1",
     )
+    parser.add_argument(
+        "--model_path",
+        help="The path of the finetuned model to use.",
+        default=None,
+    )
     args = parser.parse_args()
+
+    model_path = None
+    if args.model_path:
+        model_path = os.path.join(model_dir, args.model_path)
 
     approach_kwargs_map = {
         "image_grid": {"use_grid": True},
@@ -61,7 +72,10 @@ if __name__ == "__main__":
         )
     elif args.eval:
         if is_cuda():
-            engine = QwenVLInferenceEngine(use_4bit=True)
+            engine = QwenVLInferenceEngine(
+                model_path=model_path,
+                use_4bit=True
+            )
         else:
             engine = QwenVLInferenceEngine()
 
