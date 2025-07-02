@@ -310,7 +310,7 @@ def train(
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
-    dataset = [message for message, _, _, _, _ in dataset]
+    dataset = [[item.formatted_message] for item in dataset]
 
     engine.load_model(flash_attn=False)
     model = prepare_model_for_kbit_training(
