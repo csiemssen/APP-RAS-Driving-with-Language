@@ -45,11 +45,6 @@ def generate_reasoning_context(item: QueryItem) -> List[Tuple[str, str]]:
 def generate_descriptor_question_ground_truth(
     key_objects: List[str], key_object_info: Dict[str, Any]
 ) -> str:
-    if not key_object_info:
-        raise ValueError(
-            "Key object information is required to generate ground truth answer."
-        )
-
     answers = []
     for obj_id in key_objects:
         # Add back the angle brackets for matching with key_object_info keys
