@@ -80,7 +80,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
             )
 
         logger.info(
-            f"Generated {len(responses)} responses for batch of size {len(messages)}"
+            f"Generated {len(responses)} responses for batch of size {len(texts)}"
         )
 
         return responses

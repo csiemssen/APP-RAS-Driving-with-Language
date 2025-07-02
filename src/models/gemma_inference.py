@@ -105,7 +105,7 @@ class GemmaInferenceEngine(BaseInferenceEngine):
         )
 
         logger.info(
-            f"Generated {len(output_text)} responses for batch of size {len(messages)}"
+            f"Generated {len(output_text)} responses for batch of size {len(texts)}"
         )
 
         return output_text
