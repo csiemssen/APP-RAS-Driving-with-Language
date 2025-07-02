@@ -2,15 +2,14 @@ from typing import Dict, List, Optional
 
 import torch
 from qwen_vl_utils import process_vision_info
-from transformers import (
-    AutoProcessor,
-    Qwen2_5_VLForConditionalGeneration,
-)
+from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
 
-from src.data.message_formats import QwenMessageFormat, QwenTrainingMessageFormat
+from src.data.message_formats import (
+    QwenMessageFormat,
+    QwenTrainingMessageFormat,
+)
 from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
-from src.utils.utils import is_mps
 
 logger = get_logger(__name__)
 
@@ -18,12 +17,13 @@ logger = get_logger(__name__)
 class QwenVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
-        model_path: str = "Qwen/Qwen2.5-VL-3B-Instruct",
+        resize_factor: float,
+        model_path: Optional[str] = None,
         use_4bit: bool = False,
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
         device: Optional[str] = None,
-        training: bool = False
+        training: bool = False,
     ):
         super().__init__(
             model_path=model_path,
@@ -31,6 +31,9 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             revision=revision,
             device=device,
         )
+        self.resize_factor = resize_factor
+        self.processor_path = "Qwen/Qwen2.5-VL-3B-Instruct"
+        self.model_path = self.processor_path if model_path is None else model_path
         self.model = None
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
@@ -53,16 +56,18 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         if not self.training:
             self.model = self.model.eval()
 
-        h, w = 900, 1600
+        h = 900 * 2 * self.resize_factor
+        w = 1600 * 3 * self.resize_factor
         patch_size = 28
         num_img_tokens = (h // patch_size) * (w // patch_size)
         num_img_pixel = num_img_tokens * patch_size * patch_size
 
         self.processor = AutoProcessor.from_pretrained(
-            self.model_path, 
+            self.processor_path,
             revision=self.revision,
-            min_pixels=num_img_pixel-(num_img_pixel*.1), # Allow for some leeway to be sure
-            max_pixels=num_img_pixel+(num_img_pixel*.1)
+            min_pixels=num_img_pixel
+            - (num_img_pixel * 0.1),  # Allow for some leeway to be sure
+            max_pixels=num_img_pixel + (num_img_pixel * 0.1),
         )
 
         logger.info(f"{self.model_path} loaded and ready.")

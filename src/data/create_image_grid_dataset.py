@@ -1,4 +1,5 @@
 import os
+import math
 
 import tqdm
 from PIL import Image, ImageDraw, ImageFont
@@ -11,8 +12,7 @@ logger = get_logger(__name__)
 
 def create_grid_image_with_labels(
     image_paths: dict,
-    font_size: int = 24,
-    resize_factor: float = 1.0,
+    resize_factor: float,
     text_position: str = "top-left",
 ) -> Image.Image:
     base_width, base_height = 1600, 900
@@ -25,6 +25,9 @@ def create_grid_image_with_labels(
 
     grid_img = Image.new("RGB", (canvas_width, canvas_height), color=(0, 0, 0))
     draw = ImageDraw.Draw(grid_img)
+
+    # Adjust font size scaling using square root of resize factor
+    font_size = int(28 * math.sqrt(resize_factor))
     font = ImageFont.load_default()
     try:
         font = fonts_dir / "Roboto-Regular.ttf"
@@ -85,7 +88,7 @@ def create_grid_image_with_labels(
     return grid_img
 
 
-def create_image_grid_dataset(data, override=False):
+def create_image_grid_dataset(data, resize_factor: int, override=False):
     grid_dir.mkdir(parents=True, exist_ok=True)
 
     for scene_id, scene_data in tqdm.tqdm(
@@ -102,7 +105,9 @@ def create_image_grid_dataset(data, override=False):
                     key: os.path.join(drivelm_dir, path)
                     for key, path in image_paths.items()
                 }
-                grid_img = create_grid_image_with_labels(image_paths, resize_factor=0.5)
+                grid_img = create_grid_image_with_labels(
+                    image_paths, resize_factor=resize_factor
+                )
                 grid_img.save(grid_path)
                 logger.debug(f"Saved grid image: {grid_path}")
 

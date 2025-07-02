@@ -8,6 +8,7 @@ from tqdm import tqdm
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.reasoning.reasoning_engine import ReasoningEngine
+from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
@@ -15,7 +16,8 @@ logger = get_logger(__name__)
 
 
 def evaluate_model(
-    engine,
+    engine: BaseInferenceEngine,
+    resize_factor: float,
     batch_size: str,
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,
@@ -23,8 +25,9 @@ def evaluate_model(
     use_reasoning: bool = False,
 ):
     dataset = DriveLMImageDataset(
-        engine.message_formatter,
-        dataset_split,
+        message_format=engine.message_formatter,
+        resize_factor=resize_factor,
+        split=dataset_split,
         use_grid=use_grid,
     )
     if test_set_size is not None:
