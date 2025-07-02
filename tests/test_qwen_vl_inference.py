@@ -44,7 +44,7 @@ class TestQwenVLInference(unittest.TestCase):
 
         results = []
         for batch in dataloader:
-            messages = [item.formatted_message for item in batch]
+            messages = [[item.formatted_message] for item in batch]
             predictions = engine.predict_batch(messages)
             results.extend(predictions)
             self.assertEqual(

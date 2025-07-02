@@ -57,7 +57,7 @@ class TestInternVLInference(unittest.TestCase):
         results = []
         for batch in dataloader:
             query_items = batch
-            formatted_messages = [[item.formatted_message for item in query_items]]
+            formatted_messages = [[item.formatted_message] for item in query_items]
 
             predictions = engine.predict_batch(formatted_messages)
             results.extend(predictions)
