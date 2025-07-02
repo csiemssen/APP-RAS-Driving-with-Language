@@ -18,7 +18,7 @@ class QueryItem:
 
     context_pairs: List[Tuple[str, str]] = field(default_factory=list)
 
-    def format_message(self, formatter: MessageFormat) -> Any:
+    def format_message(self, formatter: MessageFormat) -> Dict[str, Any]:
         self.formatted_message = formatter.format(
             question=self.question,
             image_path=self.image_path,
