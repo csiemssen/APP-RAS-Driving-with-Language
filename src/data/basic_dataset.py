@@ -36,7 +36,7 @@ class DriveLMImageDataset(Dataset):
     def __init__(
         self,
         message_format: MessageFormat,
-        resize_factor: float,
+        resize_factor: float = 0.5,
         split="train",
         add_augmented=False,
         use_grid=False,
