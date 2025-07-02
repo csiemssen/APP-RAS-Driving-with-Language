@@ -16,9 +16,6 @@ class ReasoningEngine:
         self.engine = engine
 
     def process_batch(self, batch_items: List[QueryItem]) -> List[QueryItem]:
-        if not self.engine:
-            raise ValueError("Inference engine is required for evaluation mode.")
-
         item_map: Dict[str, QueryItem] = {item.qa_id: item for item in batch_items}
         descriptor_items: List[Tuple[str, QueryItem]] = []
 
@@ -65,7 +62,7 @@ class ReasoningEngine:
                         self.engine.message_formatter
                     )
 
-        logger.info(
+        logger.debug(
             f"Processed {len(batch_items)} items with reasoning engine and added {len(descriptor_items)} descriptor qas."
         )
         return batch_items
