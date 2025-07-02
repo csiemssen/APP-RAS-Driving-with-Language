@@ -17,7 +17,7 @@ def generate_reasoning_context(item: QueryItem) -> List[Tuple[str, str]]:
 
     key_objects = parse_key_objects(item.question)
     if not key_objects:
-        logger.info(
+        logger.debug(
             f"No key objects found in question: {item.question}. Skipping reasoning context generation."
         )
         return []
