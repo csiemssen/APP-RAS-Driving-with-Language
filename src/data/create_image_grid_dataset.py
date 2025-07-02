@@ -46,46 +46,41 @@ def create_grid_image_with_labels(
         img_path = image_paths.get(cam)
         if img_path is None:
             continue
-        try:
-            img = Image.open(img_path).convert("RGB")
-            if resize_factor != 1.0:
-                img = img.resize((img_width, img_height), Image.BICUBIC)
 
-            x_offset = col * img_width
-            y_offset = row * img_height
-            grid_img.paste(img, (x_offset, y_offset))
+        img = Image.open(img_path).convert("RGB")
+        if resize_factor != 1.0:
+            img = img.resize((img_width, img_height), Image.BICUBIC)
 
-            label_text = f"<{cam}>"
-            text_bbox = draw.textbbox((0, 0), label_text, font=font)
-            text_width = text_bbox[2] - text_bbox[0]
-            text_height = text_bbox[3] - text_bbox[1]
+        x_offset = col * img_width
+        y_offset = row * img_height
+        grid_img.paste(img, (x_offset, y_offset))
 
-            if text_position == "top-left":
-                label_x = x_offset + 10
-                label_y = y_offset + 10
+        label_text = f"<{cam}>"
+        text_bbox = draw.textbbox((0, 0), label_text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
 
-            elif text_position == "bottom-left":
-                label_x = x_offset + 10
-                label_y = y_offset + img_height - text_height - 10
+        if text_position == "top-left":
+            label_x = x_offset + 10
+            label_y = y_offset + 10
 
-            elif text_position == "top-right":
-                label_x = x_offset + img_width - text_width - 10
-                label_y = y_offset + 10
+        elif text_position == "bottom-left":
+            label_x = x_offset + 10
+            label_y = y_offset + img_height - text_height - 10
 
-            elif text_position == "bottom-right":
-                label_x = x_offset + img_width - text_width - 10
-                label_y = y_offset + img_height - text_height - 10
+        elif text_position == "top-right":
+            label_x = x_offset + img_width - text_width - 10
+            label_y = y_offset + 10
 
-            else:
-                label_x = x_offset + 10
-                label_y = y_offset + 10
+        elif text_position == "bottom-right":
+            label_x = x_offset + img_width - text_width - 10
+            label_y = y_offset + img_height - text_height - 10
 
-            draw.text((label_x, label_y), label_text, fill="red", font=font)
-        except Exception as e:
-            logger.error(f"Error processing {cam}: {e}")
-            raise RuntimeError(
-                f"Failed to process image {img_path}. Ensure the file exists and is a valid image."
-            )
+        else:
+            label_x = x_offset + 10
+            label_y = y_offset + 10
+
+        draw.text((label_x, label_y), label_text, fill="red", font=font)
 
     return grid_img
 
