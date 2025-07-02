@@ -7,8 +7,8 @@ from tqdm import tqdm
 
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
-from src.reasoning.reasoning_engine import ReasoningEngine
 from src.models.base_inference import BaseInferenceEngine
+from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
@@ -44,7 +44,7 @@ def evaluate_model(
     results = []
 
     for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
-        if use_reasoning is not None:
+        if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
         formatted_messages = [[item.formatted_message for item in batch]]
