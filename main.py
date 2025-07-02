@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--resize_factor",
         help="Resize factor to apply to the images. Original size is (1600 x 900). Currently only applied if using image_grid approach.",
-        default="1.0",
+        default="0.5",
     )
     parser.add_argument(
         "--batch_size",
