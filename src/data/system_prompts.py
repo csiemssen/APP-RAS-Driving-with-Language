@@ -2,7 +2,7 @@ def get_general_prompt():
     return (
         "You are an autonomous driving AI assistant. You receive a single image from the front camera. "
         "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center."
-        "Provide accurate, concise, and context-aware response in the appropriate format for the question type that complete the request"
+        "Provide accurate, concise, and context-aware response in the appropriate format for the question type that completes the request"
     )
 
 
