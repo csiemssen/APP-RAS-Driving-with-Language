@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid", "descriptor_qas"],
+        choices=["front_cam", "image_grid", "descriptor_qas", "system_prompt"],
         nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )
@@ -56,6 +56,7 @@ if __name__ == "__main__":
     approach_kwargs_map = {
         "image_grid": {"use_grid": True},
         "descriptor_qas": {"use_augmented": True},
+        "system_prompt": {"use_system_prompt": True},
         # Add more approaches here as needed
     }
 

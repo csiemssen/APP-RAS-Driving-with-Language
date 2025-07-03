@@ -8,7 +8,7 @@ from src.constants import (
 )
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
-from src.data.prompts import get_system_prompt
+from src.data.system_prompts import get_system_prompt
 from src.utils.logger import get_logger
 from src.utils.utils import remove_nones
 
@@ -46,9 +46,11 @@ class DriveLMImageDataset(Dataset):
         split="train",
         add_augmented=False,
         use_grid=False,
+        use_system_prompt=False,
     ):
         self.message_format = message_format
         self.split = split
+        self.use_system_prompt = use_system_prompt
 
         data = load_dataset(
             split,
@@ -135,7 +137,9 @@ class DriveLMImageDataset(Dataset):
         answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
-        system_prompt = get_system_prompt(qa["qa_type"])
+        system_prompt = (
+            get_system_prompt(qa["qa_type"]) if self.use_system_prompt else None
+        )
 
         return (
             self.message_format.format(

@@ -20,12 +20,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 
-import transformers
 import pandas as pd
+import transformers
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from qwen_vl_utils import process_vision_info
 from transformers import Trainer
 from transformers.trainer import ALL_LAYERNORM_LAYERS, get_parameter_names
-from qwen_vl_utils import process_vision_info
 
 from src.constants import model_log_dir, model_output_dir
 from src.data.basic_dataset import DriveLMImageDataset
@@ -250,9 +250,12 @@ def train(
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_augmented: bool = False,
+    use_system_prompt: bool = False,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
-    engine = QwenVLInferenceEngine(use_4bit=True, training=True, resize_factor=resize_factor)
+    engine = QwenVLInferenceEngine(
+        use_4bit=True, training=True, resize_factor=resize_factor
+    )
 
     def collator(batch: Any):
         texts = [
@@ -276,12 +279,18 @@ def train(
 
         for i, data in enumerate(batch):
             assistant_idx = next(
-                j for data in batch for j, m in 
-                enumerate(data["messages"]) if m["role"] == "assistant"
+                j
+                for data in batch
+                for j, m in enumerate(data["messages"])
+                if m["role"] == "assistant"
             )
 
-            pre_text = engine.processor.apply_chat_template(data["messages"][:assistant_idx], tokenize=False)
-            pre_tokens = engine.processor.tokenizer(pre_text, return_tensors="pt")["input_ids"]
+            pre_text = engine.processor.apply_chat_template(
+                data["messages"][:assistant_idx], tokenize=False
+            )
+            pre_tokens = engine.processor.tokenizer(pre_text, return_tensors="pt")[
+                "input_ids"
+            ]
 
             # Mask everything up to assistant
             labels[i, : pre_tokens[0].shape[0]] = -100
@@ -290,7 +299,6 @@ def train(
         processed_batch["labels"] = labels
 
         return processed_batch
-    
 
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
@@ -298,13 +306,16 @@ def train(
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,
+        use_system_prompt=use_system_prompt,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
     dataset = [message for message, _, _, _, _ in dataset]
 
     engine.load_model(flash_attn=False)
-    model = prepare_model_for_kbit_training(engine.model, use_gradient_checkpointing=True)
+    model = prepare_model_for_kbit_training(
+        engine.model, use_gradient_checkpointing=True
+    )
 
     lora_config = LoraConfig(
         lora_alpha=16,
@@ -318,7 +329,7 @@ def train(
     log_trainable_parameters(model)
 
     trainer = Trainer(
-        model=model, 
+        model=model,
         processing_class=engine.processor.tokenizer,
         args=TrainingArguments(
             report_to="none",
