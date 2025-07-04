@@ -24,9 +24,7 @@ class TestQwenVLInference(unittest.TestCase):
             engine = QwenVLInferenceEngine("Qwen/Qwen2.5-VL-3B-Instruct")
 
         engine.load_model()
-        self.assertIsNotNone(
-            engine.model, "Model should be loaded successfully."
-        )
+        self.assertIsNotNone(engine.model, "Model should be loaded successfully.")
 
     def test_qwen_model_predict(self):
         if is_cuda():
@@ -42,21 +40,17 @@ class TestQwenVLInference(unittest.TestCase):
 
         dataset = DriveLMImageDataset(QwenMessageFormat(), "val")
         test_set = Subset(dataset, np.arange(1))
-        dataloader = DataLoader(
-            test_set, batch_size=1, collate_fn=simple_dict_collate
-        )
+        dataloader = DataLoader(test_set, batch_size=1, collate_fn=simple_dict_collate)
 
         results = []
         for batch in dataloader:
-            messages, questions, labels, q_ids, qa_types = batch
+            messages = [[item.formatted_message] for item in batch]
             predictions = engine.predict_batch(messages)
             results.extend(predictions)
             self.assertEqual(
                 len(predictions),
-                len(messages),
-                "Predictions should match the number of messages.",
+                len(batch),
+                "Predictions should match the number of query items in the batch.",
             )
 
-        self.assertGreater(
-            len(results), 0, "There should be some predictions made."
-        )
+        self.assertGreater(len(results), 0, "There should be some predictions made.")
