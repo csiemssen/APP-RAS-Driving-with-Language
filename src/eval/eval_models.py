@@ -17,7 +17,6 @@ logger = get_logger(__name__)
 
 def evaluate_model(
     engine: BaseInferenceEngine,
-    resize_factor: float,
     batch_size: str,
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,
@@ -26,7 +25,6 @@ def evaluate_model(
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
-        resize_factor=resize_factor,
         split=dataset_split,
         use_grid=use_grid,
     )

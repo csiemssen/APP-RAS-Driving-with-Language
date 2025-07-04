@@ -86,7 +86,6 @@ if __name__ == "__main__":
             dataset_split="val",
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
-            resize_factor=resize_factor,
             **kwargs,
         )
     else:

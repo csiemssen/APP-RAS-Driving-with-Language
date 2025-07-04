@@ -302,7 +302,6 @@ def train(
 
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
-        resize_factor=resize_factor,
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,
