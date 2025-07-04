@@ -1,6 +1,7 @@
 from pathlib import Path
 
 src_dir = Path(__file__).parent.resolve()
+project_root = src_dir.parent.resolve()
 data_dir = src_dir / ".." / "data"
 drivelm_dir = data_dir / "drivelm"
 nuscenes_dir = data_dir / "nuscenes"
@@ -12,3 +13,4 @@ model_dir = src_dir / ".." / "models"
 model_output_dir = model_dir / "hf_dumps"
 model_log_dir = model_dir / "logs"
 fonts_dir = data_dir / "fonts"
+pointbev_dir = project_root / "external" / "pointbev"

@@ -1,0 +1,3 @@
+[submodule "external/pointbev"]
+	path = external/pointbev
+	url = https://github.com/valeoai/PointBeV
