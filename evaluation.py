@@ -8,7 +8,7 @@ import language_evaluation
 import numpy as np
 
 sys.path.append(".")
-from gpt_eval import GPTEvaluation
+from evaluation.gpt_eval import GPTEvaluation
 
 
 class evaluation_suit:
@@ -166,14 +166,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root_path1",
         type=str,
-        default="./llama-adapter-DriveLM.json",
+        default="./data/output/output.json",
         help="path to prediction file",
     )
     parser.add_argument(
         "--root_path2",
         type=str,
-        default="./test_v1.json",
+        default="./data/drivelm/v1_1_val_nus_q_only.json",
         help="path to test file",
+    )
+    parser.add_argument(
+        "--output_path",
+        type=str,
+        default="./data/local_eval/result.json",
+        help="path to output file",
     )
     args = parser.parse_args()
 
@@ -248,3 +254,7 @@ if __name__ == "__main__":
 
     final_score = sum([x * y for x, y in zip(scores, weights)])
     print("final score: ", final_score)
+
+    with open(args.output_path, "w") as f:
+        json.dump(output, f, indent=4)
+        print(f"Results saved to {args.output_path}")

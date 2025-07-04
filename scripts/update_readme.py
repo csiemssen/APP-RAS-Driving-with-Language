@@ -16,9 +16,7 @@ def generate_table(data_files):
     for entry in data_files:
         folder = entry["folder"]
         file = entry["file"]
-        row = [folder, file] + [
-            str(entry["data"].get(key, "")) for key in headers[2:]
-        ]
+        row = [folder, file] + [str(entry["data"].get(key, "")) for key in headers[2:]]
         table += "| " + " | ".join(row) + " |\n"
 
     return table
@@ -51,8 +49,8 @@ def update_readme(table):
         content = f.read()
 
     # Replace the Eval results section
-    start_marker = "## Eval results"
-    end_marker = "\n## "
+    start_marker = "#### Results"
+    end_marker = "\n#### "
     start_idx = content.find(start_marker)
     end_idx = content.find(end_marker, start_idx + len(start_marker))
     if end_idx == -1:
