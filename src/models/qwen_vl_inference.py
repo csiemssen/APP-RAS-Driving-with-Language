@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import torch
 from qwen_vl_utils import process_vision_info
@@ -17,12 +17,13 @@ logger = get_logger(__name__)
 class QwenVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
-        resize_factor: float,
+        processor_path: str = "Qwen/Qwen2.5-VL-3B-Instruct",
         model_path: Optional[str] = None,
         use_4bit: bool = False,
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
         device: Optional[str] = None,
+        resize_image_size: Optional[Tuple[int, int]] = None,
         training: bool = False,
     ):
         super().__init__(
@@ -31,9 +32,9 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             revision=revision,
             device=device,
         )
-        self.resize_factor = resize_factor
-        self.processor_path = "Qwen/Qwen2.5-VL-3B-Instruct"
+        self.processor_path = processor_path
         self.model_path = self.processor_path if model_path is None else model_path
+        self.resize_image_size = resize_image_size
         self.model = None
         self.torch_dtype = torch_dtype if torch_dtype is not None else self.torch_dtype
         self.tokenizer = None
@@ -56,19 +57,23 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         if not self.training:
             self.model = self.model.eval()
 
-        h = 900 * 2 * self.resize_factor
-        w = 1600 * 3 * self.resize_factor
-        patch_size = 28
-        num_img_tokens = (h // patch_size) * (w // patch_size)
-        num_img_pixel = num_img_tokens * patch_size * patch_size
+        if self.resize_image_size is not None:
+            patch_size = 28
+            height, width = self.resize_image_size
+            num_img_tokens = (height // patch_size) * (width // patch_size)
+            num_img_pixel = num_img_tokens * patch_size * patch_size
 
-        self.processor = AutoProcessor.from_pretrained(
-            self.processor_path,
-            revision=self.revision,
-            min_pixels=num_img_pixel
-            - (num_img_pixel * 0.1),  # Allow for some leeway to be sure
-            max_pixels=num_img_pixel + (num_img_pixel * 0.1),
-        )
+            self.processor = AutoProcessor.from_pretrained(
+                self.processor_path,
+                revision=self.revision,
+                min_pixels=num_img_pixel - (num_img_pixel * 0.1),
+                max_pixels=num_img_pixel + (num_img_pixel * 0.1),
+            )
+        else:
+            self.processor = AutoProcessor.from_pretrained(
+                self.processor_path,
+                revision=self.revision,
+            )
 
         logger.info(f"{self.model_path} loaded and ready.")
 

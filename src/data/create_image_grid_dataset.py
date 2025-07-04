@@ -3,7 +3,7 @@ import os
 import tqdm
 from PIL import Image, ImageDraw, ImageFont
 
-from src.constants import drivelm_dir, fonts_dir, grid_dir
+from src.constants import GRID, IMAGE_SIZE, drivelm_dir, fonts_dir, grid_dir
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -13,9 +13,9 @@ def create_grid_image_with_labels(
     image_paths: dict,
     text_position: str = "top-left",
 ) -> Image.Image:
-    img_width, img_height = 1600, 900
+    img_height, img_width = IMAGE_SIZE
 
-    grid_cols, grid_rows = 3, 2
+    grid_rows, grid_cols = GRID
     canvas_width = img_width * grid_cols
     canvas_height = img_height * grid_rows
 
