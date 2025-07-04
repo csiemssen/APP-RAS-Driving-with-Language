@@ -1,7 +1,7 @@
 import re
 import shutil
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 import torch
@@ -64,7 +64,7 @@ def parse_key_objects(question: str) -> List[str]:
     return re.findall(pattern, question)
 
 
-def get_resize_image_size(resize_factor: float, grid=False) -> tuple[int, int]:
+def get_resize_image_size(resize_factor: float, grid=False) -> Tuple[int, int]:
     if grid:
         height = int(GRID_IMG_SIZE[0] * resize_factor)
         width = int(GRID_IMG_SIZE[1] * resize_factor)
