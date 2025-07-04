@@ -18,19 +18,24 @@ class evaluation_suit:
         )
         self.chatgpt_eval = GPTEvaluation()
         self.GPT = []
-        self.accuracy = {"answer": [], "GT": []}
-        self.language = {"answer": [], "GT": []}
-        self.match = {"match": {"answer": [], "GT": []}, "GPT": []}
+        self.accuracy = {"answer": [], "GT": [], "idx": []}
+        self.language = {"answer": [], "GT": [], "idx": []}
+        self.match = {"match": {"answer": [], "GT": []}, "GPT": [], "idx": []}
+        self.per_question_scores = {}
 
     def eval_acc(self):
         scores = []
         for i in range(len(self.accuracy["answer"])):
             answer = self.accuracy["answer"][i]
             GT = self.accuracy["GT"][i]
+            idx = self.accuracy["idx"][i]
+
             if answer == GT:
-                scores.append(1.0)
+                score = 1.0
             else:
-                scores.append(0.0)
+                score = 0.0
+            scores.append(score)
+            self.per_question_scores.setdefault(idx, {})["accuracy"] = score
 
         scores = sum(scores) / len(scores)
         return scores
@@ -55,7 +60,13 @@ class evaluation_suit:
         """
         answer = self.language["answer"]
         GT = self.language["GT"]
+        idx = self.language["idx"]
         results_gen = self.language_eval.run_evaluation(answer, GT)
+
+        for idx, answer, GT in zip(idx, answer, GT):
+            results_gen = self.language_eval.run_evaluation([answer], [GT])
+            self.per_question_scores.setdefault(idx, {}).update(results_gen)
+
         results_gen_dict = {f"val/{k}": v for k, v in results_gen.items()}
         return results_gen_dict
 
@@ -65,7 +76,9 @@ class evaluation_suit:
             answer = self.match["match"]["answer"][i]
             GT = self.match["match"]["GT"][i]
             _, F1_score = self.match_result(answer, GT)
-            outs1.append(F1_score * 100)
+            score = F1_score * 100
+            outs1.append(score)
+            self.per_question_scores.setdefault(idx, {})["match"] = score
 
         outs1 = sum(outs1) / len(outs1)
         outs2 = self.eval_chatGPT(self.match["GPT"])
@@ -135,19 +148,22 @@ class evaluation_suit:
         self.graph, _ = self.match_result(answer, GT)
         self.graph = [list(i) for i in self.graph]
 
-    def forward(self, tag, answer, GT):
+    def forward(self, tag, answer, GT, idx):
         if 0 in tag:
             self.accuracy["answer"].append(answer)
             self.accuracy["GT"].append(GT)
+            self.accuracy["idx"].append(idx)
         if 1 in tag:
             self.GPT.append((answer, GT))
         if 2 in tag:
             self.language["GT"].append(GT)
             self.language["answer"].append(answer)
+            self.language["idx"].append(idx)
         if 3 in tag:
             self.match["match"]["GT"].append(GT)
             self.match["match"]["answer"].append(answer)
             self.match["GPT"].append((answer, GT))
+            self.match["idx"].append(idx)
 
     def evaluation(self):
         print("evaluation start!")
@@ -156,6 +172,7 @@ class evaluation_suit:
         scores["chatgpt"] = self.eval_chatGPT(self.GPT)
         scores["language"] = self.eval_language()
         scores["match"] = self.eval_match()
+        scores["per_question_scores"] = self.per_question_scores
 
         return scores
 
@@ -220,34 +237,32 @@ if __name__ == "__main__":
                 if idx in pred_file:
                     predict = pred_file[idx]["answer"]
                     available = True
-                    print(f"Prediction found for {idx}.")
                 else:
                     predict = ""
                     available = False
-                    # print(
-                    #    f"Warning: No prediction found for {idx}. Using empty string as prediction."
-                    # )
+                    print(f"Warning: No prediction found for {idx}")
 
                 # assert pred_file[idx]["gt_answer"] == GT, print(pred_file[idx]["gt_answer"], GT)
                 if args.ignore_missing and not available:
-                    # print(
-                    #    f"Skipping missing prediction for {idx} as ignore_missing is set to True."
-                    # )
+                    print(
+                        f"Skipping missing prediction for {idx} as ignore_missing is set to True."
+                    )
                     continue
 
                 if first_flag:
                     first_flag = False
                     evaluation.set_graph(predict, GT)
-                    evaluation.forward(tag, predict, GT)
+                    evaluation.forward(tag, predict, GT, idx)
                 else:
                     if evaluation.eval_graph(question):
-                        res = evaluation.forward(tag, predict, GT)
+                        res = evaluation.forward(tag, predict, GT, idx)
 
     output = evaluation.evaluation()
     print("accuracy score: ", output["accuracy"])
     print("chatgpt score: ", output["chatgpt"])
     print("match score: ", output["match"])
     print("language score: ", output["language"])
+    print("per question scores: ", output["per_question_scores"])
 
     # Normalize to 0-1 and combine the scores: chatgpt, language, match, accuracy
     scores = []
