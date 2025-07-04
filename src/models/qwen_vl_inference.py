@@ -63,6 +63,10 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             num_img_tokens = (height // patch_size) * (width // patch_size)
             num_img_pixel = num_img_tokens * patch_size * patch_size
 
+            logger.debug(
+                f"Resizing images to {self.resize_image_size} with {num_img_tokens} and {num_img_pixel} pixels."
+            )
+
             self.processor = AutoProcessor.from_pretrained(
                 self.processor_path,
                 revision=self.revision,
@@ -73,6 +77,10 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             self.processor = AutoProcessor.from_pretrained(
                 self.processor_path,
                 revision=self.revision,
+            )
+
+            logger.debug(
+                f"No resize image size provided, using default processor settings for {self.processor_path} of 4-16384 visual tokens"
             )
 
         logger.info(f"{self.model_path} loaded and ready.")
