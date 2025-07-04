@@ -64,7 +64,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             num_img_pixel = num_img_tokens * patch_size * patch_size
 
             logger.debug(
-                f"Resizing images to {self.resize_image_size} with {num_img_tokens} and {num_img_pixel} pixels."
+                f"Resizing images to {self.resize_image_size} with {num_img_tokens} visual tokens and {num_img_pixel} pixels."
             )
 
             self.processor = AutoProcessor.from_pretrained(
