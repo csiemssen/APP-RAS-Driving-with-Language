@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root_path2",
         type=str,
-        default="./data/drivelm/v1_1_val_nus_q_only.json",
+        default="./data/drivelm/v1_1_train_nus_test.json",
         help="path to test file",
     )
     parser.add_argument(

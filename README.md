@@ -47,6 +47,12 @@ You’ll also need the OpenAI Python SDK:
 ``` shell
 pip install openai
 ```
+
+To generate the test dataset from the train dataset, run the following command in your project root:
+``` shell
+python ./evaluation/extract_test_data.py
+```
+
 Once installed, you can run the evaluation with:
 ```shell
 python evaluation.py --root_path1 <predictions> --root_path2 <ground_truth> --output_path <output>
