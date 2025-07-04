@@ -33,6 +33,13 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
+        "--dataset_split",
+        help="The dataset split to use for training / evaluation.",
+        type=str,
+        choices=["train", "val"],
+        default="val",
+    )
+    parser.add_argument(
         "--resize_factor",
         help="Resize factor to apply to the images. Original size is (1600 x 900). Currently only applied if using image_grid approach.",
         default="0.5",
@@ -90,7 +97,7 @@ if __name__ == "__main__":
 
         evaluate_model(
             engine=engine,
-            dataset_split="val",
+            dataset_split=args.dataset_split,
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
             resize_factor=resize_factor,
