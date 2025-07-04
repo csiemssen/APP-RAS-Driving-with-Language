@@ -1,3 +1,4 @@
+import math
 import os
 
 from PIL import Image, ImageDraw, ImageFont
@@ -10,11 +11,12 @@ logger = get_logger(__name__)
 
 def create_grid_image_with_labels(
     image_paths: dict,
+    resize_factor: float = 0.5,
     text_position: str = "top-left",
 ) -> Image.Image:
     base_width, base_height = 1600, 900
-    img_width = int(base_width)
-    img_height = int(base_height)
+    img_width = int(base_width * resize_factor)
+    img_height = int(base_height * resize_factor)
 
     grid_cols, grid_rows = 3, 2
     canvas_width = img_width * grid_cols
@@ -24,7 +26,7 @@ def create_grid_image_with_labels(
     draw = ImageDraw.Draw(grid_img)
 
     # Adjust font size scaling using square root of resize factor
-    font_size = 28
+    font_size = int(28 * math.sqrt(resize_factor))
     font = ImageFont.load_default()
     try:
         font = fonts_dir / "Roboto-Regular.ttf"
@@ -48,6 +50,8 @@ def create_grid_image_with_labels(
             continue
         try:
             img = Image.open(img_path).convert("RGB")
+            if resize_factor != 1.0:
+                img = img.resize((img_width, img_height), Image.BICUBIC)
 
             x_offset = col * img_width
             y_offset = row * img_height
@@ -85,7 +89,7 @@ def create_grid_image_with_labels(
     return grid_img
 
 
-def create_image_grid_dataset(data, override=False):
+def create_image_grid_dataset(data, resize_factor: int = 0.5, override=False):
     grid_dir.mkdir(parents=True, exist_ok=True)
 
     for scene_id, scene_data in data.items():
@@ -100,7 +104,9 @@ def create_image_grid_dataset(data, override=False):
                     key: os.path.join(drivelm_dir, path)
                     for key, path in image_paths.items()
                 }
-                grid_img = create_grid_image_with_labels(image_paths)
+                grid_img = create_grid_image_with_labels(
+                    image_paths, resize_factor=resize_factor
+                )
                 grid_img.save(grid_path)
                 logger.info(f"Saved grid image: {grid_path}")
 

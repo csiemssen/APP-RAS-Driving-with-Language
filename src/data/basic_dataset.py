@@ -1,7 +1,6 @@
 import os
 from typing import Any
 
-from PIL import Image
 from torch.utils.data import Dataset
 
 from src.constants import (
@@ -43,15 +42,20 @@ class DriveLMImageDataset(Dataset):
     def __init__(
         self,
         message_format: MessageFormat,
-        split="train",
         resize_factor: float = 0.5,
+        split="train",
         add_augmented=False,
         use_grid=False,
     ):
         self.message_format = message_format
         self.split = split
 
-        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
+        data = load_dataset(
+            split,
+            add_augmented=add_augmented,
+            use_grid=use_grid,
+            resize_factor=resize_factor,
+        )
 
         removed = 0
         qa_list = []
@@ -71,13 +75,10 @@ class DriveLMImageDataset(Dataset):
                         image_paths["CAM_FRONT"],
                     )
 
-                with Image.open(image_path) as image:
-                    image_width, image_height = image.size
-                    if resize_factor != 1.0:
-                        image_width = int(image_width * resize_factor)
-                        image_height = int(image_height * resize_factor)
-
-                    max_pixels = image_width * image_height
+                # NOTE: This is a simple workaround if we do not have all files available
+                if not os.path.isfile(image_path):
+                    removed += 1
+                    continue
 
                 key_object_infos = (
                     scene_obj[key_frame_id]["key_object_infos"]
@@ -117,10 +118,7 @@ class DriveLMImageDataset(Dataset):
                             "key_object_info": key_object_infos
                             if qa_types[i] != "perception"
                             else None,
-                            "image": {
-                                "path": image_path,
-                                "max_pixels": max_pixels,
-                            },
+                            "image_path": image_path,
                         }
                     )
 
@@ -136,19 +134,12 @@ class DriveLMImageDataset(Dataset):
         question = qa["qa"]["Q"]
         answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
-        image_path = qa["image"]["path"]
-        image_max_pixels = qa["image"]["max_pixels"]
+        image_path = qa["image_path"]
         system_prompt = get_system_prompt(qa["qa_type"])
 
         return (
             self.message_format.format(
-                question=question,
-                key_object_info=key_object_info,
-                image_path=image_path,
-                system_prompt=system_prompt,
-                answer=answer,
-                min_pixels=image_max_pixels // 2,
-                max_pixels=image_max_pixels,
+                question, key_object_info, image_path, system_prompt, answer
             ),
             question,
             answer,

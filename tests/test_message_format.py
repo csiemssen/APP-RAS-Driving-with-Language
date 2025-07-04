@@ -17,12 +17,7 @@ class TestMessageFormat(unittest.TestCase):
         system_prompt = "This is the system prompt"
 
         formatted_message = message_format.format(
-            question=question,
-            key_object_info=key_object_info,
-            image_path=image_path,
-            system_prompt=system_prompt,
-            max_pixels=1,
-            min_pixels=0,
+            question, key_object_info, image_path, system_prompt
         )
 
         expected_message = {
@@ -30,12 +25,7 @@ class TestMessageFormat(unittest.TestCase):
             "content": [
                 {"type": "text", "text": system_prompt},
                 {"type": "text", "text": "Question: " + question},
-                {
-                    "type": "image",
-                    "image": "file:///path/to/your/image.jpg",
-                    "min_pixels": 0,
-                    "max_pixels": 1,
-                },
+                {"type": "image", "image": "file:///path/to/your/image.jpg"},
                 {
                     "type": "text",
                     "text": "Key object infos:\n{'object': 'car', 'color': 'red'}",

@@ -47,6 +47,7 @@ def get_ds(split: str) -> None:
 
 def load_dataset(
     split: str,
+    resize_factor: float = 0.5,
     add_augmented: bool = False,
     use_grid: bool = False,
 ):
@@ -69,6 +70,6 @@ def load_dataset(
         data = generate_descriptor_qas(data)
 
     if use_grid:
-        data = create_image_grid_dataset(data)
+        data = create_image_grid_dataset(data, resize_factor)
 
     return data

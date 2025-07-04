@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 
 class MessageFormat(ABC):
@@ -10,9 +9,7 @@ class MessageFormat(ABC):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: Optional[str] = None,
-        min_pixels: Optional[int] = None,
-        max_pixels: Optional[int] = None,
+        answer: str,
     ) -> dict[str, str | list[dict[str, str]]]:
         pass
 
@@ -24,34 +21,28 @@ class QwenMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: Optional[str] = None,
-        min_pixels: Optional[int] = None,
-        max_pixels: Optional[int] = None,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
-        image_dict = {
-            "type": "image",
-            "image": f"file://{image_path}",
-        }
-        if min_pixels is not None:
-            image_dict["min_pixels"] = min_pixels
-        if max_pixels is not None:
-            image_dict["max_pixels"] = max_pixels
-
-        content = []
-        if system_prompt:
-            content.append({"type": "text", "text": system_prompt})
-        content.append({"type": "text", "text": "Question: " + question})
-        content.append(image_dict)
-        if key_object_info:
-            content.append(
-                {
-                    "type": "text",
-                    "text": "Key object infos:\n" + key_object_info.__str__(),
-                }
-            )
         return {
             "role": "user",
-            "content": content,
+            "content": [
+                {"type": "text", "text": system_prompt},
+                {"type": "text", "text": "Question: " + question},
+                {
+                    "type": "image",
+                    "image": f"file://{image_path}",
+                },
+                *(
+                    [
+                        {
+                            "type": "text",
+                            "text": "Key object infos:\n" + key_object_info.__str__(),
+                        }
+                    ]
+                    if key_object_info
+                    else []
+                ),
+            ],
         }
 
 
@@ -59,50 +50,43 @@ class QwenTrainingMessageFormat(MessageFormat):
     """
     Message format adhering to OAI implementation
     """
-
     def format(
         self,
         question: str,
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: Optional[str] = None,
-        min_pixels: Optional[int] = None,
-        max_pixels: Optional[int] = None,
+        answer: str,
     ) -> dict[str, str | list[dict[str, str]]]:
-        image_dict = {
-            "type": "image",
-            "image": f"file://{image_path}",
-        }
-        if min_pixels is not None:
-            image_dict["min_pixels"] = min_pixels
-        if max_pixels is not None:
-            image_dict["max_pixels"] = max_pixels
-
-        user_content = []
-        if system_prompt:
-            user_content.append({"type": "text", "text": system_prompt})
-        user_content.append({"type": "text", "text": "Question: " + question})
-        user_content.append(image_dict)
-        if key_object_info:
-            user_content.append(
-                {
-                    "type": "text",
-                    "text": "Key object infos:\n" + key_object_info.__str__(),
-                }
-            )
         return {
             "messages": [
                 {
                     "role": "user",
-                    "content": user_content,
+                    "content": [
+                        {"type": "text", "text": system_prompt},
+                        {"type": "text", "text": "Question: " + question},
+                        {
+                            "type": "image",
+                            "image": f"file://{image_path}",
+                        },
+                        *(
+                            [
+                                {
+                                    "type": "text",
+                                    "text": "Key object infos:\n" + key_object_info.__str__(),
+                                }
+                            ]
+                            if key_object_info
+                            else []
+                        ),
+                    ],
                 },
                 {
                     "role": "assistant",
                     "content": [
                         {"type": "text", "text": answer},
-                    ],
-                },
+                    ]
+                }
             ]
         }
 
@@ -114,9 +98,7 @@ class InternVLMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: Optional[str] = None,
-        min_pixels: Optional[int] = None,
-        max_pixels: Optional[int] = None,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
         full_prompt = system_prompt + "\n\nQuestion: " + question
         if key_object_info:
@@ -135,9 +117,7 @@ class GemmaMessageFormat(MessageFormat):
         key_object_info: dict,
         image_path: str,
         system_prompt: str,
-        answer: Optional[str] = None,
-        min_pixels: Optional[int] = None,
-        max_pixels: Optional[int] = None,
+        answer: str="",
     ) -> dict[str, str | list[dict[str, str]]]:
         return {
             "role": "user",
