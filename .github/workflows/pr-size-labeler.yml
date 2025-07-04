@@ -14,12 +14,3 @@ jobs:
     name: Label the PR size
     steps:
       - uses: codelytv/pr-size-labeler@v1
-        with:
-          xs_label: "size:small"
-          xs_max_size: "50"
-          m_label: "size:medium"
-          m_max_size: "200"
-          xl_label: "size:large"
-          fail_if_xl: "false"
-          github_api_url: "https://api.github.com"
-          files_to_ignore: ""

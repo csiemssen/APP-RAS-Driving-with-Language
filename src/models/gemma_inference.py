@@ -104,8 +104,8 @@ class GemmaInferenceEngine(BaseInferenceEngine):
             clean_up_tokenization_spaces=False,
         )
 
-        logger.info(
-            f"Generated {len(output_text)} responses for batch of size {len(messages)}"
+        logger.debug(
+            f"Generated {len(output_text)} responses for batch of size {len(texts)}"
         )
 
         return output_text
