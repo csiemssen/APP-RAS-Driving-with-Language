@@ -1,10 +1,15 @@
+import logging
 import unittest
+from collections import Counter
 
 import pytest
 
 from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
+from src.utils.utils import create_subset_for_testing
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 logger = get_logger(__name__)
 
@@ -87,6 +92,34 @@ class TestDriveLMImageDataset(unittest.TestCase):
             len(dataset),
             "Dataset with augmented questions should be larger than the base dataset",
         )
+
+    def test_subset_dataset(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+        )
+        test_set_size = min(50, len(dataset))  # Use a small test set for speed
+        subset = create_subset_for_testing(dataset, test_set_size)
+
+        qa_type_counts_full = Counter(item.qa_type for item in dataset)
+        total_full = sum(qa_type_counts_full.values())
+        dist_full = {k: v / total_full for k, v in qa_type_counts_full.items()}
+
+        qa_type_counts_subset = Counter(dataset[i].qa_type for i in subset.indices)
+        total_subset = sum(qa_type_counts_subset.values())
+        dist_subset = {k: v / total_subset for k, v in qa_type_counts_subset.items()}
+
+        for qa_type in dist_full:
+            if qa_type in dist_subset:
+                diff = abs(dist_full[qa_type] - dist_subset[qa_type])
+                assert diff < 0.10, (
+                    f"Distribution for qa_type '{qa_type}' differs by more than 10%: "
+                    f"full={dist_full[qa_type]:.2%}, subset={dist_subset[qa_type]:.2%}"
+                )
+            else:
+                assert dist_full[qa_type] < 0.05, (
+                    f"qa_type '{qa_type}' missing from subset but present in full dataset"
+                )
 
 
 if __name__ == "__main__":

@@ -1,12 +1,13 @@
+import random
 import re
 import shutil
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Dict, List
 
-import numpy as np
 import torch
 from torch.utils.data import Dataset, Subset
 
+from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -52,8 +53,58 @@ def extract_children(zip_path: str, out_path: str):
 
 def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
     logger.info(f"Creating subset with size {test_set_size}")
-    num_samples = min(test_set_size, len(ds))
-    subset = Subset(ds, np.arange(num_samples))
+
+    indices_by_type: Dict[str, List[int]] = {}
+    for idx in range(len(ds)):
+        item: QueryItem = ds[idx]
+        qa_type = item.qa_type
+        indices_by_type.setdefault(qa_type, []).append(idx)
+
+    total = len(ds)
+
+    sample_count_by_type = {
+        qa_type: max(1, int(len(indices) / total * test_set_size))
+        for qa_type, indices in indices_by_type.items()
+    }
+
+    count_sum = sum(sample_count_by_type.values())
+    while count_sum < test_set_size:
+        largest = max(sample_count_by_type, key=lambda k: len(indices_by_type[k]))
+        sample_count_by_type[largest] += 1
+        count_sum += 1
+    while count_sum > test_set_size:
+        largest = max(sample_count_by_type, key=lambda k: count_by_type[k])
+        if sample_count_by_type[largest] > 1:
+            sample_count_by_type[largest] -= 1
+            count_sum -= 1
+        else:
+            break
+
+    sampled_indices = []
+    sampled_count_by_type = {}
+    for qa_type, count in sample_count_by_type.items():
+        indices = indices_by_type[qa_type]
+        sampled = random.sample(indices, min(count, len(indices)))
+        sampled_indices.extend(sampled)
+        sampled_count_by_type[qa_type] = len(sampled)
+
+    sampled_pct_by_type = {
+        qa_type: count / test_set_size
+        for qa_type, count in sampled_count_by_type.items()
+    }
+    count_by_type = {
+        qa_type: len(indices) for qa_type, indices in indices_by_type.items()
+    }
+    percent_by_qa_type = {
+        qa_type: count / total for qa_type, count in count_by_type.items()
+    }
+
+    logger.debug(f"Original distribution (count): {count_by_type}")
+    logger.debug(f"Original distribution (percent): {percent_by_qa_type}")
+    logger.debug(f"Sampled distribution (count): {sampled_count_by_type}")
+    logger.debug(f"Sampled distribution (percent): {sampled_pct_by_type}")
+
+    subset = Subset(ds, sampled_indices)
     logger.info(f"Created subset with size {len(subset)}")
     return subset
 
