@@ -36,12 +36,18 @@ class evaluation_suit:
         return scores
 
     def eval_chatGPT(self, data):
-        with Pool(32) as p:  # Change the number based on your CPU cores
-            scores = p.map(self.chatgpt_eval.forward, data)
+        try:
+            with Pool(32) as p:  # Change the number based on your CPU cores
+                scores = p.map(self.chatgpt_eval.forward, data)
 
-        scores = list(map(float, scores))
-        scores = sum(scores) / len(scores)
-        return scores
+            scores = list(map(float, scores))
+            scores = sum(scores) / len(scores)
+            return scores
+        except Exception as e:
+            print(
+                f"ChatGPT evaluation failed: {e}. Assigning score 0.0 and continuing."
+            )
+            return 0.0
 
     def eval_language(self):
         """
