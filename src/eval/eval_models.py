@@ -8,6 +8,7 @@ from tqdm import tqdm
 from src.constants import data_dir
 from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.base_inference import BaseInferenceEngine
+from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset_for_testing, sanitize_model_name
 
@@ -21,15 +22,14 @@ def evaluate_model(
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
-    use_augmented: bool = False,
     use_system_prompt: bool = False,
+    use_reasoning: bool = False,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         resize_factor=resize_factor,
         split=dataset_split,
         use_grid=use_grid,
-        add_augmented=use_augmented,
         use_system_prompt=use_system_prompt,
     )
     if test_set_size is not None:
@@ -38,19 +38,26 @@ def evaluate_model(
         dataset, batch_size=int(batch_size), collate_fn=simple_dict_collate
     )
 
+    if use_reasoning:
+        reasoning_engine = ReasoningEngine(engine)
+
     engine.load_model()
 
     results = []
 
     for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
-        messages, questions, labels, q_ids, qa_types = batch
-        batch_results = engine.predict_batch(messages)
+        if use_reasoning:
+            batch = reasoning_engine.process_batch(batch)
+
+        formatted_messages = [[item.formatted_message] for item in batch]
+
+        batch_results = engine.predict_batch(formatted_messages)
 
         for i, result in enumerate(batch_results):
             results.append(
                 {
-                    "id": q_ids[i],
-                    "question": questions[i],
+                    "id": batch[i].qa_id,
+                    "question": batch[i].question,
                     "answer": result,
                 }
             )

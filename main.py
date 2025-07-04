@@ -5,6 +5,7 @@ from src.constants import model_dir
 from src.eval.eval_models import evaluate_model
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
+from src.utils.approach import get_approach_kwargs, get_approach_name
 from src.utils.logger import get_logger
 from src.utils.utils import is_cuda
 
@@ -23,7 +24,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid", "descriptor_qas", "system_prompt"],
+        choices=[
+            "front_cam",
+            "image_grid",
+            "descriptor_qas",
+            "reasoning",
+            "system_prompt",
+        ],
         nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )
@@ -53,21 +60,12 @@ if __name__ == "__main__":
     if args.model_path:
         model_path = os.path.join(model_dir, args.model_path)
 
-    approach_kwargs_map = {
-        "image_grid": {"use_grid": True},
-        "descriptor_qas": {"use_augmented": True},
-        "system_prompt": {"use_system_prompt": True},
-        # Add more approaches here as needed
-    }
+    # add more approaches in get_approach_kwargs
+    kwargs = get_approach_kwargs(args.approach)
+
+    approach_name = get_approach_name(args.approach)
 
     resize_factor = float(args.resize_factor)
-
-    kwargs = {}
-    for approach in args.approach:
-        if approach in approach_kwargs_map:
-            kwargs.update(approach_kwargs_map[approach])
-
-    approach_name = "_".join(args.approach)
 
     logger.info(f"Running with approach: {approach_name}")
 

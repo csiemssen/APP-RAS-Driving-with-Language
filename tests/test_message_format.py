@@ -9,15 +9,19 @@ from src.data.message_formats import (
 
 class TestMessageFormat(unittest.TestCase):
     def test_format_of_qwen_message(self):
-        # https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct
         message_format = QwenMessageFormat()
         question = "Describe this image."
         key_object_info = {"object": "car", "color": "red"}
         image_path = "/path/to/your/image.jpg"
         system_prompt = "This is the system prompt"
+        context = [("What is this?", "This is a car.")]
 
         formatted_message = message_format.format(
-            question, key_object_info, image_path, system_prompt
+            question,
+            image_path,
+            system_prompt,
+            key_object_info=key_object_info,
+            context=context,
         )
 
         expected_message = {
@@ -30,34 +34,40 @@ class TestMessageFormat(unittest.TestCase):
                     "type": "text",
                     "text": "Key object infos:\n{'object': 'car', 'color': 'red'}",
                 },
+                {"type": "text", "text": "Context Question: What is this?"},
+                {"type": "text", "text": "Context Answer: This is a car."},
             ],
         }
         self.assertEqual(
             formatted_message,
             expected_message,
-            "Formatted message does not match the expected qwen message format",
+            "Formatted message with context does not match the expected qwen message format",
         )
 
     def test_format_of_internvl_message(self):
-        # https://huggingface.co/OpenGVLab/InternVL3-2B
         message_format = InternVLMessageFormat()
         question = "What is the color of the car?"
         key_object_info = {"object": "car", "color": "blue"}
         image_path = "/path/to/your/image.jpg"
         system_prompt = "This is the system prompt"
+        context = [("What is this?", "This is a car.")]
 
         formatted_message = message_format.format(
-            question, key_object_info, image_path, system_prompt
+            question,
+            image_path,
+            system_prompt,
+            key_object_info=key_object_info,
+            context=context,
         )
 
         expected_message = {
-            "text": "This is the system prompt\n\nQuestion: What is the color of the car?\n\nKey object infos:\n{'object': 'car', 'color': 'blue'}",
+            "text": "This is the system prompt\n\nQuestion: What is the color of the car?\n\nKey object infos:\n{'object': 'car', 'color': 'blue'}\n\nContext Question: What is this?\nContext Answer: This is a car.",
             "image_path": image_path,
         }
         self.assertEqual(
             formatted_message,
             expected_message,
-            "Formatted message does not match the expected InternVL message format",
+            "Formatted message with context does not match the expected InternVL message format",
         )
 
     def test_format_of_gemma_message(self):
@@ -66,8 +76,14 @@ class TestMessageFormat(unittest.TestCase):
         key_object_info = {"country": "France", "capital": "Paris"}
         image_path = "/path/to/your/image.jpg"
         system_prompt = "This is the system prompt"
+        context = [("What is this?", "This is a map of France.")]
+
         formatted_message = message_format.format(
-            question, key_object_info, image_path, system_prompt
+            question,
+            image_path,
+            system_prompt,
+            key_object_info=key_object_info,
+            context=context,
         )
 
         expected_message = {
@@ -80,13 +96,18 @@ class TestMessageFormat(unittest.TestCase):
                     "type": "text",
                     "text": "Key object infos:\n{'country': 'France', 'capital': 'Paris'}",
                 },
+                {"type": "text", "text": "Context Question: What is this?"},
+                {
+                    "type": "text",
+                    "text": "Context Answer: This is a map of France.",
+                },
             ],
         }
 
         self.assertEqual(
             formatted_message,
             expected_message,
-            "Formatted message does not match the expected Gemma message format",
+            "Formatted message with context does not match the expected Gemma message format",
         )
 
 

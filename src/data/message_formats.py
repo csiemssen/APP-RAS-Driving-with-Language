@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class MessageFormat(ABC):
@@ -6,11 +7,12 @@ class MessageFormat(ABC):
     def format(
         self,
         question: str,
-        key_object_info: dict,
         image_path: str,
         system_prompt: str = None,
-        answer: str = "",
-    ) -> dict[str, str | list[dict[str, str]]]:
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> Dict[str, Any]:
         pass
 
 
@@ -18,11 +20,12 @@ class QwenMessageFormat(MessageFormat):
     def format(
         self,
         question: str,
-        key_object_info: dict,
         image_path: str,
         system_prompt: str = None,
-        answer: str = "",
-    ) -> dict[str, str | list[dict[str, str]]]:
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> Dict[str, Any]:
         content = []
         if system_prompt:
             content.append({"type": "text", "text": system_prompt})
@@ -33,6 +36,7 @@ class QwenMessageFormat(MessageFormat):
                 "image": f"file://{image_path}",
             }
         )
+
         if key_object_info:
             content.append(
                 {
@@ -40,6 +44,14 @@ class QwenMessageFormat(MessageFormat):
                     "text": "Key object infos:\n" + key_object_info.__str__(),
                 }
             )
+
+        if context:
+            for context_q, context_a in context:
+                content.append(
+                    {"type": "text", "text": f"Context Question: {context_q}"}
+                )
+                content.append({"type": "text", "text": f"Context Answer: {context_a}"})
+
         return {
             "role": "user",
             "content": content,
@@ -54,11 +66,12 @@ class QwenTrainingMessageFormat(MessageFormat):
     def format(
         self,
         question: str,
-        key_object_info: dict,
         image_path: str,
         system_prompt: str = None,
-        answer: str = "",
-    ) -> dict[str, str | list[dict[str, str]]]:
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> Dict[str, Any]:
         user_content = []
         if system_prompt:
             user_content.append({"type": "text", "text": system_prompt})
@@ -76,6 +89,16 @@ class QwenTrainingMessageFormat(MessageFormat):
                     "text": "Key object infos:\n" + key_object_info.__str__(),
                 }
             )
+
+        if context:
+            for context_q, context_a in context:
+                user_content.append(
+                    {"type": "text", "text": f"Context Question: {context_q}"}
+                )
+                user_content.append(
+                    {"type": "text", "text": f"Context Answer: {context_a}"}
+                )
+
         return {
             "messages": [
                 {
@@ -96,17 +119,25 @@ class InternVLMessageFormat(MessageFormat):
     def format(
         self,
         question: str,
-        key_object_info: dict,
         image_path: str,
         system_prompt: str = None,
-        answer: str = "",
-    ) -> dict[str, str | list[dict[str, str]]]:
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> Dict[str, Any]:
         full_prompt = ""
         if system_prompt:
             full_prompt += system_prompt + "\n\n"
         full_prompt += "Question: " + question
+
         if key_object_info:
             full_prompt += "\n\nKey object infos:\n" + str(key_object_info)
+
+        if context:
+            for context_q, context_a in context:
+                full_prompt += (
+                    f"\n\nContext Question: {context_q}\nContext Answer: {context_a}"
+                )
 
         return {
             "text": full_prompt,
@@ -118,11 +149,12 @@ class GemmaMessageFormat(MessageFormat):
     def format(
         self,
         question: str,
-        key_object_info: dict,
         image_path: str,
         system_prompt: str = None,
-        answer: str = "",
-    ) -> dict[str, str | list[dict[str, str]]]:
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> Dict[str, Any]:
         content = [
             {
                 "type": "image",
@@ -139,6 +171,14 @@ class GemmaMessageFormat(MessageFormat):
                     "text": "Key object infos:\n" + key_object_info.__str__(),
                 }
             )
+
+        if context:
+            for context_q, context_a in context:
+                content.append(
+                    {"type": "text", "text": f"Context Question: {context_q}"}
+                )
+                content.append({"type": "text", "text": f"Context Answer: {context_a}"})
+
         return {
             "role": "user",
             "content": content,
