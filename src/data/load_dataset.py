@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 def get_ds(split: str) -> None:
     logger.info("Downloading dataset")
-    if split == "train":
+    if split == "train" or split == "test":
         out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_train.zip")
         gdown.download(
             id="1DeosPGYeM2gXSChjMODGsQChZyYDmaUz",
@@ -34,6 +34,7 @@ def get_ds(split: str) -> None:
             id="1CvTPwChKvfnvrZ1Wr0ZNVqtibkkNeGgt",
             output=os.path.join(drivelm_dir, "v1_1_train_nus.json"),
         )
+
     else:
         out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_val.zip")
         gdown.download(
