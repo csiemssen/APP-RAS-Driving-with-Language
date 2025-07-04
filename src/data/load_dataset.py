@@ -70,7 +70,7 @@ def load_dataset(
     if split == "test" and not drivelm_test_json.is_file():
         logger.debug("Extracting test dataset from train dataset")
         extract_data(drivelm_train_json, drivelm_test_json)
-        dataset_paths["test"] = drivelm_test_json
+        base_path = drivelm_test_json
 
     with open(base_path) as f:
         data = load(f)
