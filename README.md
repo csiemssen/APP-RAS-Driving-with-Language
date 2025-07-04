@@ -50,7 +50,7 @@ pip install openai
 
 To generate the test dataset from the train dataset, run the following command in your project root:
 ``` shell
-python ./evaluation/extract_test_data.py
+python -m src.data.extract_test_dataset
 ```
 
 Once installed, you can run the evaluation with:

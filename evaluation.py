@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root_path2",
         type=str,
-        default="./data/drivelm/v1_1_train_nus_test.json",
+        default="./data/drivelm/v1_1_test_nus.json",
         help="path to test file",
     )
     parser.add_argument(
@@ -181,6 +181,14 @@ if __name__ == "__main__":
         default="./data/local_eval/result.json",
         help="path to output file",
     )
+
+    parser.add_argument(
+        "--ignore_missing",
+        type=bool,
+        default=False,
+        help="Whether to skip missing predictions completely or use worst case response for missing prediction.",
+    )
+
     args = parser.parse_args()
 
     with open(args.root_path1, "r") as f:  # , \
@@ -208,8 +216,25 @@ if __name__ == "__main__":
                 GT = qa["A"]
                 tag = qa["tag"]
                 idx = scene_id + "_" + frame_id + "_" + str(i)
-                predict = pred_file[idx]["answer"]
+
+                if idx in pred_file:
+                    predict = pred_file[idx]["answer"]
+                    available = True
+                    print(f"Prediction found for {idx}.")
+                else:
+                    predict = ""
+                    available = False
+                    # print(
+                    #    f"Warning: No prediction found for {idx}. Using empty string as prediction."
+                    # )
+
                 # assert pred_file[idx]["gt_answer"] == GT, print(pred_file[idx]["gt_answer"], GT)
+                if args.ignore_missing and not available:
+                    # print(
+                    #    f"Skipping missing prediction for {idx} as ignore_missing is set to True."
+                    # )
+                    continue
+
                 if first_flag:
                     first_flag = False
                     evaluation.set_graph(predict, GT)
