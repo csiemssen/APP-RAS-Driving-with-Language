@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import re
 import sys
 from multiprocessing import Pool
@@ -194,13 +195,13 @@ if __name__ == "__main__":
     # get args
     parser = argparse.ArgumentParser(description="Evaluation")
     parser.add_argument(
-        "--root_path1",
+        "--prediction_file",
         type=str,
         default="./data/output/output.json",
         help="path to prediction file",
     )
     parser.add_argument(
-        "--root_path2",
+        "--test_file",
         type=str,
         default="./data/drivelm/v1_1_test_nus.json",
         help="path to test file",
@@ -221,11 +222,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.root_path1, "r") as f:  # , \
+    with open(args.prediction_file, "r") as f:  # , \
         pred_file = json.load(f)
     pred_file = {pred_file[i]["id"]: pred_file[i] for i in range(len(pred_file))}
 
-    with open(args.root_path2, "r") as f:
+    with open(args.test_file, "r") as f:
         test_file = json.load(f)
 
     evaluation = evaluation_suit()
@@ -308,6 +309,12 @@ if __name__ == "__main__":
     final_score = sum([x * y for x, y in zip(scores, weights)])
     print("final score: ", final_score)
 
-    with open(args.output_path, "w") as f:
+    pred_dir = os.path.dirname(args.prediction_file)
+    pred_base = os.path.basename(args.prediction_file)
+
+    out_base = re.sub(r"(output)?\.json$", "", pred_base)
+    output_file = os.path.join(args.output_path, f"{out_base}_results.json")
+
+    with open(output_file, "w") as f:
         json.dump(output, f, indent=4)
-        print(f"Results saved to {args.output_path}")
+        print(f"Results saved to {output_file}")

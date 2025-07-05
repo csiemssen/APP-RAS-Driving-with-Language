@@ -55,18 +55,21 @@ python -m src.data.extract_test_dataset
 
 Once installed, you can run the evaluation with:
 ```shell
-python evaluation.py --root_path1 <predictions> --root_path2 <ground_truth> --output_path <output>
+python evaluation.py --prediction_file <predictions> --test_file <ground_truth> --output_path <output>
 ```
 
 Alternatively, you can use the provided Docker image `Dockerfile-score`. Make sure to mount your evaluation, gpt-evaluation, prediction file, ground truth file, and an output path for the results:
 
 ```shell
 docker run --rm -v "$(pwd)":/app <image-name> \
-    --root_path1 <predictions> \
-    --root_path2 <ground_truth> \
+    --prediction_file <predictions> \
+    --test_file <ground_truth> \
     --output_path <output>
 ```
 - Ensure all required files are in the current directory ($(pwd)), or adjust the volume path accordingly.
+
+> [!Note]
+> The name of the prediction file is used to name the results file, so make sure to name it accordingly.
 
 > [!NOTE]
 > Please note, that if now Gpt-api-key key is provided, the evaluation will be done without the chatgpt metric and chatgpt score will be set to 0.0.
