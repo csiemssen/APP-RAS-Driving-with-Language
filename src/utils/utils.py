@@ -1,4 +1,3 @@
-import random
 import re
 import shutil
 from pathlib import Path
@@ -61,42 +60,29 @@ def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
         indices_by_type.setdefault(qa_type, []).append(idx)
 
     total = len(ds)
+    if total == 0:
+        logger.warning("Dataset is empty, returning empty subset.")
+        return Subset(ds, [])
 
-    sample_count_by_type = {
-        qa_type: max(1, int(len(indices) / total * test_set_size))
-        for qa_type, indices in indices_by_type.items()
-    }
-
-    count_sum = sum(sample_count_by_type.values())
-    while count_sum < test_set_size:
-        largest = max(sample_count_by_type, key=lambda k: len(indices_by_type[k]))
-        sample_count_by_type[largest] += 1
-        count_sum += 1
-    while count_sum > test_set_size:
-        largest = max(sample_count_by_type, key=lambda k: count_by_type[k])
-        if sample_count_by_type[largest] > 1:
-            sample_count_by_type[largest] -= 1
-            count_sum -= 1
-        else:
-            break
+    test_set_pct = test_set_size / total
 
     sampled_indices = []
     sampled_count_by_type = {}
-    for qa_type, count in sample_count_by_type.items():
-        indices = indices_by_type[qa_type]
-        sampled = random.sample(indices, min(count, len(indices)))
+    for qa_type, indices in indices_by_type.items():
+        n = int(len(indices) * test_set_pct)
+        sampled = sorted(indices)[:n]  # Deterministic: sorted order
         sampled_indices.extend(sampled)
         sampled_count_by_type[qa_type] = len(sampled)
 
-    sampled_pct_by_type = {
-        qa_type: count / test_set_size
-        for qa_type, count in sampled_count_by_type.items()
-    }
     count_by_type = {
         qa_type: len(indices) for qa_type, indices in indices_by_type.items()
     }
     percent_by_qa_type = {
         qa_type: count / total for qa_type, count in count_by_type.items()
+    }
+    sampled_pct_by_type = {
+        qa_type: count / test_set_size
+        for qa_type, count in sampled_count_by_type.items()
     }
 
     logger.debug(f"Original distribution (count): {count_by_type}")
