@@ -31,6 +31,7 @@ def evaluate_model(
         split=dataset_split,
         use_grid=use_grid,
         use_system_prompt=use_system_prompt,
+        use_reasoning=use_reasoning,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))

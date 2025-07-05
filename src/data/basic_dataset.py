@@ -40,12 +40,13 @@ class DriveLMImageDataset(Dataset):
         split="train",
         add_augmented=False,
         use_grid=False,
-        add_reasoning_context=False,
+        use_reasoning=False,
         use_system_prompt=False,
     ):
         self.message_format = message_format
         self.split = split
-        self.add_reasoning_context = add_reasoning_context
+        self.use_reasoning = use_reasoning
+        self.use_grid = use_grid
         self.use_system_prompt = use_system_prompt
 
         data = load_dataset(
@@ -136,7 +137,11 @@ class DriveLMImageDataset(Dataset):
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
         system_prompt = (
-            get_system_prompt(qa["qa_type"]) if self.use_system_prompt else None
+            get_system_prompt(
+                qa["qa_type"],
+                use_grid=self.use_grid,
+                use_reasoning=self.use_reasoning,
+            ) if self.use_system_prompt else None
         )
 
         query_item = QueryItem(
@@ -149,7 +154,7 @@ class DriveLMImageDataset(Dataset):
             ground_truth_answer=answer,
         )
 
-        if self.add_reasoning_context and self.split == "train":
+        if self.use_reasoning and self.split == "train":
             query_item.context_pairs = generate_reasoning_context(query_item)
         query_item.formatted_message = query_item.format_message(self.message_format)
 

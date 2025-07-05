@@ -307,7 +307,7 @@ def train(
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,
-        add_reasoning_context=use_reasoning,
+        use_reasoning=use_reasoning,
         use_system_prompt=use_system_prompt,
     )
     if test_set_size is not None:

@@ -1,8 +1,25 @@
+def get_approach_prompt(
+    use_grid: bool = False,
+    use_reasoning: bool = False,
+) -> str:
+    prompt = "You are an autonomous driving assistant. "
+    if use_grid:
+        prompt += (
+            "You are provided with a grid of images of the current situation. "
+            "Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. "
+            "Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. "
+        )
+    else:
+        prompt += "You receive a single image from the front camera. "
+    if use_reasoning:
+        prompt += "In addition to the image input, you receive context from a previously answered question that should be used as information for the following question. "
+    return prompt
+
+
 def get_general_prompt():
     return (
-        "You are an autonomous driving AI assistant. You receive a single image from the front camera. "
         "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center."
-        "Provide accurate, concise, and context-aware response in the appropriate format for the question type that completes the request"
+        "Provide accurate, concise, and context-aware response for the given question"
     )
 
 
@@ -28,7 +45,8 @@ def get_question_type_prompt(question_type: str):
     return prompts.get(question_type, "")
 
 
-def get_system_prompt(question_type: str):
+def get_system_prompt(question_type: str, **approach_kwargs):
+    approach_prompt = get_approach_prompt(**approach_kwargs)
     general_prompt = get_general_prompt()
     specific_prompt = get_question_type_prompt(question_type)
-    return f"{general_prompt}\n\n{specific_prompt}"
+    return f"{approach_prompt}\n{general_prompt}\n\n{specific_prompt}"
