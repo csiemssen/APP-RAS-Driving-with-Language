@@ -37,6 +37,9 @@ class evaluation_suit:
             scores.append(score)
             self.per_question_scores.setdefault(idx, {})["accuracy"] = score
 
+        if len(scores) == 0:
+            return 0.0
+
         scores = sum(scores) / len(scores)
         return scores
 
@@ -46,6 +49,10 @@ class evaluation_suit:
                 scores = p.map(self.chatgpt_eval.forward, data)
 
             scores = list(map(float, scores))
+
+            if len(scores) == 0:
+                return 0.0
+
             scores = sum(scores) / len(scores)
             return scores
         except Exception as e:
@@ -80,8 +87,12 @@ class evaluation_suit:
             outs1.append(score)
             self.per_question_scores.setdefault(idx, {})["match"] = score
 
+        if len(outs1) == 0:
+            return 0.0
+
         outs1 = sum(outs1) / len(outs1)
         outs2 = self.eval_chatGPT(self.match["GPT"])
+
         scores = (outs1 + outs2) / 2.0
         return scores
 
@@ -164,6 +175,8 @@ class evaluation_suit:
             self.match["match"]["answer"].append(answer)
             self.match["GPT"].append((answer, GT))
             self.match["idx"].append(idx)
+
+        self.per_question_scores.setdefault(idx, {})["tag"] = tag
 
     def evaluation(self):
         print("evaluation start!")
