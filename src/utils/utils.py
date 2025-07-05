@@ -70,7 +70,7 @@ def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
     sampled_count_by_type = {}
     for qa_type, indices in indices_by_type.items():
         n = int(len(indices) * test_set_pct)
-        sampled = sorted(indices)[:n]  # Deterministic: sorted order
+        sampled = sorted(indices)[:n]
         sampled_indices.extend(sampled)
         sampled_count_by_type[qa_type] = len(sampled)
 
