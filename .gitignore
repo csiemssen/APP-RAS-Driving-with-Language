@@ -185,8 +185,8 @@ data/nuscenes/*
 data/val_data/*
 data/drivelm/*
 data/output/*
-models/hf_dumps/*
-models/logs/*
+models/*
+trainer_output/*
 # except for the gitkeeps to make sure, that the dirs exist
 !data/nuscenes/.gitkeep
 !data/drivelm/.gitkeep
