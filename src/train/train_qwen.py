@@ -31,7 +31,7 @@ from src.constants import model_log_dir, model_output_dir
 from src.data.basic_dataset import DriveLMImageDataset
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset_for_testing
+from src.utils.utils import create_subset_for_testing, get_resize_image_size
 
 logger = get_logger(__name__)
 
@@ -254,8 +254,13 @@ def train(
     use_system_prompt: bool = False,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
+
+    resize_image_size = get_resize_image_size(resize_factor, use_grid)
+
+    logger.debug(f"Using resize image size: {resize_image_size}")
+
     engine = QwenVLInferenceEngine(
-        use_4bit=True, training=True, resize_factor=resize_factor
+        use_4bit=True, training=True, resize_image_size=resize_image_size
     )
 
     def collator(batch: Any):
@@ -303,7 +308,6 @@ def train(
 
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
-        resize_factor=resize_factor,
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,

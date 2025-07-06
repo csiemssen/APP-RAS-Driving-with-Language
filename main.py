@@ -7,7 +7,7 @@ from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
 from src.utils.approach import get_approach_kwargs, get_approach_name
 from src.utils.logger import get_logger
-from src.utils.utils import is_cuda
+from src.utils.utils import get_resize_image_size, is_cuda
 
 logger = get_logger(__name__)
 
@@ -78,21 +78,24 @@ if __name__ == "__main__":
             **kwargs,
         )
     elif args.eval:
+        resize_image_size = get_resize_image_size(
+            resize_factor=resize_factor, grid="image_grid" in args.approach
+        )
+        logger.debug(f"Using resize image size: {resize_image_size}")
         if is_cuda():
             engine = QwenVLInferenceEngine(
                 model_path=model_path,
                 use_4bit=True,
-                resize_factor=resize_factor,
+                resize_image_size=resize_image_size,
             )
         else:
-            engine = QwenVLInferenceEngine(resize_factor=resize_factor)
+            engine = QwenVLInferenceEngine(resize_image_size=resize_image_size)
 
         evaluate_model(
             engine=engine,
             dataset_split="val",
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
-            resize_factor=resize_factor,
             **kwargs,
         )
     else:

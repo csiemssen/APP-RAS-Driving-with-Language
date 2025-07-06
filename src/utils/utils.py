@@ -1,12 +1,13 @@
 import re
 import shutil
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset, Subset
 
+from src.constants import GRID_IMG_SIZE, IMAGE_SIZE
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -61,3 +62,14 @@ def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
 def parse_key_objects(question: str) -> List[str]:
     pattern = r"<[^>]+>"
     return re.findall(pattern, question)
+
+
+def get_resize_image_size(resize_factor: float, grid=False) -> Tuple[int, int]:
+    if grid:
+        height = int(GRID_IMG_SIZE[0] * resize_factor)
+        width = int(GRID_IMG_SIZE[1] * resize_factor)
+    else:
+        height = int(IMAGE_SIZE[0] * resize_factor)
+        width = int(IMAGE_SIZE[1] * resize_factor)
+
+    return (height, width)
