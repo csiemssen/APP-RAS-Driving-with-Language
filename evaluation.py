@@ -220,6 +220,13 @@ if __name__ == "__main__":
         help="Whether to skip missing predictions completely or use worst case response for missing prediction.",
     )
 
+    parser.add_argument(
+        "--override",
+        type=bool,
+        default=False,
+        help="Whether to override existing output file if it exists.",
+    )
+
     args = parser.parse_args()
 
     with open(args.prediction_file, "r") as f:  # , \
@@ -313,7 +320,15 @@ if __name__ == "__main__":
     pred_base = os.path.basename(args.prediction_file)
 
     out_base = re.sub(r"(output)?\.json$", "", pred_base)
-    output_file = os.path.join(args.output_path, f"{out_base}_results.json")
+    output_file = os.path.join(args.output_path, f"{out_base}results.json")
+
+    counter = 1
+    while os.path.exists(output_file) and not args.override:
+        print(f"Warning: {output_file} already exists.")
+        output_file = os.path.join(
+            args.output_path, f"{out_base}results_{counter}.json"
+        )
+        counter += 1
 
     with open(output_file, "w") as f:
         json.dump(output, f, indent=4)
