@@ -28,7 +28,7 @@ class TestDriveLMImageDataset(unittest.TestCase):
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
             split="train",
-            add_reasoning_context=True,
+            use_reasoning=True,
         )
         self.assertGreater(
             len(dataset),

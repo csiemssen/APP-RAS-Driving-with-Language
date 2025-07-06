@@ -12,3 +12,10 @@ model_dir = src_dir / ".." / "models"
 model_output_dir = model_dir / "hf_dumps"
 model_log_dir = model_dir / "logs"
 fonts_dir = data_dir / "fonts"
+
+IMAGE_SIZE = (900, 1600)  # (height, width)
+GRID = (2, 3)  # (rows, cols)
+GRID_IMG_SIZE = (
+    IMAGE_SIZE[0] * GRID[0],
+    IMAGE_SIZE[1] * GRID[1],
+)  # (height, width)
