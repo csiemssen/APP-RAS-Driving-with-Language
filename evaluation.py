@@ -2,14 +2,9 @@ import argparse
 import json
 import os
 import re
-import sys
-from multiprocessing import Pool
 
 import language_evaluation
 import numpy as np
-
-sys.path.append(".")
-from evaluation.gpt_eval import GPTEvaluation
 
 
 class evaluation_suit:
@@ -17,7 +12,6 @@ class evaluation_suit:
         self.language_eval = language_evaluation.CocoEvaluator(
             coco_types=["BLEU", "ROUGE_L", "CIDEr"]
         )
-        self.chatgpt_eval = GPTEvaluation()
         self.GPT = []
         self.accuracy = {"answer": [], "GT": [], "idx": []}
         self.language = {"answer": [], "GT": [], "idx": []}
@@ -44,23 +38,9 @@ class evaluation_suit:
         scores = sum(scores) / len(scores)
         return scores
 
+    # this is a placeholder function for evaluating chatGPT results and currecntly not implemented
     def eval_chatGPT(self, data):
-        try:
-            with Pool(32) as p:  # Change the number based on your CPU cores
-                scores = p.map(self.chatgpt_eval.forward, data)
-
-            scores = list(map(float, scores))
-
-            if len(scores) == 0:
-                return 0.0
-
-            scores = sum(scores) / len(scores)
-            return scores
-        except Exception as e:
-            print(
-                f"ChatGPT evaluation failed: {e}. Assigning score 0.0 and continuing."
-            )
-            return 0.0
+        return 0.0
 
     def eval_language(self):
         """
