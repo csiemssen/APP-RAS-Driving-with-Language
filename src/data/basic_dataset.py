@@ -7,7 +7,7 @@ from src.constants import drivelm_dir
 from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
-from src.data.prompts import get_system_prompt
+from src.data.system_prompts import get_system_prompt
 from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 from src.utils.utils import remove_nones
@@ -40,11 +40,14 @@ class DriveLMImageDataset(Dataset):
         split="train",
         add_augmented=False,
         use_grid=False,
-        add_reasoning_context=False,
+        use_reasoning=False,
+        use_system_prompt=False,
     ):
         self.message_format = message_format
         self.split = split
-        self.add_reasoning_context = add_reasoning_context
+        self.use_reasoning = use_reasoning
+        self.use_grid = use_grid
+        self.use_system_prompt = use_system_prompt
 
         data = load_dataset(
             split,
@@ -133,7 +136,13 @@ class DriveLMImageDataset(Dataset):
         answer = qa["qa"]["A"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
-        system_prompt = get_system_prompt(qa["qa_type"])
+        system_prompt = (
+            get_system_prompt(
+                qa["qa_type"],
+                use_grid=self.use_grid,
+                use_reasoning=self.use_reasoning,
+            ) if self.use_system_prompt else None
+        )
 
         query_item = QueryItem(
             question=question,
@@ -145,7 +154,7 @@ class DriveLMImageDataset(Dataset):
             ground_truth_answer=answer,
         )
 
-        if self.add_reasoning_context and self.split == "train":
+        if self.use_reasoning and self.split == "train":
             query_item.context_pairs = generate_reasoning_context(query_item)
         query_item.formatted_message = query_item.format_message(self.message_format)
 

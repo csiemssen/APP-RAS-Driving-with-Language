@@ -24,7 +24,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--approach",
         help="The name of the current approach (used for naming of the resulting files).",
-        choices=["front_cam", "image_grid", "descriptor_qas", "reasoning"],
+        choices=[
+            "front_cam",
+            "image_grid",
+            "descriptor_qas",
+            "reasoning",
+            "system_prompt",
+        ],
         nargs="+",  # Allow multiple approaches to be specified
         required=True,
     )

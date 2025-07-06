@@ -22,6 +22,7 @@ def evaluate_model(
     dataset_split: str = "val",
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
+    use_system_prompt: bool = False,
     use_reasoning: bool = False,
 ):
     dataset = DriveLMImageDataset(
@@ -29,6 +30,8 @@ def evaluate_model(
         resize_factor=resize_factor,
         split=dataset_split,
         use_grid=use_grid,
+        use_system_prompt=use_system_prompt,
+        use_reasoning=use_reasoning,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))

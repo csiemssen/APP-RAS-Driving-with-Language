@@ -251,6 +251,7 @@ def train(
     use_grid: bool = False,
     use_augmented: bool = False,
     use_reasoning: bool = False,
+    use_system_prompt: bool = False,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
     engine = QwenVLInferenceEngine(
@@ -306,7 +307,8 @@ def train(
         split="train",
         use_grid=use_grid,
         add_augmented=use_augmented,
-        add_reasoning_context=use_reasoning,
+        use_reasoning=use_reasoning,
+        use_system_prompt=use_system_prompt,
     )
     if test_set_size is not None:
         dataset = create_subset_for_testing(dataset, int(test_set_size))
