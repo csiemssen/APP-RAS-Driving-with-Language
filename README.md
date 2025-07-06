@@ -43,10 +43,6 @@ You can find the notebooks in the `notebooks` directory to run training and eval
 ## Evaluation
 To evaluate, please use the official test server.  
 To evaluate locally, you need to install the language evaluation packages by following this link: https://github.com/bckim92/language-evaluation.  
-You’ll also need the OpenAI Python SDK:
-``` shell
-pip install openai
-```
 
 To generate the test dataset from the train dataset, run the following command in your project root:
 ``` shell
