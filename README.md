@@ -40,7 +40,41 @@ You can find the notebooks in the `notebooks` directory to run training and eval
 - Training: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/train.ipynb)
 - Evaluation: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/eval.ipynb)
 
-## Eval results
+## Evaluation
+To evaluate, please use the official test server.  
+To evaluate locally, you need to install the language evaluation packages by following this link: https://github.com/bckim92/language-evaluation.  
+You’ll also need the OpenAI Python SDK:
+``` shell
+pip install openai
+```
+
+To generate the test dataset from the train dataset, run the following command in your project root:
+``` shell
+python -m src.data.extract_test_dataset
+```
+
+Once installed, you can run the evaluation with:
+```shell
+python evaluation.py --prediction_file <predictions> --test_file <ground_truth> --output_path <output>
+```
+
+Alternatively, you can use the provided Docker image `Dockerfile-score`. Make sure to mount your evaluation, gpt-evaluation, prediction file, ground truth file, and an output path for the results:
+
+```shell
+docker run --rm -v "$(pwd)":/app <image-name> \
+    --prediction_file <predictions> \
+    --test_file <ground_truth> \
+    --output_path <output>
+```
+- Ensure all required files are in the current directory ($(pwd)), or adjust the volume path accordingly.
+
+> [!Note]
+> The name of the prediction file is used to name the results file, so make sure to name it accordingly.
+
+> [!NOTE]
+> Please note, that if now Gpt-api-key key is provided, the evaluation will be done without the chatgpt metric and chatgpt score will be set to 0.0.
+
+#### Results
 
 | Folder | File | accuracy | chatgpt | language/Bleu_1 | language/Bleu_2 | language/Bleu_3 | language/Bleu_4 | language/ROUGE_L | language/CIDEr | match | final_score |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

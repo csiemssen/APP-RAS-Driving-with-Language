@@ -23,6 +23,7 @@ def evaluate_model(
     use_grid: bool = False,
     use_system_prompt: bool = False,
     use_reasoning: bool = False,
+    approach_name: Optional[str] = None,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
@@ -61,25 +62,21 @@ def evaluate_model(
                 }
             )
 
-    os.makedirs(os.path.join(data_dir, "output"), exist_ok=True)
-    with open(
-        os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_output.json",
-        ),
-        "w",
-    ) as f:
+    model_dir = sanitize_model_name(engine.model_path)
+    output_dir = os.path.join(data_dir, "output", model_dir)
+    os.makedirs(output_dir, exist_ok=True)
+
+    if approach_name is None or approach_name == "":
+        output_file = os.path.join(output_dir, "output.json")
+        submission_file = os.path.join(output_dir, "submission.json")
+    else:
+        output_file = os.path.join(output_dir, f"{approach_name}_output.json")
+        submission_file = os.path.join(output_dir, f"{approach_name}_submission.json")
+
+    with open(output_file, "w") as f:
         json.dump(results, f, indent=2)
 
-    with open(
-        os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_submission.json",
-        ),
-        "w",
-    ) as f:
+    with open(submission_file, "w") as f:
         json.dump(
             {
                 "method": "",

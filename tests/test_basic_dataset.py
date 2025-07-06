@@ -24,6 +24,10 @@ class TestDriveLMImageDataset(unittest.TestCase):
         dataset = DriveLMImageDataset(message_format=QwenMessageFormat(), split="val")
         self.assertGreater(len(dataset), 0, "Validation dataset should not be empty")
 
+    def test_test_dataset_is_not_empty(self):
+        dataset = DriveLMImageDataset(message_format=QwenMessageFormat(), split="test")
+        self.assertGreater(len(dataset), 0, "Test dataset should not be empty")
+
     def test_dataset_with_reasoning_context(self):
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
