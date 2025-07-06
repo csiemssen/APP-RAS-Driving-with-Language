@@ -62,13 +62,10 @@ docker run --rm -v "$(pwd)":/app <image-name> \
     --test_file <ground_truth> \
     --output_path <output>
 ```
-- Ensure all required files are in the current directory ($(pwd)), or adjust the volume path accordingly.
+- Ensure all required files are in the current directory (`$(pwd)`), or adjust the volume path accordingly.
 
 > [!Note]
 > The name of the prediction file is used to name the results file, so make sure to name it accordingly.
-
-> [!NOTE]
-> Please note, that if now Gpt-api-key key is provided, the evaluation will be done without the chatgpt metric and chatgpt score will be set to 0.0.
 
 #### Results
 
