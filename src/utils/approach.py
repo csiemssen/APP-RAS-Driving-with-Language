@@ -16,4 +16,8 @@ def get_approach_kwargs(approaches: List[str]) -> Dict[str, Any]:
 
 
 def get_approach_name(approaches: List[str]) -> str:
-    return "_".join(approaches)
+    return "_".join(to_pascal_case(a) for a in approaches)
+
+
+def to_pascal_case(s: str) -> str:
+    return "".join(word.capitalize() for word in s.split("_"))

@@ -94,6 +94,7 @@ if __name__ == "__main__":
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
             resize_factor=resize_factor,
+            approach_name=approach_name,
             **kwargs,
         )
     else:

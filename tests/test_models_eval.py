@@ -32,18 +32,14 @@ class TestModelEvaluation(unittest.TestCase):
             test_set_size=1,
             use_reasoning=True,
             use_grid=True,
+            approach_name="test_models_eval",
         )
 
-        output_file = os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_output.json",
-        )
-        submission_file = os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_submission.json",
-        )
+        model_dir = sanitize_model_name(engine.model_path)
+        output_dir = os.path.join(data_dir, "output", model_dir)
+        output_file = os.path.join(output_dir, "test_models_eval_output.json")
+        submission_file = os.path.join(output_dir, "test_models_eval_submission.json")
+
         self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
@@ -73,16 +69,11 @@ class TestModelEvaluation(unittest.TestCase):
             engine=engine, dataset_split="val", batch_size=1, test_set_size=1
         )
 
-        output_file = os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_output.json",
-        )
-        submission_file = os.path.join(
-            data_dir,
-            "output",
-            f"{sanitize_model_name(engine.model_path)}_submission.json",
-        )
+        model_dir = sanitize_model_name(engine.model_path)
+        output_dir = os.path.join(data_dir, "output", model_dir)
+        output_file = os.path.join(output_dir, "test_test_test_output.json")
+        submission_file = os.path.join(output_dir, "test_test_test_submission.json")
+
         self.assertTrue(os.path.exists(output_file), "Output file should be created.")
         self.assertTrue(
             os.path.exists(submission_file),
