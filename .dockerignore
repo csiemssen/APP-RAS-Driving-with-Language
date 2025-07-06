@@ -1,9 +1,14 @@
 courseDocs
+notebooks
 data/drivelm/*
 !data/drivelm/.gitignore
 data/nuscenes/*
 !data/nuscenes/.gitignore
 data/nuscenes_og
+models/hf_dumps/*
+!models/hf_dumps/.gitkeep
+models/logs/*
+!models/logs/.gitkeep
 docs
 tests
 venv
