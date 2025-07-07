@@ -30,7 +30,7 @@ class evaluation_suit:
         self.GPT = []
         self.accuracy = {"answer": [], "GT": [], "idx": []}
         self.language = {"answer": [], "GT": [], "idx": []}
-        self.match = {"match": {"answer": [], "GT": []}, "GPT": [], "idx": []}
+        self.match = {"match": {"answer": [], "GT": [], "idx": []}, "GPT": []}
         self.per_question_scores = {}
 
     def eval_acc(self):
@@ -78,6 +78,7 @@ class evaluation_suit:
         for i in range(len(self.match["match"]["answer"])):
             answer = self.match["match"]["answer"][i]
             GT = self.match["match"]["GT"][i]
+            idx = self.match["match"]["idx"][i]
             _, F1_score = self.match_result(answer, GT)
             score = F1_score * 100
             outs1.append(score)
@@ -169,8 +170,8 @@ class evaluation_suit:
         if 3 in tag:
             self.match["match"]["GT"].append(GT)
             self.match["match"]["answer"].append(answer)
+            self.match["match"]["idx"].append(idx)
             self.match["GPT"].append((answer, GT))
-            self.match["idx"].append(idx)
 
         self.per_question_scores.setdefault(idx, {})["tag"] = tag
 
