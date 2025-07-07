@@ -233,6 +233,9 @@ if __name__ == "__main__":
         test_file = json.load(f)
 
     evaluation = evaluation_suit()
+    missing_predictions_counter = 0
+    available_predictions_counter = 0
+    questions_counter = 0
     for scene_id in test_file.keys():
         scene_data = test_file[scene_id]["key_frames"]
 
@@ -251,12 +254,20 @@ if __name__ == "__main__":
                 tag = qa["tag"]
                 idx = scene_id + "_" + frame_id + "_" + str(i)
 
+                questions_counter += 1
                 if idx in pred_file:
+                    if question != pred_file[idx]["question"]:
+                        raise Exception(
+                            f"Question mismatch for {idx}. Expected: {question}, Found: {pred_file[idx]['question']}"
+                        )
+
                     predict = pred_file[idx]["answer"]
                     available = True
+                    available_predictions_counter += 1
                 else:
                     predict = ""
                     available = False
+                    missing_predictions_counter += 1
                     print(f"Warning: No prediction found for {idx}")
 
                 # assert pred_file[idx]["gt_answer"] == GT, print(pred_file[idx]["gt_answer"], GT)
@@ -311,6 +322,11 @@ if __name__ == "__main__":
 
     final_score = sum([x * y for x, y in zip(scores, weights)])
     print("final score: ", final_score)
+    print(
+        f"Evaluated {questions_counter} questions, "
+        f"available predictions: {available_predictions_counter}, "
+        f"missing predictions: {missing_predictions_counter}"
+    )
 
     pred_dir = os.path.dirname(args.prediction_file)
     pred_base = os.path.basename(args.prediction_file)
