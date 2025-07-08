@@ -110,6 +110,7 @@ class evaluation_suit:
         answer: [[1.,2.], [2., 3.]]
         GT: [[1., 2.], [2., 3.]]
         """
+
         answer_nums = re.findall(r"\d+\.\d+", answer)
         GT_nums = re.findall(r"\d+\.\d+", GT)
         # transform string into float
@@ -156,7 +157,7 @@ class evaluation_suit:
         self.graph, _ = self.match_result(answer, GT)
         self.graph = [list(i) for i in self.graph]
 
-    def forward(self, tag, answer, GT, idx):
+    def forward(self, tag, answer, GT, idx, question):
         if 0 in tag:
             self.accuracy["answer"].append(answer)
             self.accuracy["GT"].append(GT)
@@ -173,7 +174,9 @@ class evaluation_suit:
             self.match["match"]["idx"].append(idx)
             self.match["GPT"].append((answer, GT))
 
-        self.per_question_scores.setdefault(idx, {})["tag"] = tag
+        self.per_question_scores.setdefault(idx, {}).update(
+            {"tag": tag, "question": question, "GT": GT, "answer": answer}
+        )
 
     def evaluation(self):
         print("evaluation start!")
@@ -280,17 +283,16 @@ if __name__ == "__main__":
                 if first_flag:
                     first_flag = False
                     evaluation.set_graph(predict, GT)
-                    evaluation.forward(tag, predict, GT, idx)
+                    evaluation.forward(tag, predict, GT, idx, question)
                 else:
                     if evaluation.eval_graph(question):
-                        res = evaluation.forward(tag, predict, GT, idx)
+                        res = evaluation.forward(tag, predict, GT, idx, question)
 
     output = evaluation.evaluation()
     print("accuracy score: ", output["accuracy"])
     print("chatgpt score: ", output["chatgpt"])
     print("match score: ", output["match"])
     print("language score: ", output["language"])
-    print("per question scores: ", output["per_question_scores"])
 
     # Normalize to 0-1 and combine the scores: chatgpt, language, match, accuracy
     scores = []
