@@ -10,6 +10,7 @@ class QueryItem:
     image_path: str
     qa_id: str
     qa_type: str
+    tags: List[str]
     key_object_info: Optional[Dict[str, Any]] = None
     system_prompt: str = None
     ground_truth_answer: Optional[str] = None

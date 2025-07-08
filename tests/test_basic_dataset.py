@@ -7,11 +7,53 @@ import pytest
 from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset_for_testing
+from src.utils.utils import create_subset
 
 logging.getLogger().setLevel(logging.DEBUG)
 
 logger = get_logger(__name__)
+
+
+def get_group_counts(dataset, indices, by_tag=False):
+    if by_tag:
+        return Counter(tag for i in indices for tag in getattr(dataset[i], "tags", []))
+    else:
+        return Counter(dataset[i].qa_type for i in indices)
+
+
+def validate_proportional_distribution(
+    dataset, subset_indices, by_tag=False, tolerance=0.10
+):
+    full_counts = get_group_counts(dataset, range(len(dataset)), by_tag)
+    subset_counts = get_group_counts(dataset, subset_indices, by_tag)
+    total_full = sum(full_counts.values())
+    total_subset = sum(subset_counts.values())
+    dist_full = {k: v / total_full for k, v in full_counts.items()}
+    dist_subset = {k: v / total_subset for k, v in subset_counts.items()}
+
+    for group in dist_full:
+        if group in dist_subset:
+            diff = abs(dist_full[group] - dist_subset[group])
+            assert diff < tolerance, (
+                f"Distribution for '{group}' differs by more than {tolerance * 100:.0f}%: "
+                f"full={dist_full[group]:.2%}, subset={dist_subset[group]:.2%}"
+            )
+        else:
+            assert dist_full[group] < 0.05, (
+                f"'{group}' missing from subset but present in full dataset"
+            )
+
+
+def validate_equal_distribution(dataset, subset_indices, by_tag=False):
+    group_type = "tag" if by_tag else "qa_type"
+    group_counts = get_group_counts(dataset, subset_indices, by_tag)
+    if group_counts:
+        min_count = min(group_counts.values())
+        max_count = max(group_counts.values())
+        assert max_count - min_count <= 1, (
+            f"Equal distribution by '{group_type}' failed: "
+            f"min={min_count}, max={max_count}, counts={dict(group_counts)}"
+        )
 
 
 @pytest.mark.dataset
@@ -97,33 +139,51 @@ class TestDriveLMImageDataset(unittest.TestCase):
             "Dataset with augmented questions should be larger than the base dataset",
         )
 
-    def test_subset_dataset(self):
+    def test_subset_proportional_qa_type(self):
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
-            split="train",
+            split="test",
         )
-        test_set_size = min(50, len(dataset))  # Use a small test set for speed
-        subset = create_subset_for_testing(dataset, test_set_size)
+        test_set_size = min(500, len(dataset))
+        subset = create_subset(dataset, test_set_size, by_tag=False)
+        validate_proportional_distribution(dataset, subset.indices, by_tag=False)
 
-        qa_type_counts_full = Counter(item.qa_type for item in dataset)
-        total_full = sum(qa_type_counts_full.values())
-        dist_full = {k: v / total_full for k, v in qa_type_counts_full.items()}
+    def test_subset_equal_qa_type(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+        )
+        test_set_size = min(500, len(dataset))
+        subset = create_subset(
+            dataset,
+            test_set_size,
+            by_tag=False,
+            equal_distribution=True,
+        )
+        validate_equal_distribution(dataset, subset.indices, by_tag=False)
 
-        qa_type_counts_subset = Counter(dataset[i].qa_type for i in subset.indices)
-        total_subset = sum(qa_type_counts_subset.values())
-        dist_subset = {k: v / total_subset for k, v in qa_type_counts_subset.items()}
+    def test_subset_proportional_tag(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+        )
+        test_set_size = min(500, len(dataset))
+        subset = create_subset(dataset, test_set_size, by_tag=True)
+        validate_proportional_distribution(dataset, subset.indices, by_tag=True)
 
-        for qa_type in dist_full:
-            if qa_type in dist_subset:
-                diff = abs(dist_full[qa_type] - dist_subset[qa_type])
-                assert diff < 0.10, (
-                    f"Distribution for qa_type '{qa_type}' differs by more than 10%: "
-                    f"full={dist_full[qa_type]:.2%}, subset={dist_subset[qa_type]:.2%}"
-                )
-            else:
-                assert dist_full[qa_type] < 0.05, (
-                    f"qa_type '{qa_type}' missing from subset but present in full dataset"
-                )
+    def test_subset_equal_tag(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+        )
+        test_set_size = min(500, len(dataset))
+        subset = create_subset(
+            dataset,
+            test_set_size,
+            by_tag=True,
+            equal_distribution=True,
+        )
+        validate_equal_distribution(dataset, subset.indices, by_tag=True)
 
 
 if __name__ == "__main__":

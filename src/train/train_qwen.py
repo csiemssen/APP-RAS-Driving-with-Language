@@ -31,7 +31,7 @@ from src.constants import model_log_dir, model_output_dir
 from src.data.basic_dataset import DriveLMImageDataset
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset_for_testing, get_resize_image_size
+from src.utils.utils import create_subset, get_resize_image_size
 
 logger = get_logger(__name__)
 
@@ -315,7 +315,7 @@ def train(
         use_system_prompt=use_system_prompt,
     )
     if test_set_size is not None:
-        dataset = create_subset_for_testing(dataset, int(test_set_size))
+        dataset = create_subset(dataset, int(test_set_size))
     dataset = [item.formatted_message for item in dataset]
 
     engine.load_model(flash_attn=False)
