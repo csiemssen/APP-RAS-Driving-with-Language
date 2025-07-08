@@ -20,7 +20,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def extract_data(root_path, save_path):
+def extract_data(root_path, save_path, excludeTags=[1]):
     with open(root_path, "r") as f:  # , \
         train_file = json.load(f)
 
@@ -172,6 +172,18 @@ def extract_data(root_path, save_path):
                 answer = qa["A"]
                 qa["tag"] = [0]
                 test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"].append(qa)
+
+    if excludeTags is not None:
+        for scene_id in test_data.keys():
+            for frame_id in test_data[scene_id]["key_frames"].keys():
+                qa_types = test_data[scene_id]["key_frames"][frame_id]["QA"]
+                for qa_type in qa_types.keys():
+                    qa_list = qa_types[qa_type]
+                    qa_types[qa_type] = [
+                        qa
+                        for qa in qa_list
+                        if not any(tag in excludeTags for tag in qa.get("tag", []))
+                    ]
 
     with open(save_path, "w") as f:
         json.dump(test_data, f, indent=4)

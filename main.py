@@ -71,7 +71,7 @@ if __name__ == "__main__":
     kwargs = get_approach_kwargs(args.approach)
 
     approach_name = (
-        "resize_factor=" + args.resize_factor + get_approach_name(args.approach)
+        "resize_factor=" + args.resize_factor + "_" + get_approach_name(args.approach)
     )
 
     resize_factor = float(args.resize_factor)
