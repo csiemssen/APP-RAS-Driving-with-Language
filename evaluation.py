@@ -17,17 +17,28 @@ import argparse
 import json
 import os
 import re
+import sys
 
 import language_evaluation
 import numpy as np
 
+sys.path.append(".")
+from evaluation.chat_evaluator_factory import create_evaluator
+
 
 class evaluation_suit:
-    def __init__(self):
+    def __init__(self, chat_provider=None, chat_model=None):
         self.language_eval = language_evaluation.CocoEvaluator(
             coco_types=["BLEU", "ROUGE_L", "CIDEr"]
         )
         self.GPT = []
+
+        if chat_provider is None:
+            self.chat_eval = None
+            print("Chat provider is not set. Skipping chat evaluation.")
+        else:
+            self.chat_eval = create_evaluator(provider=chat_provider, model=chat_model)
+
         self.accuracy = {"answer": [], "GT": [], "idx": []}
         self.language = {"answer": [], "GT": [], "idx": []}
         self.match = {"match": {"answer": [], "GT": [], "idx": []}, "GPT": []}
@@ -53,9 +64,23 @@ class evaluation_suit:
         scores = sum(scores) / len(scores)
         return scores
 
-    # this is a placeholder function for evaluating chatGPT results and currecntly not implemented
-    def eval_chatGPT(self, data):
-        return 0.0
+    def eval_chat(self, data):
+        if not self.chat_eval:
+            print("Chat evaluation is not set up. Skipping evaluation.")
+            return 0.0
+
+        results = [self.chat_eval.forward(item) for item in data]
+
+        scores = [float(result[0]) for result in results]
+        tokens_used = sum(result[1] for result in results)
+
+        print(f"Chat evaluation used {tokens_used} tokens.")
+
+        if len(scores) == 0:
+            return 0.0
+
+        scores = sum(scores) / len(scores)
+        return scores
 
     def eval_language(self):
         """
@@ -64,6 +89,10 @@ class evaluation_suit:
         answer = self.language["answer"]
         GT = self.language["GT"]
         idx = self.language["idx"]
+
+        if not idx:
+            return None
+
         results_gen = self.language_eval.run_evaluation(answer, GT)
 
         for idx, answer, GT in zip(idx, answer, GT):
@@ -88,10 +117,13 @@ class evaluation_suit:
             return 0.0
 
         outs1 = sum(outs1) / len(outs1)
-        outs2 = self.eval_chatGPT(self.match["GPT"])
 
-        scores = (outs1 + outs2) / 2.0
-        return scores
+        if not self.chat_provider:
+            print("Chat evaluation is not set up. Skipping evaluation.")
+            return outs1
+        else:
+            outs2 = self.eval_chat(self.match["GPT"])
+            return (outs1 + outs2) / 2.0
 
     def eval_graph(self, question):
         # check if answer in self.graph
@@ -182,7 +214,7 @@ class evaluation_suit:
         print("evaluation start!")
         scores = {}
         scores["accuracy"] = self.eval_acc()
-        scores["chatgpt"] = self.eval_chatGPT(self.GPT)
+        scores["chatgpt"] = self.eval_chat(self.GPT)
         scores["language"] = self.eval_language()
         scores["match"] = self.eval_match()
         scores["per_question_scores"] = self.per_question_scores
@@ -214,16 +246,29 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--ignore_missing",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Whether to skip missing predictions completely or use worst case response for missing prediction.",
     )
 
     parser.add_argument(
         "--override",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Whether to override existing output file if it exists.",
+    )
+
+    parser.add_argument(
+        "--chat_provider",
+        type=str,
+        default=None,
+        choices=["openai", "google"],
+        help="Chat evaluation provider to use (default: google)",
+    )
+
+    parser.add_argument(
+        "--chat_model",
+        type=str,
+        default=None,
+        help="Model to use for chat evaluation (e.g., gpt-3.5-turbo, gpt-4, gemini-1.5-flash, claude-3-sonnet-20240229)",
     )
 
     args = parser.parse_args()
@@ -235,7 +280,11 @@ if __name__ == "__main__":
     with open(args.test_file, "r") as f:
         test_file = json.load(f)
 
-    evaluation = evaluation_suit()
+    evaluation = evaluation_suit(
+        chat_provider=args.chat_provider,
+        chat_model=args.chat_model,
+    )
+
     missing_predictions_counter = 0
     available_predictions_counter = 0
     questions_counter = 0
@@ -271,13 +320,13 @@ if __name__ == "__main__":
                     predict = ""
                     available = False
                     missing_predictions_counter += 1
-                    print(f"Warning: No prediction found for {idx}")
+                    # print(f"Warning: No prediction found for {idx}")
 
                 # assert pred_file[idx]["gt_answer"] == GT, print(pred_file[idx]["gt_answer"], GT)
                 if args.ignore_missing and not available:
-                    print(
-                        f"Skipping missing prediction for {idx} as ignore_missing is set to True."
-                    )
+                    # print(
+                    #    f"Skipping missing prediction for {idx} as ignore_missing is set to True."
+                    # )
                     continue
 
                 if first_flag:
@@ -303,16 +352,16 @@ if __name__ == "__main__":
     scores.append(score)
 
     # language
-    score = 0
-    for idx, key in enumerate(output["language"].keys()):
-        if idx < 4:
-            score += output["language"][key] / 4.0 / 3.0
-        elif idx == 4:
-            score += output["language"][key] / 3.0
-        else:
-            score += output["language"][key] / 10.0 / 3.0
-
-    scores.append(score)
+    if output["language"]:
+        score = 0
+        for idx, key in enumerate(output["language"].keys()):
+            if idx < 4:
+                score += output["language"][key] / 4.0 / 3.0
+            elif idx == 4:
+                score += output["language"][key] / 3.0
+            else:
+                score += output["language"][key] / 10.0 / 3.0
+        scores.append(score)
 
     # match
     score = output["match"] / 100.0
