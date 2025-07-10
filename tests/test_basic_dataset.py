@@ -1,4 +1,3 @@
-import logging
 import unittest
 from collections import Counter
 
@@ -8,8 +7,6 @@ from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
 from src.utils.utils import create_subset
-
-logging.getLogger().setLevel(logging.DEBUG)
 
 logger = get_logger(__name__)
 
@@ -184,6 +181,21 @@ class TestDriveLMImageDataset(unittest.TestCase):
             equal_distribution=True,
         )
         validate_equal_distribution(dataset, subset.indices, by_tag=True)
+
+    def test_dataset_with_excluded_tags(self):
+        exclude_question_tags = [1]
+
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+            exclude_question_tags=exclude_question_tags,
+        )
+
+        for item in dataset:
+            for tag in item.tags:
+                assert tag not in exclude_question_tags, (
+                    f"Item {item.qa_id} has excluded tag '{tag}'"
+                )
 
 
 if __name__ == "__main__":

@@ -320,13 +320,12 @@ if __name__ == "__main__":
                     predict = ""
                     available = False
                     missing_predictions_counter += 1
-                    # print(f"Warning: No prediction found for {idx}")
+                    print(f"Warning: No prediction found for {idx}")
 
-                # assert pred_file[idx]["gt_answer"] == GT, print(pred_file[idx]["gt_answer"], GT)
                 if args.ignore_missing and not available:
-                    # print(
-                    #    f"Skipping missing prediction for {idx} as ignore_missing is set to True."
-                    # )
+                    print(
+                        f"Skipping missing prediction for {idx} as ignore_missing is set to True."
+                    )
                     continue
 
                 if first_flag:

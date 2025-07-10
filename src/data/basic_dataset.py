@@ -41,6 +41,7 @@ class DriveLMImageDataset(Dataset):
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
+        exclude_question_tags: List[int] = [],
     ):
         self.message_format = message_format
         self.split = split
@@ -52,6 +53,7 @@ class DriveLMImageDataset(Dataset):
             split,
             add_augmented=add_augmented,
             use_grid=use_grid,
+            exclude_tags=exclude_question_tags,
         )
 
         removed = 0
