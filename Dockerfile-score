@@ -8,22 +8,30 @@ RUN apt-get update && apt-get install -y \
   git \
   perl \
   libxml-parser-perl \
-  python3 \
-  python3-pip \
+  python3.9 \
+  python3.9-distutils \
+  python3.9-venv \
   openjdk-8-jdk \
   wget \
   unzip \
   && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
+
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.9
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 RUN pip3 install git+https://github.com/bckim92/language-evaluation.git
 
+RUN pip3 install openai google-genai python-dotenv
+
 RUN python3 -c "import language_evaluation; language_evaluation.download('coco')"
 
 WORKDIR /app
 
 COPY evaluation.py ./
+COPY evaluation/ ./evaluation/
 
 ENTRYPOINT ["python3", "evaluation.py"]

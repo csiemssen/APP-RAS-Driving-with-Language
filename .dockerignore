@@ -16,3 +16,4 @@ venv
 win_venv
 .github
 .git
+.env

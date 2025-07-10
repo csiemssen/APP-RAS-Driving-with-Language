@@ -10,7 +10,7 @@ from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.base_inference import BaseInferenceEngine
 from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset_for_testing, sanitize_model_name
+from src.utils.utils import create_subset, sanitize_model_name
 
 logger = get_logger(__name__)
 
@@ -33,7 +33,12 @@ def evaluate_model(
         use_reasoning=use_reasoning,
     )
     if test_set_size is not None:
-        dataset = create_subset_for_testing(dataset, int(test_set_size))
+        dataset = create_subset(
+            ds=dataset,
+            sample_size=int(test_set_size),
+            by_tag=True,
+            equal_distribution=True,
+        )
     dataloader = DataLoader(
         dataset, batch_size=int(batch_size), collate_fn=simple_dict_collate
     )
