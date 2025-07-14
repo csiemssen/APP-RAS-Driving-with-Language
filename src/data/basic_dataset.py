@@ -7,8 +7,8 @@ from src.constants import drivelm_dir
 from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
-from src.data.system_prompts import get_system_prompt
 from src.data.query_item import QueryItem
+from src.data.system_prompts import get_system_prompt
 from src.utils.logger import get_logger
 from src.utils.utils import remove_nones
 
@@ -41,6 +41,7 @@ class DriveLMImageDataset(Dataset):
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
+        exclude_question_tags: List[int] = [],
     ):
         self.message_format = message_format
         self.split = split
@@ -52,6 +53,7 @@ class DriveLMImageDataset(Dataset):
             split,
             add_augmented=add_augmented,
             use_grid=use_grid,
+            exclude_tags=exclude_question_tags,
         )
 
         removed = 0
@@ -132,6 +134,7 @@ class DriveLMImageDataset(Dataset):
         qa = self.qas[idx]
         question = qa["qa"]["Q"]
         answer = qa["qa"]["A"]
+        tags = qa["qa"].get("tag", [])
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
         system_prompt = (
@@ -139,7 +142,9 @@ class DriveLMImageDataset(Dataset):
                 qa["qa_type"],
                 use_grid=self.use_grid,
                 use_reasoning=self.use_reasoning,
-            ) if self.use_system_prompt else None
+            )
+            if self.use_system_prompt
+            else None
         )
 
         query_item = QueryItem(
@@ -147,6 +152,7 @@ class DriveLMImageDataset(Dataset):
             image_path=image_path,
             qa_id=qa["id"],
             qa_type=qa["qa_type"],
+            tags=tags,
             key_object_info=key_object_info,
             system_prompt=system_prompt,
             ground_truth_answer=answer,

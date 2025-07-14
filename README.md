@@ -42,7 +42,7 @@ You can find the notebooks in the `notebooks` directory to run training and eval
 
 ## Evaluation
 To evaluate, please use the official test server.  
-To evaluate locally, you need to install the language evaluation packages by following this link: https://github.com/bckim92/language-evaluation.  
+To evaluate locally, you need to install the language evaluation packages by following this link: https://github.com/bckim92/language-evaluation.
 
 To generate the test dataset from the train dataset, run the following command in your project root:
 ``` shell
@@ -54,6 +54,32 @@ Once installed, you can run the evaluation with:
 python evaluation.py --prediction_file <predictions> --test_file <ground_truth> --output_path <output>
 ```
 
+To ignore the missing predictions answers to questions in the evaluation, you can use the `--ignore_missing` flag.
+To override the output file, you can use the `--override` flag.
+
+To use the chat evaluation feature, follow these steps:
+1. Set Up API Keys:
+   - Add the API key for the provider (`OPENAI_API_KEY` or `GEMINI_API_KEY`) in your `.env` file.
+
+2. Install Required Dependencies:
+   - Install `dotenv` for environment variable management:
+     ```shell
+     pip install dotenv
+     ```
+   - Install the SDK for your chosen provider:
+     - For OpenAI:
+       ```shell
+       pip install openai
+       ```
+     - For Google:
+       ```shell
+       pip install google-genai
+       ```
+
+3. Specify Provider and Model:
+   - Use the `--chat_provider` flag to specify the LLM provider (`openai` or `google`).
+   - Use the `--chat_model` flag to specify the model.
+
 Alternatively, you can use the provided Docker image `Dockerfile-score`. Make sure to mount your evaluation, gpt-evaluation, prediction file, ground truth file, and an output path for the results:
 
 ```shell
@@ -62,6 +88,7 @@ docker run --rm -v "$(pwd)":/app <image-name> \
     --test_file <ground_truth> \
     --output_path <output>
 ```
+- To add the secrets for the API keys in runtime, you can use `--env-file .env`:
 - Ensure all required files are in the current directory (`$(pwd)`), or adjust the volume path accordingly.
 
 > [!Note]

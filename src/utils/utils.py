@@ -51,44 +51,67 @@ def extract_children(zip_path: str, out_path: str):
     shutil.rmtree(tmp)
 
 
-def create_subset_for_testing(ds: Dataset, test_set_size: int) -> Dataset:
-    logger.info(f"Creating subset with size {test_set_size}")
+def create_subset(
+    ds: Dataset, sample_size: int, by_tag=False, equal_distribution=False
+) -> Dataset:
+    logger.info(f"Creating subset with size {sample_size}")
 
-    indices_by_type: Dict[str, List[int]] = {}
-    for idx in range(len(ds)):
-        item: QueryItem = ds[idx]
-        qa_type = item.qa_type
-        indices_by_type.setdefault(qa_type, []).append(idx)
+    def get_keys(item: QueryItem):
+        if by_tag:
+            if item.tags is None:
+                logger.warning(
+                    f"Item {item.qa_id} has no tag, returning empty list for 'tag' by parameter."
+                )
+            return item.tags
+        else:
+            return [item.qa_type]
 
     total = len(ds)
     if total == 0:
         logger.warning("Dataset is empty, returning empty subset.")
         return Subset(ds, [])
 
-    test_set_pct = test_set_size / total
+    indices_by_key: Dict[str, List[int]] = {}
+    for idx in range(len(ds)):
+        item: QueryItem = ds[idx]
+        for key in get_keys(item):
+            indices_by_key.setdefault(key, []).append(idx)
 
-    sampled_indices = []
-    sampled_count_by_type = {}
-    for qa_type, indices in indices_by_type.items():
-        n = int(len(indices) * test_set_pct)
-        sampled = sorted(indices)[:n]
-        sampled_indices.extend(sampled)
-        sampled_count_by_type[qa_type] = len(sampled)
+    keys = list(indices_by_key.keys())
+    n_keys = len(keys)
 
+    sampled_indices = set()
+    if equal_distribution:
+        n_per_key = max(1, sample_size // n_keys)
+        for key in keys:
+            indices = indices_by_key[key]
+            sampled = sorted(indices)[:n_per_key]
+            sampled_indices.update(sampled)
+    else:
+        for key, indices in indices_by_key.items():
+            n = max(1, int(len(indices) * sample_size / total))
+            sampled = sorted(indices)[:n]
+            sampled_indices.update(sampled)
+
+    sampled_indices = list(sampled_indices)[:sample_size]
+
+    sampled_count_by_key = {
+        k: len([i for i in v if i in sampled_indices])
+        for k, v in indices_by_key.items()
+    }
     count_by_type = {
-        qa_type: len(indices) for qa_type, indices in indices_by_type.items()
+        qa_type: len(indices) for qa_type, indices in indices_by_key.items()
     }
     percent_by_qa_type = {
         qa_type: count / total for qa_type, count in count_by_type.items()
     }
     sampled_pct_by_type = {
-        qa_type: count / test_set_size
-        for qa_type, count in sampled_count_by_type.items()
+        qa_type: count / sample_size for qa_type, count in sampled_count_by_key.items()
     }
 
     logger.debug(f"Original distribution (count): {count_by_type}")
     logger.debug(f"Original distribution (percent): {percent_by_qa_type}")
-    logger.debug(f"Sampled distribution (count): {sampled_count_by_type}")
+    logger.debug(f"Sampled distribution (count): {sampled_count_by_key}")
     logger.debug(f"Sampled distribution (percent): {sampled_pct_by_type}")
 
     subset = Subset(ds, sampled_indices)

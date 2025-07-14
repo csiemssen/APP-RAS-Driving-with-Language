@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 
+import argparse
 import json
 
 from src.utils.logger import get_logger
@@ -20,7 +21,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def extract_data(root_path, save_path):
+def extract_data(root_path, save_path, exclude_tags=[]):
     with open(root_path, "r") as f:  # , \
         train_file = json.load(f)
 
@@ -173,12 +174,47 @@ def extract_data(root_path, save_path):
                 qa["tag"] = [0]
                 test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"].append(qa)
 
+    if exclude_tags is not None:
+        for scene_id in test_data.keys():
+            for frame_id in test_data[scene_id]["key_frames"].keys():
+                qa_types = test_data[scene_id]["key_frames"][frame_id]["QA"]
+                for qa_type in qa_types.keys():
+                    qa_list = qa_types[qa_type]
+                    qa_types[qa_type] = [
+                        qa
+                        for qa in qa_list
+                        if not any(tag in exclude_tags for tag in qa.get("tag", []))
+                    ]
+
     with open(save_path, "w") as f:
         json.dump(test_data, f, indent=4)
 
 
 if __name__ == "__main__":
-    # extract the data from the training json file
-    root_path = "./data/drivelm/v1_1_train_nus.json"
-    save_path = "./data/drivelm/v1_1_test_nus.json"
-    extract_data(root_path, save_path)
+    parser = argparse.ArgumentParser(description="Extract Test Data")
+    parser.add_argument(
+        "--root_path",
+        type=str,
+        default="./data/drivelm/v1_1_train_nus.json",
+        help="path to the root dataset file",
+    )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default="./data/drivelm/v1_1_test_nus.json",
+        help="path to save test dataset to",
+    )
+    parser.add_argument(
+        "--exclude_tags",
+        type=str,
+        default="[]",
+        help="question tags to exclude from the test dataset",
+    )
+    args = parser.parse_args()
+    exclude_tags = json.loads(args.exclude_tags) if args.exclude_tags else []
+
+    extract_data(
+        args.root_path,
+        args.save_path,
+        exclude_tags=[int(tag) for tag in exclude_tags],
+    )
