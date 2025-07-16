@@ -30,25 +30,23 @@ class QuestionTag:
 
 
 def get_question_tag(
-    question, answer, qa_type=None, classes=None, locations=None
+    question, answer=None, qa_type=None, classes=None, locations=None
 ) -> Optional[QuestionTag]:
-    if qa_type == "perception" and classes is not None:
-        flag = 1
-        for cl in classes:
-            if cl.lower() not in answer.lower():
-                flag = 0
-        if flag == 1:
+    if qa_type == "perception" and classes is not None and answer is not None:
+        if all(cl.lower() in answer.lower() for cl in classes):
             return QuestionTag(tag=[2], subtype="importance")
-        if "What is the moving status of object".lower() in question.lower():
-            return QuestionTag(tag=[0], subtype="moving_status")
 
-    if qa_type == "prediction" and locations is not None:
-        flag = 1
-        for loc in locations:
-            if loc.lower() not in answer.lower():
-                flag = 0
-        if flag == 1:
+    if (
+        qa_type == "perception"
+        and "what is the moving status of object" in question.lower()
+    ):
+        return QuestionTag(tag=[0], subtype="moving_status")
+
+    if qa_type == "prediction" and locations is not None and answer is not None:
+        if all(loc.lower() in answer.lower() for loc in locations):
             return QuestionTag(tag=[3], subtype="graph")
+
+    if qa_type == "prediction" and answer is not None:
         if "yes" in answer.lower() or "no" in answer.lower():
             return QuestionTag(tag=[0], subtype="yes_no")
 
@@ -66,7 +64,7 @@ def get_question_tag(
     return None
 
 
-def get_classes(key_object_infos):
+def get_key_objects_classes(key_object_infos):
     classes = []
     for obj_id in key_object_infos.keys():
         obj_data = key_object_infos[obj_id]
@@ -74,7 +72,7 @@ def get_classes(key_object_infos):
     return classes
 
 
-def get_locations(key_object_infos):
+def get_key_objects_locations(key_object_infos):
     locations = []
     for obj_id in key_object_infos.keys():
         locations.append(obj_id)
@@ -111,10 +109,10 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"] = []
 
             # get the classes of the important objects
-            classes = get_classes(frame_data_infos)
+            classes = get_key_objects_classes(frame_data_infos)
 
             # get the location of the important objects
-            locations = get_locations(frame_data_infos)
+            locations = get_key_objects_locations(frame_data_infos)
 
             # get the questions and answers of the perception
             perception = frame_data_qa["perception"]
