@@ -127,7 +127,7 @@ def extract_data(root_path, save_path, exclude_tags=[]):
                     and 2 in question_tag.tag
                     and 2 not in perception_tagged
                 ):
-                    qa["tag"] = [question_tag.tag]
+                    qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
