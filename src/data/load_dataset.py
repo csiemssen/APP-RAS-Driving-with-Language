@@ -1,6 +1,5 @@
 import os
 from json import load
-from typing import List
 
 import gdown
 
@@ -53,7 +52,6 @@ def load_dataset(
     split: str,
     add_augmented: bool = False,
     use_grid: bool = False,
-    exclude_tags: List[int] = [],
 ):
     dataset_paths = {
         "train": drivelm_train_json,
@@ -70,7 +68,7 @@ def load_dataset(
 
     if split == "test":
         logger.debug("Extracting test dataset from train dataset")
-        extract_data(drivelm_train_json, drivelm_test_json, exclude_tags)
+        extract_data(drivelm_train_json, drivelm_test_json)
 
         base_path = drivelm_test_json
 

@@ -43,6 +43,7 @@ class DriveLMImageDataset(Dataset):
         use_system_prompt=False,
         system_prompt_config_path=None,
         exclude_question_tags: List[int] = [],
+        exclude_question_types: List[str] = [],
     ):
         self.message_format = message_format
         self.split = split
@@ -54,12 +55,7 @@ class DriveLMImageDataset(Dataset):
             else None
         )
 
-        data = load_dataset(
-            split,
-            add_augmented=add_augmented,
-            use_grid=use_grid,
-            exclude_tags=exclude_question_tags,
-        )
+        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
 
         removed = 0
         qa_list = []
@@ -114,6 +110,14 @@ class DriveLMImageDataset(Dataset):
                     + qas_behavior
                     + qas_augmented
                 ):
+                    tags = qa.get("tag", [])
+                    qa_type = qa_types[i]
+                    if (
+                        any(tag in exclude_question_tags for tag in tags)
+                        or qa_type in exclude_question_types
+                    ):
+                        continue
+
                     qa_list.append(
                         {
                             "qa": remove_nones(qa),

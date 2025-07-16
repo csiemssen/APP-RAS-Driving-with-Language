@@ -197,6 +197,20 @@ class TestDriveLMImageDataset(unittest.TestCase):
                     f"Item {item.qa_id} has excluded tag '{tag}'"
                 )
 
+    def test_dataset_with_excluded_question_types(self):
+        exclude_question_types = ["planning"]
+
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+            exclude_question_types=exclude_question_types,
+        )
+
+        for item in dataset:
+            assert item.qa_type not in exclude_question_types, (
+                f"Item {item.qa_id} has excluded question type '{item.qa_type}'"
+            )
+
     def test_dataset_with_system_prompt(self):
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
@@ -224,7 +238,7 @@ class TestDriveLMImageDataset(unittest.TestCase):
             use_system_prompt=True,
             use_reasoning=True,
             use_grid=True,
-            system_prompt_config=config_path,
+            system_prompt_config_path=config_path,
         )
 
         # Collect all override strings from the config file
