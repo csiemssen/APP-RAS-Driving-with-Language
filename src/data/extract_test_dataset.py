@@ -66,6 +66,21 @@ def get_question_tag(
     return None
 
 
+def get_classes(key_object_infos):
+    classes = []
+    for obj_id in key_object_infos.keys():
+        obj_data = key_object_infos[obj_id]
+        classes.append(obj_data["Visual_description"].split(".")[0])
+    return classes
+
+
+def get_locations(key_object_infos):
+    locations = []
+    for obj_id in key_object_infos.keys():
+        locations.append(obj_id)
+    return locations
+
+
 def extract_data(root_path, save_path, exclude_tags=[]):
     with open(root_path, "r") as f:  # , \
         train_file = json.load(f)
@@ -96,17 +111,10 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"] = []
 
             # get the classes of the important objects
-            classes = []
-            for obj_id in frame_data_infos.keys():
-                obj_data = frame_data_infos[obj_id]
-                classes.append(obj_data["Visual_description"].split(".")[0])
-                logger.debug(classes)
+            classes = get_classes(frame_data_infos)
 
             # get the location of the important objects
-            locations = []
-            for obj_id in frame_data_infos.keys():
-                locations.append(obj_id)
-                logger.debug(locations)
+            locations = get_locations(frame_data_infos)
 
             # get the questions and answers of the perception
             perception = frame_data_qa["perception"]
