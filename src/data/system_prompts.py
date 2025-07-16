@@ -45,8 +45,45 @@ def get_question_type_prompt(question_type: str):
     return prompts.get(question_type, "")
 
 
-def get_system_prompt(question_type: str, **approach_kwargs):
+def get_question_specific_prompt(question_type: str, question: str) -> str:
+    q_lower = question.lower()
+    match question_type:
+        case "perception":
+            if (
+                "what are the important objects in the current scene" in q_lower
+            ):  # metric: language
+                return "placeholder importance objects prompt"
+            if "what is the moving status of object" in q_lower:  # metric: accuracy
+                return "placeholder moving status prompt"
+
+        case "prediction":
+            if (
+                "what object should the ego vehicle notice first when the ego vehicle is getting to the next possible location"
+                in q_lower
+            ):  # metric: match
+                return "placeholder graph prompt"
+
+            if q_lower.strip().startswith(("are there", "is", "will", "would")):
+                return "placeholder yes/no prompt"
+
+        case "planning":
+            if "what actions could the ego vehicle take" in q_lower:  # metric: gpt
+                return "placeholder actions prompt"
+            if "lead to a collision" in q_lower:  # metric: gpt
+                return "placeholder collision prompt"
+            if "safe actions" in q_lower:  # metric: gpt
+                return "placeholder safe actions prompt"
+
+        case "behavior":  # metric: accuracy
+            return "placeholder behavior prompt"
+
+    return None
+
+
+def get_system_prompt(question_type: str, question: str, **approach_kwargs):
     approach_prompt = get_approach_prompt(**approach_kwargs)
     general_prompt = get_general_prompt()
-    specific_prompt = get_question_type_prompt(question_type)
-    return f"{approach_prompt}\n{general_prompt}\n\n{specific_prompt}"
+    question_type_prompt = get_question_type_prompt(question_type)
+    question_specific_prompt = get_question_specific_prompt(question_type, question)
+
+    return f"{approach_prompt}\n{general_prompt}\n\n{question_type_prompt}\n\n{question_specific_prompt}"

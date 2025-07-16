@@ -139,7 +139,8 @@ class DriveLMImageDataset(Dataset):
         image_path = qa["image_path"]
         system_prompt = (
             get_system_prompt(
-                qa["qa_type"],
+                question_type=qa["qa_type"],
+                question=question,
                 use_grid=self.use_grid,
                 use_reasoning=self.use_reasoning,
             )

@@ -197,6 +197,25 @@ class TestDriveLMImageDataset(unittest.TestCase):
                     f"Item {item.qa_id} has excluded tag '{tag}'"
                 )
 
+    def test_dataset_with_system_prompt(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            use_system_prompt=True,
+        )
+
+        self.assertGreater(
+            len(dataset),
+            0,
+            "Dataset with system prompts should not be empty",
+        )
+
+        for item in dataset:
+            self.assertIsNotNone(
+                item.system_prompt,
+                f"Item {item.qa_id} should have a system prompt",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
