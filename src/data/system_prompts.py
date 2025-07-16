@@ -116,4 +116,12 @@ class SystemPromptProvider:
         question_specific_prompt = self.get_question_specific_prompt(
             question_type, question
         )
-        return f"{approach_prompt}\n{general_prompt}\n\n{question_type_prompt}\n\n{question_specific_prompt}"
+
+        sections = [
+            approach_prompt,
+            general_prompt,
+            question_type_prompt,
+            question_specific_prompt,
+        ]
+
+        return "\n".join([s for s in sections if s and s.strip()])
