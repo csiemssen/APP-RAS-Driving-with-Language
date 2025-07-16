@@ -69,6 +69,7 @@ def evaluate_model(
                 {
                     "id": batch[i].qa_id,
                     "question": batch[i].question,
+                    "model_input": batch[i].formatted_message,
                     "answer": result,
                 }
             )
