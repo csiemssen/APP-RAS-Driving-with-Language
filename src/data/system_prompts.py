@@ -75,12 +75,14 @@ class SystemPromptProvider:
         )
         match question_type:
             case "perception":
-                if "what are the important objects in the current scene" in q_lower:
+                if (
+                    "what are the important objects in the current scene" in q_lower
+                ):  # metric: language
                     return specific.get(
                         "importance_objects",
                         "placeholder importance objects prompt",
                     )
-                if "what is the moving status of object" in q_lower:
+                if "what is the moving status of object" in q_lower:  # metric: accuracy
                     return specific.get(
                         "moving_status", "placeholder moving status prompt"
                     )
@@ -88,11 +90,13 @@ class SystemPromptProvider:
                 if (
                     "what object should the ego vehicle notice first when the ego vehicle is getting to the next possible location"
                     in q_lower
-                ):
+                ):  # metric: match
                     return specific.get("graph", "placeholder graph prompt")
-                if q_lower.strip().startswith(("are there", "is", "will", "would")):
+                if q_lower.strip().startswith(
+                    ("are there", "is", "will", "would")
+                ):  # metric: accuracy
                     return specific.get("yes_no", "placeholder yes/no prompt")
-            case "planning":
+            case "planning":  # metric: gpt
                 if "what actions could the ego vehicle take" in q_lower:
                     return specific.get("actions", "placeholder actions prompt")
                 if "lead to a collision" in q_lower:
@@ -101,7 +105,7 @@ class SystemPromptProvider:
                     return specific.get(
                         "safe_actions", "placeholder safe actions prompt"
                     )
-            case "behavior":
+            case "behavior":  # metric: accuracy
                 return specific.get("default", "placeholder behavior prompt")
         return None
 
