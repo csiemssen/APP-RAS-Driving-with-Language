@@ -29,10 +29,10 @@ class QuestionTag:
     subtype: Optional[str] = None
 
 
-def get_question_tag(
-    question, answer=None, qa_type=None, classes=None, locations=None
+def get_question_tag_test(
+    question, answer, qa_type, classes=None, locations=None
 ) -> Optional[QuestionTag]:
-    if qa_type == "perception" and classes is not None and answer is not None:
+    if qa_type == "perception" and classes is not None:
         if all(cl.lower() in answer.lower() for cl in classes):
             return QuestionTag(tag=[2], subtype="importance")
 
@@ -42,11 +42,11 @@ def get_question_tag(
     ):
         return QuestionTag(tag=[0], subtype="moving_status")
 
-    if qa_type == "prediction" and locations is not None and answer is not None:
+    if qa_type == "prediction" and locations is not None:
         if all(loc.lower() in answer.lower() for loc in locations):
             return QuestionTag(tag=[3], subtype="graph")
 
-    if qa_type == "prediction" and answer is not None:
+    if qa_type == "prediction":
         if "yes" in answer.lower() or "no" in answer.lower():
             return QuestionTag(tag=[0], subtype="yes_no")
 
@@ -60,6 +60,38 @@ def get_question_tag(
 
     if qa_type == "behavior":
         return QuestionTag(tag=[0])
+
+    return None
+
+
+def get_question_tag_eval(question, qa_type):
+    q_lower = question.lower()
+    match qa_type:
+        case "perception":
+            if "what are the important objects in the current scene" in q_lower:
+                return QuestionTag(tag=[2], subtype="importance")
+            if "what is the moving status of object" in q_lower:
+                return QuestionTag(tag=[0], subtype="moving_status")
+
+        case "prediction":
+            if (
+                "what object should the ego vehicle notice first when the ego vehicle is getting to the next possible location"
+                in q_lower
+            ):
+                return QuestionTag(tag=[3], subtype="graph")
+                if q_lower.strip().startswith(("are there", "is", "will", "would")):
+                    return QuestionTag(tag=[0], subtype="yes_no")
+
+        case "planning":
+            if "what actions could the ego vehicle take" in q_lower:
+                return QuestionTag(tag=[1], subtype="actions")
+            if "lead to a collision" in q_lower:
+                return QuestionTag(tag=[1], subtype="collision")
+            if "safe actions" in q_lower:
+                return QuestionTag(tag=[1], subtype="safe_actions")
+
+        case "behavior":
+            return QuestionTag(tag=[0])
 
     return None
 
@@ -121,50 +153,48 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             behavior = frame_data_qa["behavior"]
 
             # Perception: get the importance questions
-            perception_tagged = set()
+            # perception_tagged = set()
             for qa in perception:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(
+                question_tag = get_question_tag_test(
                     question, answer, qa_type="perception", classes=classes
                 )
                 if (
-                    question_tag
-                    and 2 in question_tag.tag
-                    and 2 not in perception_tagged
+                    question_tag and 2 in question_tag.tag
+                    # and 2 not in perception_tagged
                 ):
                     qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
-                    perception_tagged.add(2)
-                    break
+                    # perception_tagged.add(2)
+                    # break
 
             # Perception: get the moving status questions
             for qa in perception:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(
+                question_tag = get_question_tag_test(
                     question, answer, qa_type="perception", classes=classes
                 )
                 if (
-                    question_tag
-                    and 0 in question_tag.tag
-                    and 0 not in perception_tagged
+                    question_tag and 0 in question_tag.tag
+                    # and 0 not in perception_tagged
                 ):
                     qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
-                    perception_tagged.add(0)
-                    break
+                    # perception_tagged.add(0)
+                    # break
 
             # Prediction: graph
             prediction_tagged = set()
             for qa in prediction:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(
+                question_tag = get_question_tag_test(
                     question, answer, qa_type="prediction", locations=locations
                 )
                 if (
@@ -183,7 +213,7 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             for qa in prediction:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(
+                question_tag = get_question_tag_test(
                     question, answer, qa_type="prediction", locations=locations
                 )
                 if (
@@ -203,7 +233,9 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             for qa in planning:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(question, answer, qa_type="planning")
+                question_tag = get_question_tag_test(
+                    question, answer, qa_type="planning"
+                )
                 if question_tag and question_tag.subtype not in planning_subtypes_added:
                     qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
@@ -222,7 +254,9 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             for qa in behavior:
                 question = qa["Q"]
                 answer = qa["A"]
-                question_tag = get_question_tag(question, answer, qa_type="behavior")
+                question_tag = get_question_tag_test(
+                    question, answer, qa_type="behavior"
+                )
                 if question_tag is None:
                     continue
                 qa["tag"] = question_tag.tag
