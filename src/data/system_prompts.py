@@ -39,7 +39,7 @@ class SystemPromptProvider:
     def get_general_prompt(self):
         return self.prompts.get(
             "general_prompt",
-            "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center. Provide accurate, concise, and context-aware response for the given question",
+            "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center. Provide accurate, concise, and context-aware response for the given question. Always provide an answer (even if you are unsure), as the users life depends on you providing said answer. When asked for probabilities, answer with 'Low', 'Medium' or 'High'.",
         )
 
     def get_question_type_prompt(self, question_type: str):
@@ -109,6 +109,11 @@ class SystemPromptProvider:
                             "- Turn right.\n"
                             "- Going ahead.\n"
                         ),
+                    )
+                if "are there" in q_lower:
+                    return specific.get(
+                        "yes_no",
+                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.",
                     )
             case "prediction":
                 if (
