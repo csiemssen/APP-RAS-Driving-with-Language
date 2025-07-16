@@ -15,10 +15,55 @@
 
 import argparse
 import json
+from dataclasses import dataclass
+from typing import List, Optional
 
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class QuestionTag:
+    tag: List[int]
+    subtype: Optional[str] = None
+
+
+def get_question_tag(
+    question, answer, qa_type=None, classes=None, locations=None
+) -> Optional[QuestionTag]:
+    if qa_type == "perception" and classes is not None:
+        flag = 1
+        for cl in classes:
+            if cl.lower() not in answer.lower():
+                flag = 0
+        if flag == 1:
+            return QuestionTag(tag=[2], subtype="importance")
+        if "What is the moving status of object".lower() in question.lower():
+            return QuestionTag(tag=[0], subtype="moving_status")
+
+    if qa_type == "prediction" and locations is not None:
+        flag = 1
+        for loc in locations:
+            if loc.lower() not in answer.lower():
+                flag = 0
+        if flag == 1:
+            return QuestionTag(tag=[3], subtype="graph")
+        if "yes" in answer.lower() or "no" in answer.lower():
+            return QuestionTag(tag=[0], subtype="yes_no")
+
+    if qa_type == "planning":
+        if "What actions could the ego vehicle take".lower() in question.lower():
+            return QuestionTag(tag=[1], subtype="actions")
+        if "lead to a collision" in question.lower():
+            return QuestionTag(tag=[1], subtype="collision")
+        if "safe actions" in question.lower():
+            return QuestionTag(tag=[1], subtype="safe_actions")
+
+    if qa_type == "behavior":
+        return QuestionTag(tag=[0])
+
+    return None
 
 
 def extract_data(root_path, save_path, exclude_tags=[]):
@@ -69,109 +114,112 @@ def extract_data(root_path, save_path, exclude_tags=[]):
             planning = frame_data_qa["planning"]
             behavior = frame_data_qa["behavior"]
 
+            # Perception: get the importance questions
+            perception_tagged = set()
             for qa in perception:
                 question = qa["Q"]
                 answer = qa["A"]
-
-                # according to the classes to select the corresponding question
-                flag = 1
-                for cl in classes:
-                    if cl.lower() not in answer.lower():
-                        flag = 0
-                if flag == 1:
-                    qa["tag"] = [2]
+                question_tag = get_question_tag(
+                    question, answer, qa_type="perception", classes=classes
+                )
+                if (
+                    question_tag
+                    and 2 in question_tag.tag
+                    and 2 not in perception_tagged
+                ):
+                    qa["tag"] = [question_tag.tag]
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
+                    perception_tagged.add(2)
                     break
 
-            # get the multiple choice questions and answers
+            # Perception: get the moving status questions
             for qa in perception:
                 question = qa["Q"]
                 answer = qa["A"]
-                if "What is the moving status of object".lower() in question.lower():
-                    qa["tag"] = [0]
+                question_tag = get_question_tag(
+                    question, answer, qa_type="perception", classes=classes
+                )
+                if (
+                    question_tag
+                    and 0 in question_tag.tag
+                    and 0 not in perception_tagged
+                ):
+                    qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
+                    perception_tagged.add(0)
                     break
 
-            # get the graph questions and answers
+            # Prediction: graph
+            prediction_tagged = set()
             for qa in prediction:
                 question = qa["Q"]
                 answer = qa["A"]
-
-                # according to the location to select the corresponding question
-                flag = 1
-                for loc in locations:
-                    if loc.lower() not in answer.lower():
-                        flag = 0
-                if flag == 1:
-                    qa["tag"] = [3]
+                question_tag = get_question_tag(
+                    question, answer, qa_type="prediction", locations=locations
+                )
+                if (
+                    question_tag
+                    and 3 in question_tag.tag
+                    and 3 not in prediction_tagged
+                ):
+                    qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "prediction"
                     ].append(qa)
+                    prediction_tagged.add(3)
                     break
 
-            # get the yes or no questions and answers
+            # Prediction: yes/no
             for qa in prediction:
                 question = qa["Q"]
                 answer = qa["A"]
-                if "yes" in answer.lower() or "no" in answer.lower():
-                    qa["tag"] = [0]
+                question_tag = get_question_tag(
+                    question, answer, qa_type="prediction", locations=locations
+                )
+                if (
+                    question_tag
+                    and 0 in question_tag.tag
+                    and 0 not in prediction_tagged
+                ):
+                    qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "prediction"
                     ].append(qa)
+                    prediction_tagged.add(0)
                     break
 
-            # get the three questions from the planning "safe actions", "collision", ""
-            actions_question_added = False
-            collision_question_added = False
-            safe_actions_question_added = False
+            # Planning: safe actions, collision, actions
+            planning_subtypes_added = set()
             for qa in planning:
                 question = qa["Q"]
                 answer = qa["A"]
-                if (
-                    "What actions could the ego vehicle take".lower()
-                    in question.lower()
-                    and not actions_question_added
-                ):
-                    qa["tag"] = [1]
+                question_tag = get_question_tag(question, answer, qa_type="planning")
+                if question_tag and question_tag.subtype not in planning_subtypes_added:
+                    qa["tag"] = question_tag.tag
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "planning"
                     ].append(qa)
-                    actions_question_added = True
-                if (
-                    "lead to a collision" in question.lower()
-                    and not collision_question_added
-                ):
-                    qa["tag"] = [1]
-                    test_data[scene_id]["key_frames"][frame_id]["QA"][
-                        "planning"
-                    ].append(qa)
-                    collision_question_added = True
-                if (
-                    "safe actions" in question.lower()
-                    and not safe_actions_question_added
-                ):
-                    qa["tag"] = [1]
-                    test_data[scene_id]["key_frames"][frame_id]["QA"][
-                        "planning"
-                    ].append(qa)
-                    safe_actions_question_added = True
+                    planning_subtypes_added.add(question_tag.subtype)
 
                 # Check if all question types have been added and exit the loop
-                if (
-                    actions_question_added
-                    and collision_question_added
-                    and safe_actions_question_added
-                ):
+                if planning_subtypes_added == {
+                    "actions",
+                    "collision",
+                    "safe_actions",
+                }:
                     break
 
             for qa in behavior:
                 question = qa["Q"]
                 answer = qa["A"]
-                qa["tag"] = [0]
+                question_tag = get_question_tag(question, answer, qa_type="behavior")
+                if question_tag is None:
+                    continue
+                qa["tag"] = question_tag.tag
                 test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"].append(qa)
 
     if exclude_tags is not None:
