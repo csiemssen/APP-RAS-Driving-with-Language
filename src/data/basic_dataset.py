@@ -41,7 +41,7 @@ class DriveLMImageDataset(Dataset):
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
-        system_prompt_config=None,
+        system_prompt_config_path=None,
         exclude_question_tags: List[int] = [],
     ):
         self.message_format = message_format
@@ -49,7 +49,7 @@ class DriveLMImageDataset(Dataset):
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
         self.system_prompt_provider = (
-            SystemPromptProvider(config_path=system_prompt_config)
+            SystemPromptProvider(config_path=system_prompt_config_path)
             if use_system_prompt
             else None
         )

@@ -22,6 +22,7 @@ def evaluate_model(
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_system_prompt: bool = False,
+    system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
     approach_name: Optional[str] = None,
 ):
@@ -30,6 +31,7 @@ def evaluate_model(
         split=dataset_split,
         use_grid=use_grid,
         use_system_prompt=use_system_prompt,
+        system_prompt_config_path=system_prompt_config_path,
         use_reasoning=use_reasoning,
     )
     if test_set_size is not None:
