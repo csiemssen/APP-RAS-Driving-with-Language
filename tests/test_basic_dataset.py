@@ -216,6 +216,54 @@ class TestDriveLMImageDataset(unittest.TestCase):
                 f"Item {item.qa_id} should have a system prompt",
             )
 
+    def test_all_system_prompt_overrides_are_used(self):
+        config_path = "tests/test_data/test_system_prompts.yml"
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            use_system_prompt=True,
+            use_reasoning=True,
+            use_grid=True,
+            system_prompt_config=config_path,
+        )
+
+        # Collect all override strings from the config file
+        import yaml
+
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+
+        override_strings = set()
+        # General prompt
+        override_strings.add(config.get("general_prompt", ""))
+        # Approach prompts
+        approach = config.get("approach_prompt", {})
+        override_strings.add(approach.get("base", ""))
+        grid = approach.get("use_grid", {})
+        override_strings.add(grid.get("enabled", ""))
+        override_strings.add(approach.get("use_reasoning", ""))
+        # Question type prompts
+        for v in config.get("question_type_prompts", {}).values():
+            override_strings.add(v)
+        # Question specific prompts
+        for section in config.get("question_specific_prompts", {}).values():
+            for v in section.values():
+                override_strings.add(v)
+
+        override_strings = {s for s in override_strings if s}
+
+        found = set()
+        for item in dataset:
+            for s in override_strings:
+                if s in item.system_prompt:
+                    found.add(s)
+            if found == override_strings:
+                break
+
+        assert found == override_strings, (
+            f"Not all override strings found in system prompts: {override_strings - found}"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

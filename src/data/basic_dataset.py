@@ -8,7 +8,7 @@ from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
-from src.data.system_prompts import get_system_prompt
+from src.data.system_prompts import SystemPromptProvider
 from src.utils.logger import get_logger
 from src.utils.utils import remove_nones
 
@@ -41,13 +41,18 @@ class DriveLMImageDataset(Dataset):
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
+        system_prompt_config=None,
         exclude_question_tags: List[int] = [],
     ):
         self.message_format = message_format
         self.split = split
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
-        self.use_system_prompt = use_system_prompt
+        self.system_prompt_provider = (
+            SystemPromptProvider(config_path=system_prompt_config)
+            if use_system_prompt
+            else None
+        )
 
         data = load_dataset(
             split,
@@ -138,13 +143,13 @@ class DriveLMImageDataset(Dataset):
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
         system_prompt = (
-            get_system_prompt(
+            self.system_prompt_provider.get_system_prompt(
                 question_type=qa["qa_type"],
                 question=question,
                 use_grid=self.use_grid,
                 use_reasoning=self.use_reasoning,
             )
-            if self.use_system_prompt
+            if self.system_prompt_provider
             else None
         )
 
