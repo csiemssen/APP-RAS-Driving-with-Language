@@ -95,7 +95,10 @@ class SystemPromptProvider:
                 if q_lower.strip().startswith(
                     ("are there", "is", "will", "would")
                 ):  # metric: accuracy
-                    return specific.get("yes_no", "placeholder yes/no prompt")
+                    return specific.get(
+                        "yes_no",
+                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.",
+                    )
             case "planning":  # metric: gpt
                 if "what actions could the ego vehicle take" in q_lower:
                     return specific.get("actions", "placeholder actions prompt")
