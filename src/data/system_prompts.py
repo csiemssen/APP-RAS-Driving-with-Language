@@ -109,7 +109,29 @@ class SystemPromptProvider:
                         "safe_actions", "placeholder safe actions prompt"
                     )
             case "behavior":  # metric: accuracy
-                return specific.get("default", "placeholder behavior prompt")
+                return specific.get(
+                    "default",
+                    (
+                        "Predict the behavior of the ego vehicle. Your response must consist of two full sentences:\n"
+                        "1. The first sentence describes the vehicle's **steering or directional behavior**.\n"
+                        "2. The second sentence describes the vehicle's **speed or motion status**.\n\n"
+                        "Use only one phrase from each list below. Insert each into the template:\n"
+                        '"The ego vehicle is [PHRASE]."\n\n'
+                        "**Allowed steering/direction phrases:**\n"
+                        "- going straight\n"
+                        "- slightly steering to the left\n"
+                        "- slightly steering to the right\n"
+                        "- steering to the left\n"
+                        "- steering to the right\n\n"
+                        "**Allowed speed/motion phrases:**\n"
+                        "- not moving\n"
+                        "- driving slowly\n"
+                        "- driving with normal speed\n"
+                        "- driving fast\n"
+                        "- driving very fast\n\n"
+                        "Do not include any other text or variation. Combine each selected phrase into the sentence format exactly as shown.",
+                    ),
+                )
         return None
 
     def get_system_prompt(self, question_type: str, question: str, **approach_kwargs):
