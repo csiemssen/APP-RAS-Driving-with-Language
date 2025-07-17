@@ -84,7 +84,19 @@ class SystemPromptProvider:
                     )
                 if "what is the moving status of object" in q_lower:  # metric: accuracy
                     return specific.get(
-                        "moving_status", "placeholder moving status prompt"
+                        "moving_status",
+                        (
+                            "Your response must consist of **only one phrase** selected from the list below including the period.\n"
+                            "**Do not add any explanation or extra text.**\n\n"
+                            "**Allowed phrases:**\n"
+                            "- Back up.\n"
+                            "- Backward.\n"
+                            "- Bending over.\n"
+                            "- Reverse parking.\n"
+                            "- Turn left.\n"
+                            "- Turn right.\n"
+                            "- Going ahead."
+                        ),
                     )
             case "prediction":
                 if (
