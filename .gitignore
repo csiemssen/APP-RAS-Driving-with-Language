@@ -184,7 +184,7 @@ cython_debug/
 data/nuscenes/*
 data/val_data/*
 data/drivelm/*
-data/output/*
+data/output/ignore/*
 models/*
 trainer_output/*
 # except for the gitkeeps to make sure, that the dirs exist
