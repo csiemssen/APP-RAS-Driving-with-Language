@@ -80,7 +80,19 @@ class SystemPromptProvider:
                 ):  # metric: language
                     return specific.get(
                         "importance_objects",
-                        "placeholder importance objects prompt",
+                        (
+                            "Your response must follow this exact structure:\n\n"
+                            "1. Start with a single sentence listing the important objects using their **type**, **color**, and **relative position** with respect to the ego vehicle.\n"
+                            "- Join multiple objects in a single sentence using commas, and end the sentence with a period.\n\n"
+                            "2. On a new sentence, list the **IDs of those objects**, using their full **object descriptors in angle brackets** exactly as given in the input. Use this format:\n"
+                            "'The IDs of these objects are <...>, <...>, and <...>.'\n"
+                            "- You must list the descriptors in the **same order** as the objects were mentioned.\n"
+                            "- Do not change, shorten, or reformat the descriptors in any way.\n\n"
+                            "3. Do not include more or fewer objects than those intended.\n"
+                            "- Do not provide any explanation, reasoning, or formatting beyond the two sentences.\n\n"
+                            "Example (structure only):\n"
+                            "There is a gray SUV to the back of the ego vehicle, a blue sedan to the front, and a white truck to the back. The IDs of these objects are <c1,CAM_BACK,960.0,495.8>, <c2,CAM_FRONT,912.5,486.7>, and <c3,CAM_BACK,870.8,479.2>.\n"
+                        ),
                     )
                 if "what is the moving status of object" in q_lower:  # metric: accuracy
                     return specific.get(
@@ -95,7 +107,7 @@ class SystemPromptProvider:
                             "- Reverse parking.\n"
                             "- Turn left.\n"
                             "- Turn right.\n"
-                            "- Going ahead."
+                            "- Going ahead.\n"
                         ),
                     )
             case "prediction":
@@ -103,19 +115,55 @@ class SystemPromptProvider:
                     "what object should the ego vehicle notice first when the ego vehicle is getting to the next possible location"
                     in q_lower
                 ):  # metric: match
-                    return specific.get("graph", "placeholder graph prompt")
+                    return specific.get(
+                        "graph",
+                        (
+                            "Your response must follow these requirements strictly:\n\n"
+                            "1. **Always describe exactly three objects** in the order of importance: first, second, and third.\n"
+                            "2. **Always refer to each object using its full descriptor** in angle bracket.\n"
+                            "- Incorrect: the ego vehicle should first notice the traffic sign.\n"
+                            "- Correct: The ego vehicle should first notice `<c4,CAM_FRONT,729.1,801.9>`.\n"
+                            "3. For each object, follow this full structure:\n"
+                            "- 'The ego vehicle should [first/then/finally,...] notice <OBJECT_DESCRIPTOR>, which is in the state of [OBJECT_STATE], so the ego vehicle should [ACTION].'\n"
+                            "4. Use clear transition phrases to separate the three observations, such as: 'first', 'then', 'lastly', 'secondly', 'finally', etc.\n"
+                            "5. Do not provide extra commentary or reasoning beyond what is described above."
+                            "- Always use the **exact full object descriptor**.\n"
+                        ),
+                    )
                 if q_lower.strip().startswith(
                     ("are there", "is", "will", "would")
                 ):  # metric: accuracy
                     return specific.get(
                         "yes_no",
-                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.",
+                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.\n",
                     )
             case "planning":  # metric: gpt
                 if "what actions could the ego vehicle take" in q_lower:
-                    return specific.get("actions", "placeholder actions prompt")
+                    return specific.get(
+                        "actions",
+                        (
+                            "Your response should include three parts:\n"
+                            "1. **The action** the ego vehicle could take (e.g., turn right, stay stationary, slow down, brake, accelerate, ...).\n"
+                            "2. **The reason** for this action (e.g., to avoid a collision, to follow traffic rules, no safety issue,...).\n"
+                            "3. **The probability or likelihood** of this action (e.g., high probability, low probability, ...).\n"
+                            "4. You can use variations in phrasing, but all three parts — action, reason, and probability — must be clearly expressed.\n\n"
+                            "Example:\n"
+                            "- The action is to turn right. The reason is to avoid a collision. The probability is high.\n"
+                        ),
+                    )
                 if "lead to a collision" in q_lower:
-                    return specific.get("collision", "placeholder collision prompt")
+                    return specific.get(
+                        "collision",
+                        (
+                            "Your response must include:\n"
+                            "1. A description of one or more ego vehicle actions that could plausibly lead to a collision (e.g., turning, accelerating, reversing, etc.).\n"
+                            "2. A clear indication that those actions could lead to a collision with the specified object.\n"
+                            "3. The object must be referred to using its **full descriptor**, exactly as provided in the question.\n"
+                            "4. You can use variations in phrasing,, but ensure the object descriptor is present and clearly linked to the action.\n\n"
+                            "Example:\n"
+                            "Turning right and accelerating through the intersection can lead to a collision with <c2,CAM_FRONT_RIGHT,985.8,610.8>.\n"
+                        ),
+                    )
                 if "safe actions" in q_lower:
                     return specific.get(
                         "safe_actions", "placeholder safe actions prompt"
@@ -141,7 +189,7 @@ class SystemPromptProvider:
                         "- driving with normal speed\n"
                         "- driving fast\n"
                         "- driving very fast\n\n"
-                        "Do not include any other text or variation. Combine each selected phrase into the sentence format exactly as shown.",
+                        "Do not include any other text or variation. Combine each selected phrase into the sentence format exactly as shown.\n",
                     ),
                 )
         return None

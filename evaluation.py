@@ -118,7 +118,7 @@ class evaluation_suit:
 
         outs1 = sum(outs1) / len(outs1)
 
-        if not self.chat_provider:
+        if not self.chat_eval:
             print("Chat evaluation is not set up. Skipping evaluation.")
             return outs1
         else:
