@@ -1,0 +1,18 @@
+{
+  "method": "",
+  "team": "appras-tub",
+  "authors": [
+    "Veit Laule",
+    "Caspar Siemssen"
+  ],
+  "email": "v.laule@campus.tu-berlin.de",
+  "institution": "Technische Universit\u00e4t Berlin",
+  "country": "Germany",
+  "results": [
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_19",
+      "question": "Predict the behavior of the ego vehicle. Please select the correct answer from the following options: A. The ego vehicle is steering to the right. The ego vehicle is driving with normal speed. B. The ego vehicle is slightly steering to the right. The ego vehicle is driving slowly. C. The ego vehicle is steering to the left. The ego vehicle is driving fast. D. The ego vehicle is slightly steering to the right. The ego vehicle is driving with normal speed.",
+      "answer": "D. The ego vehicle is slightly steering to the right. The ego vehicle is driving with normal speed."
+    }
+  ]
+}

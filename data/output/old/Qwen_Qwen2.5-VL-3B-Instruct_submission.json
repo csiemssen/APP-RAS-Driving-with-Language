@@ -1,0 +1,63 @@
+{
+  "method": "",
+  "team": "appras-tub",
+  "authors": [
+    "Veit Laule",
+    "Caspar Siemssen"
+  ],
+  "email": "v.laule@campus.tu-berlin.de",
+  "institution": "Technische Universit\u00e4t Berlin",
+  "country": "Germany",
+  "results": [
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_0",
+      "question": "What are the important objects in the current scene? Those objects will be considered for the future reasoning and driving decision.",
+      "answer": "The current scene contains the following important objects:\n\n1. **<c, CAM, x, y>** - Object A\n   - Camera: CAM\n   - Coordinates: (x, y)\n   - Description: Object A is located at the specified coordinates.\n\n2. **<c, CAM, x, y>** - Object B\n   - Camera: CAM\n   - Coordinates: (x, y)\n   - Description: Object B is located at the specified coordinates.\n\n3. **<c, CAM, x, y>** - Object C\n   - Camera: CAM\n   - Coordinates: (x"
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_1",
+      "question": "What is the moving status of object <c1,CAM_BACK,384.2,477.5>? Please select the correct answer from the following options: A. Turn right. B. Drive backward. C. Going ahead. D. Turn left.",
+      "answer": "C. Going ahead."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_2",
+      "question": "What object should the ego vehicle notice first when the ego vehicle is getting to the next possible location? What is the state of the object that is first noticed by the ego vehicle and what action should the ego vehicle take? What object should the ego vehicle notice second when the ego vehicle is getting to the next possible location? What is the state of the object perceived by the ego vehicle as second and what action should the ego vehicle take? What object should the ego vehicle notice third? What is the state of the object perceived by the ego vehicle as third and what action should the ego vehicle take?",
+      "answer": "I'm sorry, but I cannot provide answers without knowing which specific objects you are referring to. Please provide more information about the objects in the image so I can assist you better."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_3",
+      "question": "Would <c1,CAM_BACK,384.2,477.5> be in the moving direction of the ego vehicle?",
+      "answer": "Yes, the object at <c1, CAM_BACK, 384.2, 477.5> would be in the moving direction of the ego vehicle."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_4",
+      "question": "Would <c2,CAM_BACK,1517.8,571.7> be in the moving direction of the ego vehicle?",
+      "answer": "Yes, the object at <c2, CAM_BACK, 1517.8, 571.7> would be in the moving direction of the ego vehicle."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_5",
+      "question": "Would <c3,CAM_FRONT_RIGHT,391.7,535.0> be in the moving direction of the ego vehicle?",
+      "answer": "Yes, the object at <c3, CAM_FRONT_RIGHT, 391.7, 535.0> would be in the moving direction of the ego vehicle."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_6",
+      "question": "Will <c1,CAM_BACK,384.2,477.5> be in the moving direction of <c2,CAM_BACK,1517.8,571.7>?",
+      "answer": "Yes, <c1,CAM_BACK,384.2,477.5> will be in the moving direction of <c2,CAM_BACK,1517.8,571.7>."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_7",
+      "question": "Will <c1,CAM_BACK,384.2,477.5> change its motion state based on <c2,CAM_BACK,1517.8,571.7>?",
+      "answer": "Yes, <c1,CAM_BACK,384.2,477.5> will change its motion state based on <c2,CAM_BACK,1517.8,571.7>. The object at <c2,CAM_BACK,1517.8,571.7> appears to be moving towards the ego vehicle, which could indicate a potential collision or interaction scenario. Therefore, <c1,CAM_BACK,384.2,477.5> may need to adjust its trajectory to avoid this potential conflict."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_8",
+      "question": "Will <c2,CAM_BACK,1517.8,571.7> be in the moving direction of <c1,CAM_BACK,384.2,477.5>?",
+      "answer": "Yes, <c2,CAM_BACK,1517.8,571.7> will be in the moving direction of <c1,CAM_BACK,384.2,477.5>."
+    },
+    {
+      "id": "b789de07180846cc972118ee6d1fb027_b0e6fd5561454b2789c853e5350557a8_9",
+      "question": "Will <c2,CAM_BACK,1517.8,571.7> change its motion state based on <c1,CAM_BACK,384.2,477.5>?",
+      "answer": "The object at <c1, CAM_BACK, 384.2, 477.5> appears to be moving towards the left side of the image. The object at <c2, CAM_BACK, 1517.8, 571.7> is located further back and appears to be stationary relative to the first object. Based on this information, it is likely that the object at <c2, CAM_BACK, 1517.8, 571.7> will remain stationary while the object at <c1, CAM_BACK, 384"
+    }
+  ]
+}
