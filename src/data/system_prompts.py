@@ -98,22 +98,9 @@ class SystemPromptProvider:
                     return specific.get(
                         "moving_status",
                         (
-                            "Your response must consist of **only one phrase** selected from the list below including the period.\n"
-                            "**Do not add any explanation or extra text.**\n\n"
-                            "**Allowed phrases:**\n"
-                            "- Back up.\n"
-                            "- Backward.\n"
-                            "- Bending over.\n"
-                            "- Reverse parking.\n"
-                            "- Turn left.\n"
-                            "- Turn right.\n"
-                            "- Going ahead.\n"
-                        ),
-                    )
-                if "are there" in q_lower:
-                    return specific.get(
-                        "yes_no",
-                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.",
+                            "Select the most likely choice from the given options and answer with either 'A.', 'B.' or 'C.' (including the period), depending on your choice."
+                            "Do not provide any additional text, explanation, or variation."   
+                        )
                     )
             case "prediction":
                 if (
@@ -177,25 +164,9 @@ class SystemPromptProvider:
                 return specific.get(
                     "default",
                     (
-                        "Predict the behavior of the ego vehicle. Your response must consist of two full sentences:\n"
-                        "1. The first sentence describes the vehicle's **steering or directional behavior**.\n"
-                        "2. The second sentence describes the vehicle's **speed or motion status**.\n\n"
-                        "Use only one phrase from each list below. Insert each into the template:\n"
-                        '"The ego vehicle is [PHRASE]."\n\n'
-                        "**Allowed steering/direction phrases:**\n"
-                        "- going straight\n"
-                        "- slightly steering to the left\n"
-                        "- slightly steering to the right\n"
-                        "- steering to the left\n"
-                        "- steering to the right\n\n"
-                        "**Allowed speed/motion phrases:**\n"
-                        "- not moving\n"
-                        "- driving slowly\n"
-                        "- driving with normal speed\n"
-                        "- driving fast\n"
-                        "- driving very fast\n\n"
-                        "Do not include any other text or variation. Combine each selected phrase into the sentence format exactly as shown.\n",
-                    ),
+                        "Select the most likely choice from the given options and answer with either 'A.', 'B.' or 'C.' (including the period), depending on your choice."
+                        "Do not provide any additional text, explanation, or variation." 
+                    )
                 )
         return None
 
