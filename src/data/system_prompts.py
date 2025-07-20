@@ -98,7 +98,7 @@ class SystemPromptProvider:
                     return specific.get(
                         "moving_status",
                         (
-                            "Select the most likely choice from the given options and answer with either 'A.', 'B.' or 'C.' (including the period), depending on your choice."
+                            "Select the most likely choice from the given options and answer with either 'A', 'B' or 'C', depending on your choice. "
                             "Do not provide any additional text, explanation, or variation."   
                         )
                     )
@@ -127,7 +127,7 @@ class SystemPromptProvider:
                 ):  # metric: accuracy
                     return specific.get(
                         "yes_no",
-                        "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.\n",
+                        "Respond only with 'Yes.' or 'No.' (including the period). Do not provide any additional text, explanation, or variation.\n",
                     )
             case "planning":  # metric: gpt
                 if "what actions could the ego vehicle take" in q_lower:
@@ -164,7 +164,7 @@ class SystemPromptProvider:
                 return specific.get(
                     "default",
                     (
-                        "Select the most likely choice from the given options and answer with either 'A.', 'B.' or 'C.' (including the period), depending on your choice."
+                        "Select the most likely choice from the given options and answer with either 'A', 'B' or 'C' (including the period), depending on your choice."
                         "Do not provide any additional text, explanation, or variation." 
                     )
                 )
