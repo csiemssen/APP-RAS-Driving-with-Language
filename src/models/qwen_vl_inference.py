@@ -85,13 +85,19 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
 
         logger.info(f"{self.model_path} loaded and ready.")
 
-    def predict_batch(self, messages: List[List[Dict]]):
+    def predict_batch(self, messages: List[List[Dict]], skip_indices: list[int]):
+        og_len = len(messages)
+        messages = [
+            message for i, message in enumerate(messages) if i not in skip_indices
+        ]
         texts = [
             self.processor.apply_chat_template(
                 message, tokenize=False, add_generation_prompt=True
             )
             for message in messages
         ]
+        if len(texts) == 0:
+            return ["" for _ in range(og_len)]
         image_inputs, video_inputs = process_vision_info(messages)
         inputs = self.processor(
             text=texts,
@@ -122,5 +128,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         logger.debug(
             f"Generated {len(output_text)} responses for batch of size {len(texts)}"
         )
+
+        output_text = ["" if i in skip_indices else next(iter(output_text)) for i in range(og_len)]
 
         return output_text

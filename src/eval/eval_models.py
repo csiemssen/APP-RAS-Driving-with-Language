@@ -62,8 +62,9 @@ def evaluate_model(
             batch = reasoning_engine.process_batch(batch)
 
         formatted_messages = [[item.formatted_message] for item in batch]
+        skip_indices = [i for i, item in enumerate(batch) if 0 in item.tags]
 
-        batch_results = engine.predict_batch(formatted_messages)
+        batch_results = engine.predict_batch(formatted_messages, skip_indices)
 
         for i, result in enumerate(batch_results):
             results.append(
@@ -79,8 +80,6 @@ def evaluate_model(
         if batch_idx % 5 == 0:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-                memory_used = torch.cuda.memory_allocated() / 1024**3
-                logger.info(f"Batch {batch_idx}: GPU memory: {memory_used:.2f} GB")
 
     model_dir = sanitize_model_name(engine.model_path)
     output_dir = os.path.join(data_dir, "output", model_dir)
