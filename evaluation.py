@@ -69,12 +69,15 @@ class evaluation_suit:
             print("Chat evaluation is not set up. Skipping evaluation.")
             return 0.0
 
-        results = [self.chat_eval.forward(item) for item in data]
+        results = [self.chat_eval.forward((answer, GT)) for answer, GT, idx in data]
 
         scores = [float(result[0]) for result in results]
         tokens_used = sum(result[1] for result in results)
 
         print(f"Chat evaluation used {tokens_used} tokens.")
+
+        for (answer, GT, idx), score in zip(data, scores):
+            self.per_question_scores.setdefault(idx, {})["chatgpt"] = score
 
         if len(scores) == 0:
             return 0.0
@@ -195,7 +198,7 @@ class evaluation_suit:
             self.accuracy["GT"].append(GT)
             self.accuracy["idx"].append(idx)
         if 1 in tag:
-            self.GPT.append((answer, GT))
+            self.GPT.append((answer, GT, idx))
         if 2 in tag:
             self.language["GT"].append(GT)
             self.language["answer"].append(answer)
