@@ -94,7 +94,9 @@ class SystemPromptProvider:
                             "There is a gray SUV to the back of the ego vehicle, a blue sedan to the front, and a white truck to the back. The IDs of these objects are <c1,CAM_BACK,960.0,495.8>, <c2,CAM_FRONT,912.5,486.7>, and <c3,CAM_BACK,870.8,479.2>.\n"
                         ),
                     )
-                if "what is the moving status of object" in q_lower:  # metric: accuracy
+                if "what is the moving status of object" in q_lower and has_options(
+                    question, 2
+                ):  # metric: accuracy
                     return specific.get(
                         "moving_status",
                         (
@@ -132,9 +134,7 @@ class SystemPromptProvider:
                         "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.\n",
                     )
             case "planning":  # metric: gpt
-                if "what actions could the ego vehicle take" in q_lower and has_options(
-                    q_lower, 2
-                ):
+                if "what actions could the ego vehicle take" in q_lower:
                     return specific.get(
                         "actions",
                         (
@@ -165,7 +165,7 @@ class SystemPromptProvider:
                         "safe_actions", "placeholder safe actions prompt"
                     )
             case "behavior":  # metric: accuracy
-                if has_options(q_lower, 2):
+                if has_options(question, 2):
                     return specific.get(
                         "default",
                         (
