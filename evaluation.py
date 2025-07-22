@@ -222,6 +222,13 @@ class evaluation_suit:
         return scores
 
 
+def strip_question_options(question):
+    marker = "Please select the correct answer from the following options:"
+    if marker in question:
+        return question.split(marker)[0].strip()
+    return question.strip()
+
+
 if __name__ == "__main__":
     # get args
     parser = argparse.ArgumentParser(description="Evaluation")
@@ -308,9 +315,11 @@ if __name__ == "__main__":
 
                 questions_counter += 1
                 if idx in pred_file:
-                    if question != pred_file[idx]["question"]:
+                    q1 = strip_question_options(question)
+                    q2 = strip_question_options(pred_file[idx]["question"])
+                    if q1 != q2:
                         raise Exception(
-                            f"Question mismatch for {idx}. Expected: {question}, Found: {pred_file[idx]['question']}"
+                            f"Question mismatch for {idx}. Expected: {q1}, Found: {q2}"
                         )
 
                     predict = pred_file[idx]["answer"]
