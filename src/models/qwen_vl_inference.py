@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -90,15 +91,20 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         messages = [
             message for i, message in enumerate(messages) if i not in skip_indices
         ]
+        start = time.time()
         texts = [
             self.processor.apply_chat_template(
                 message, tokenize=False, add_generation_prompt=True
             )
             for message in messages
         ]
+        logger.info("Applying chat template took: ", start-time.time())
+        start = time.time()
         if len(texts) == 0:
             return ["" for _ in range(og_len)]
         image_inputs, video_inputs = process_vision_info(messages)
+        logger.info("process_vision_info took:", start - time.time())
+        start = time.time()
         inputs = self.processor(
             text=texts,
             images=image_inputs,
@@ -107,6 +113,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             return_tensors="pt",
             padding_side="left",
         )
+        logger.info("Processor took:", start - time.time())
+        start = time.time()
 
         inputs = {
             k: v.to(self.device) if isinstance(v, torch.Tensor) else v
@@ -114,6 +122,8 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         }
         with torch.no_grad():
             generated_ids = self.model.generate(**inputs, max_new_tokens=256)
+        logger.info("Generating output took:", start - time.time())
+        start = time.time()
 
         generated_ids_trimmed = [
             out_ids[len(in_ids) :]
@@ -124,6 +134,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False,
         )
+        logger.info("Decoding output took:", start - time.time())
 
         logger.debug(
             f"Generated {len(output_text)} responses for batch of size {len(texts)}"
