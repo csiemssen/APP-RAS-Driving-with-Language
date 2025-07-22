@@ -22,15 +22,7 @@ class SystemPromptProvider:
         if use_grid:
             prompt += grid_prompts.get(
                 "enabled",
-                "You are provided with a 2×3 image grid representing the current driving scene from different camera angles.\n"
-                "The **top row**, from left to right, contains images from the following cameras:\n"
-                "- FRONT_LEFT\n"
-                "- FRONT\n"
-                "- FRONT_RIGHT\n"
-                "The **bottom row**, from left to right, contains images from:\n"
-                "- BACK_LEFT\n"
-                "- BACK\n"
-                "- BACK_RIGHT\n",
+                "You are provided with a grid of images of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
             )
         else:
             prompt += grid_prompts.get(
