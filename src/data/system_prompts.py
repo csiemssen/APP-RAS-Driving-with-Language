@@ -1,5 +1,7 @@
 import os
+
 import yaml
+
 from src.utils.utils import has_options
 
 
@@ -48,25 +50,7 @@ class SystemPromptProvider:
         if question_type in config_prompts:
             return config_prompts[question_type]
 
-        default_prompts = {
-            "perception": (
-                "Answer questions about what objects are present and where they are located "
-                "relative to the ego vehicle. Include object types and spatial positions (e.g., front left, back right)."
-            ),
-            "prediction": (
-                "Predict the likely future state, movement, or role of a given object in the scene. "
-                "Consider direction, intent, or whether the object will interact with the ego vehicle."
-            ),
-            "planning": (
-                "Decide how the ego vehicle should act in the current scene based on relevant objects and traffic context. "
-                "Recommend safe or unsafe actions, estimate collision risk, or determine object priority if asked."
-            ),
-            "behavior": (
-                "Describe the current motion or behavior of the ego vehicle (e.g., going straight, slowing down). "
-                "Focus only on the ego vehicle’s observed driving behavior."
-            ),
-        }
-        return default_prompts.get(question_type, "")
+        return ""
 
     def get_question_specific_prompt(self, question_type: str, question: str) -> str:
         q_lower = question.lower()
