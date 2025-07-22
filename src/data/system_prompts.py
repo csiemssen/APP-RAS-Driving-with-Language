@@ -1,6 +1,6 @@
 import os
-
 import yaml
+from src.utils.utils import has_options
 
 
 class SystemPromptProvider:
@@ -98,16 +98,10 @@ class SystemPromptProvider:
                     return specific.get(
                         "moving_status",
                         (
-                            "Your response must consist of **only one phrase** selected from the list below including the period.\n"
-                            "**Do not add any explanation or extra text.**\n\n"
-                            "**Allowed phrases:**\n"
-                            "- Back up.\n"
-                            "- Backward.\n"
-                            "- Bending over.\n"
-                            "- Reverse parking.\n"
-                            "- Turn left.\n"
-                            "- Turn right.\n"
-                            "- Going ahead.\n"
+                            "Select the most likely choice from the given options\n"
+                            "The question includes a list of answer options labeled A, B, C, D etc.\n"
+                            "You must select the **correct answer by returning only the letter** corresponding to the best option.\n"
+                            "Do not output anything except a single uppercase letter (e.g., 'A', 'B', 'C', 'D').\n"
                         ),
                     )
             case "prediction":
@@ -138,7 +132,9 @@ class SystemPromptProvider:
                         "Respond only with ‘Yes.’ or ‘No.’ (including the period). Do not provide any additional text, explanation, or variation.\n",
                     )
             case "planning":  # metric: gpt
-                if "what actions could the ego vehicle take" in q_lower:
+                if "what actions could the ego vehicle take" in q_lower and has_options(
+                    q_lower, 2
+                ):
                     return specific.get(
                         "actions",
                         (
@@ -169,29 +165,16 @@ class SystemPromptProvider:
                         "safe_actions", "placeholder safe actions prompt"
                     )
             case "behavior":  # metric: accuracy
-                return specific.get(
-                    "default",
-                    (
-                        "Predict the behavior of the ego vehicle. Your response must consist of two full sentences:\n"
-                        "1. The first sentence describes the vehicle's **steering or directional behavior**.\n"
-                        "2. The second sentence describes the vehicle's **speed or motion status**.\n\n"
-                        "Use only one phrase from each list below. Insert each into the template:\n"
-                        '"The ego vehicle is [PHRASE]."\n\n'
-                        "**Allowed steering/direction phrases:**\n"
-                        "- going straight\n"
-                        "- slightly steering to the left\n"
-                        "- slightly steering to the right\n"
-                        "- steering to the left\n"
-                        "- steering to the right\n\n"
-                        "**Allowed speed/motion phrases:**\n"
-                        "- not moving\n"
-                        "- driving slowly\n"
-                        "- driving with normal speed\n"
-                        "- driving fast\n"
-                        "- driving very fast\n\n"
-                        "Do not include any other text or variation. Combine each selected phrase into the sentence format exactly as shown.\n",
-                    ),
-                )
+                if has_options(q_lower, 2):
+                    return specific.get(
+                        "default",
+                        (
+                            "Select the most likely choice from the given options\n"
+                            "The question includes a list of answer options labeled A, B, C, etc.\n"
+                            "You must select the **correct answer by returning only the letter** corresponding to the best option.\n"
+                            "Do not output anything except a single uppercase letter (e.g., 'A', 'B', 'C').\n"
+                        ),
+                    )
         return None
 
     def get_system_prompt(self, question_type: str, question: str, **approach_kwargs):

@@ -21,6 +21,12 @@ def remove_nones(d: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in d.items() if v is not None}
 
 
+def has_options(question, min_options=2):
+    # Looks for at least min_options of A., B., C., D. in the question string
+    matches = re.findall(r"\b[A-D]\.", question)
+    return len(set(matches)) >= min_options
+
+
 def sanitize_model_name(model_path: str) -> str:
     return model_path.replace("/", "_")
 
