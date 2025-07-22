@@ -19,9 +19,14 @@ def collect_distinct_question_prefixes_by_tag(dataset_path, prefix_length):
                     tag = qa.get("tag", "NO_TAG")
                     prefix = question[:prefix_length].strip().lower()
                     if prefix:
-                        tag_to_prefixes[tag].add(prefix)
+                        if isinstance(tag, list):
+                            tags = tag if tag else ["NO_TAG"]
+                        else:
+                            tags = [tag if tag else "NO_TAG"]
+                        for t in tags:
+                            tag_to_prefixes[t].add(prefix)
 
-    for tag, prefixes in tag_to_prefixes.items():
+    for tag, prefixes in sorted(tag_to_prefixes.items(), key=lambda x: x[0]):
         print(f"\nTag: {tag} ({len(prefixes)} distinct prefixes)")
         for prefix in sorted(prefixes):
             print(prefix)
