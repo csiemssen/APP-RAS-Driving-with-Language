@@ -239,15 +239,16 @@ def extract_data(root_path, save_path, patch_accuracy_options=True, exclude_tags
 
 def generate_perception_options(answer):
     options = set(PERCEPTION_MOVING_STATUS_OPTIONS)
+    answer_clean = answer.strip().rstrip(".")
     answer_option = None
 
     for opt in options:
-        if answer.lower() in opt.lower():
+        if answer_clean.lower() in opt.lower():
             answer_option = opt
             break
 
     if not answer_option:
-        answer_option = answer.strip()
+        answer_option = answer.strip().rstrip(".")
 
     options.discard(answer_option)
 
