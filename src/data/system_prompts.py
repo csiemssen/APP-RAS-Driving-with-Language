@@ -162,7 +162,17 @@ class SystemPromptProvider:
                     )
                 if "safe actions" in q_lower:
                     return specific.get(
-                        "safe_actions", "placeholder safe actions prompt"
+                        "safe_actions",
+                        (
+                            "Your response must include:\n"
+                            "1. A list of one or more safe driving actions the ego vehicle can reasonably take (e.g., keep going at the same speed, decelerate gradually without braking, slightly offset to the left, etc.).\n"
+                            "2. The actions should be written in natural language, joined with commas, 'and', or 'or'.\n"
+                            "3. Do not include any explanation, reasoning, or commentary—only the actions.\n"
+                            "4. Use complete, grammatically correct phrases.\n"
+                            "5. You may vary the phrasing and number of actions, but all should be context-appropriate and safe.\n\n"
+                            "Example:\n"
+                            "Keep going at the same speed, decelerate gradually without braking, or slightly offset to the right."
+                        ),
                     )
             case "behavior":  # metric: accuracy
                 if has_options(question, 2):
