@@ -62,7 +62,7 @@ def evaluate_model(
             batch = reasoning_engine.process_batch(batch)
 
         formatted_messages = [[item.formatted_message] for item in batch]
-        skip_indices = [i for i, item in enumerate(batch) if 0 in item.tags]
+        skip_indices = [i for i, item in enumerate(batch) if 0 not in item.tags]
 
         batch_results = engine.predict_batch(formatted_messages, skip_indices)
 
