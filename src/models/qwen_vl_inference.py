@@ -98,14 +98,10 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             )
             for message in messages
         ]
-        for text in texts:
-            logger.info(text)
-        logger.info(f"Applying chat template took: {time.time() - start}")
         start = time.time()
         if len(texts) == 0:
             return ["" for _ in range(og_len)]
         image_inputs, video_inputs = process_vision_info(messages)
-        logger.info(f"process_vision_info took: {time.time() - start}")
         start = time.time()
         inputs = self.processor(
             text=texts,
@@ -115,7 +111,6 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             return_tensors="pt",
             padding_side="left",
         )
-        logger.info(f"Processor took: {time.time() - start}")
         start = time.time()
 
         inputs = {
@@ -124,7 +119,6 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         }
         with torch.no_grad():
             generated_ids = self.model.generate(**inputs, max_new_tokens=256)
-        logger.info(f"Generating output took: {time.time() - start}")
         start = time.time()
 
         generated_ids_trimmed = [
@@ -136,7 +130,6 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False,
         )
-        logger.info(f"Decoding output took: {start - time.time()}")
 
         logger.debug(
             f"Generated {len(output_text)} responses for batch of size {len(texts)}"
