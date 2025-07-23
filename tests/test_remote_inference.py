@@ -1,11 +1,14 @@
 import unittest
 
+import pytest
+
 import src.data.message_formats as message_formats
 from src.models.anthropic_inference import AnthropicInferenceEngine
 from src.models.gemini_inference import GeminiInferenceEngine
 from src.models.openai_inference import OpenAIInferenceEngine
 
 
+@pytest.mark.inference
 class TestRemoteInferenceEngine(unittest.TestCase):
     @unittest.skip("Skipping OpenAI inference test")
     def test_openai_predict_batch(self):
