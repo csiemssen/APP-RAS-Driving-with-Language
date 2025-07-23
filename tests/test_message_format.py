@@ -24,20 +24,25 @@ class TestMessageFormat(unittest.TestCase):
             context=context,
         )
 
-        expected_message = {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": system_prompt},
-                {"type": "text", "text": "Question: " + question},
-                {"type": "image", "image": "file:///path/to/your/image.jpg"},
-                {
-                    "type": "text",
-                    "text": "Key object infos:\n{'object': 'car', 'color': 'red'}",
-                },
-                {"type": "text", "text": "Context Question: What is this?"},
-                {"type": "text", "text": "Context Answer: This is a car."},
-            ],
-        }
+        expected_message = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": system_prompt},
+                    {"type": "text", "text": "Question: " + question},
+                    {
+                        "type": "image",
+                        "image": "file:///path/to/your/image.jpg",
+                    },
+                    {
+                        "type": "text",
+                        "text": "Key object infos:\n{'object': 'car', 'color': 'red'}",
+                    },
+                    {"type": "text", "text": "Context Question: What is this?"},
+                    {"type": "text", "text": "Context Answer: This is a car."},
+                ],
+            }
+        ]
         self.assertEqual(
             formatted_message,
             expected_message,
@@ -60,10 +65,12 @@ class TestMessageFormat(unittest.TestCase):
             context=context,
         )
 
-        expected_message = {
-            "text": "This is the system prompt\n\nQuestion: What is the color of the car?\n\nKey object infos:\n{'object': 'car', 'color': 'blue'}\n\nContext Question: What is this?\nContext Answer: This is a car.",
-            "image_path": image_path,
-        }
+        expected_message = [
+            {
+                "text": "This is the system prompt\n\nQuestion: What is the color of the car?\n\nKey object infos:\n{'object': 'car', 'color': 'blue'}\n\nContext Question: What is this?\nContext Answer: This is a car.",
+                "image_path": image_path,
+            }
+        ]
         self.assertEqual(
             formatted_message,
             expected_message,
@@ -86,23 +93,25 @@ class TestMessageFormat(unittest.TestCase):
             context=context,
         )
 
-        expected_message = {
-            "role": "user",
-            "content": [
-                {"type": "image", "image": image_path},
-                {"type": "text", "text": system_prompt},
-                {"type": "text", "text": "Question: " + question},
-                {
-                    "type": "text",
-                    "text": "Key object infos:\n{'country': 'France', 'capital': 'Paris'}",
-                },
-                {"type": "text", "text": "Context Question: What is this?"},
-                {
-                    "type": "text",
-                    "text": "Context Answer: This is a map of France.",
-                },
-            ],
-        }
+        expected_message = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": image_path},
+                    {"type": "text", "text": system_prompt},
+                    {"type": "text", "text": "Question: " + question},
+                    {
+                        "type": "text",
+                        "text": "Key object infos:\n{'country': 'France', 'capital': 'Paris'}",
+                    },
+                    {"type": "text", "text": "Context Question: What is this?"},
+                    {
+                        "type": "text",
+                        "text": "Context Answer: This is a map of France.",
+                    },
+                ],
+            }
+        ]
 
         self.assertEqual(
             formatted_message,
