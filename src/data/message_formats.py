@@ -270,3 +270,52 @@ class GeminiMessageFormat(MessageFormat):
         parts.append("\n".join(prompt_parts))
 
         return parts
+
+
+class AnthropicMessageFormat(MessageFormat):
+    def format(
+        self,
+        question: str,
+        image_path: str,
+        system_prompt: str = None,
+        answer: Optional[str] = None,
+        key_object_info: Optional[dict] = None,
+        context: Optional[List[Tuple[str, str]]] = None,
+    ) -> List[Dict[str, Any]]:
+        import base64
+        from pathlib import Path
+
+        user_content = []
+        if image_path:
+            image_bytes = Path(image_path).read_bytes()
+            image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+            user_content.append(
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": image_b64,
+                    },
+                }
+            )
+
+        messages = []
+
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        text_parts = ["Question: " + question]
+
+        if key_object_info:
+            text_parts.append("Key object infos:\n" + str(key_object_info))
+        if context:
+            for context_q, context_a in context:
+                text_parts.append(f"Context Question: {context_q}")
+                text_parts.append(f"Context Answer: {context_a}")
+
+        user_content.append({"type": "text", "text": "\n".join(text_parts)})
+
+        messages.append({"role": "user", "content": user_content})
+
+        return messages

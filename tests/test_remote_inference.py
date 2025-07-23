@@ -1,6 +1,7 @@
 import unittest
 
 import src.data.message_formats as message_formats
+from src.models.anthropic_inference import AnthropicInferenceEngine
 from src.models.gemini_inference import GeminiInferenceEngine
 from src.models.openai_inference import OpenAIInferenceEngine
 
@@ -29,6 +30,17 @@ class TestRemoteInferenceEngine(unittest.TestCase):
         )
 
         results = engine.predict_batch([message])
+        print(results)
+
+    def test_anthropic_predict_batch(self):
+        engine = AnthropicInferenceEngine(model="claude-3-5-haiku-20241022")
+        messages = [
+            [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "What is the capital of France?"},
+            ]
+        ]
+        results = engine.predict_batch(messages)
         print(results)
 
 

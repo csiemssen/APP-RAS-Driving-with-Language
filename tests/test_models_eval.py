@@ -7,6 +7,7 @@ import torch
 
 from src.constants import data_dir
 from src.eval.eval_models import evaluate_model
+from src.models.anthropic_inference import AnthropicInferenceEngine
 from src.models.gemini_inference import GeminiInferenceEngine
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
@@ -96,6 +97,7 @@ class TestModelEvaluation(unittest.TestCase):
             batch_size=1,
             test_set_size=1,
             use_grid=True,
+            use_system_prompt=True,
             approach_name="test_gemini_eval",
         )
 
@@ -105,4 +107,24 @@ class TestModelEvaluation(unittest.TestCase):
             output_dir,
             "test_gemini_eval_output.json",
             "test_gemini_eval_submission.json",
+        )
+
+    def test_anthropic_eval(self):
+        engine = AnthropicInferenceEngine(model="claude-3-5-haiku-20241022")
+        evaluate_model(
+            engine=engine,
+            dataset_split="val",
+            batch_size=1,
+            test_set_size=1,
+            use_grid=True,
+            use_system_prompt=True,
+            approach_name="test_anthropic_eval",
+        )
+
+        model_dir = sanitize_model_name(engine.model_path)
+        output_dir = os.path.join(data_dir, "output", model_dir)
+        check_eval_files(
+            output_dir,
+            "test_anthropic_eval_output.json",
+            "test_anthropic_eval_submission.json",
         )
