@@ -10,11 +10,7 @@ from src.constants import (
     drivelm_val_json,
     nuscenes_dir,
 )
-from src.data.create_image_grid_dataset import create_image_grid_dataset
 from src.data.extract_test_dataset import extract_data
-from src.data.generate_descriptor_qas import (
-    generate_descriptor_qas,
-)
 from src.utils.logger import get_logger
 from src.utils.utils import extract_children
 
@@ -48,11 +44,7 @@ def get_ds(split: str) -> None:
         )
 
 
-def load_dataset(
-    split: str,
-    add_augmented: bool = False,
-    use_grid: bool = False,
-):
+def load_dataset(split: str):
     dataset_paths = {
         "train": drivelm_train_json,
         "val": drivelm_val_json,
@@ -75,11 +67,5 @@ def load_dataset(
     with open(base_path) as f:
         logger.debug(f"Loading dataset from {base_path}")
         data = load(f)
-
-    if split == "train" and add_augmented:
-        data = generate_descriptor_qas(data)
-
-    if use_grid:
-        data = create_image_grid_dataset(data)
 
     return data

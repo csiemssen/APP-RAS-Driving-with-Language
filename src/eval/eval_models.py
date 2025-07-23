@@ -27,6 +27,7 @@ def evaluate_model(
     approach_name: Optional[str] = None,
     exclude_question_tags: List[int] = [],
     exclude_question_types: List[str] = [],
+    resize_factor: float = 1.0,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
@@ -37,6 +38,7 @@ def evaluate_model(
         system_prompt_config_path=system_prompt_config_path,
         exclude_question_tags=exclude_question_tags,
         exclude_question_types=exclude_question_types,
+        resize_factor=resize_factor,
     )
     if test_set_size is not None:
         dataset = create_subset(

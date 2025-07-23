@@ -3,14 +3,27 @@ from typing import Any, List
 
 from torch.utils.data import Dataset
 
-from src.constants import drivelm_dir
+from src.constants import GRID_IMG_SIZE, IMAGE_SIZE, drivelm_dir
+from src.data.create_image_grid_dataset import (
+    create_image_grid_dataset,
+    map_camera_point_to_grid_point,
+)
+from src.data.generate_descriptor_qas import (
+    generate_descriptor_qas,
+)
 from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
 from src.data.system_prompts import SystemPromptProvider
 from src.utils.logger import get_logger
-from src.utils.utils import remove_nones
+from src.utils.utils import (
+    find_key_objects,
+    key_object_dict_to_str,
+    key_object_str_to_dict,
+    remove_nones,
+    rescale_point,
+)
 
 logger = get_logger(__name__)
 
@@ -31,6 +44,87 @@ def prune_key_object_info(koi: dict[str, Any]):
     }
 
 
+def normalise_key_object_point(
+    point: tuple[float, float], resize_factor: float, use_grid: bool
+) -> tuple[float, float]:
+    image_size = GRID_IMG_SIZE if use_grid else IMAGE_SIZE
+    return rescale_point(point, image_size, resize_factor)
+
+
+def normalise_key_object_info_value(
+    key: str,
+    value: dict[str, Any],
+    resize_factor: float,
+    use_grid: bool,
+) -> dict[str, Any]:
+    koi_dict = key_object_str_to_dict(key)
+    new_value = value.copy()
+    if "2d_bbox" in new_value:
+        x1, y1, x2, y2 = new_value["2d_bbox"]
+        if use_grid:
+            x1, y1 = map_camera_point_to_grid_point((x1, y1), koi_dict["camera"])
+            x2, y2 = map_camera_point_to_grid_point((x2, y2), koi_dict["camera"])
+
+        x1, y1 = normalise_key_object_point(
+            (x1, y1),
+            resize_factor,
+            use_grid,
+        )
+
+        x2, y2 = normalise_key_object_point(
+            (x2, y2),
+            resize_factor,
+            use_grid,
+        )
+
+        new_value["2d_bbox"] = (x1, y1, x2, y2)
+
+    return new_value
+
+
+def normalise_key_object_descriptor(
+    key_object_descriptor: str, resize_factor: float, use_grid: bool
+):
+    koi_dict = key_object_str_to_dict(key_object_descriptor)
+
+    if not koi_dict:
+        logger.warning(
+            f"Key object string '{key_object_descriptor}' could not be parsed."
+        )
+        return key_object_descriptor
+
+    # Map to grid coordinates first as it uses the orginal image size
+    if use_grid:
+        new_x, new_y = map_camera_point_to_grid_point(
+            (koi_dict["x"], koi_dict["y"]), koi_dict["camera"]
+        )
+    else:
+        new_x, new_y = koi_dict["x"], koi_dict["y"]
+
+    new_x, new_y = normalise_key_object_point((new_x, new_y), resize_factor, use_grid)
+
+    koi_dict["x"] = new_x
+    koi_dict["y"] = new_y
+
+    return key_object_dict_to_str(koi_dict)
+
+
+def normalise_key_object_descriptors_in_question(
+    question: str,
+    resize_factor: float,
+    use_grid: bool,
+) -> str:
+    descriptors = find_key_objects(question)
+    for desc in descriptors:
+        norm_desc = normalise_key_object_descriptor(
+            desc,
+            resize_factor,
+            use_grid,
+        )
+        question = question.replace(desc, norm_desc)
+    return question
+
+
 # NOTE: This DS does not consider any direct dependencies between the questions
 class DriveLMImageDataset(Dataset):
     def __init__(
@@ -44,6 +138,7 @@ class DriveLMImageDataset(Dataset):
         system_prompt_config_path=None,
         exclude_question_tags: List[int] = [],
         exclude_question_types: List[str] = [],
+        resize_factor: float = 1.0,
     ):
         self.message_format = message_format
         self.split = split
@@ -55,7 +150,35 @@ class DriveLMImageDataset(Dataset):
             else None
         )
 
-        data = load_dataset(split, add_augmented=add_augmented, use_grid=use_grid)
+        data = load_dataset(split)
+
+        if split == "train":
+            for scene_id, scene_data in data.items():
+                for key_frame_id, key_frame_data in scene_data["key_frames"].items():
+                    key_object_infos = key_frame_data["key_object_infos"]
+                    normalised_key_object_infos = {}
+                    if key_object_infos:
+                        for key, value in key_object_infos.items():
+                            new_key = normalise_key_object_descriptor(
+                                key,
+                                resize_factor,
+                                use_grid,
+                            )
+                            new_value = normalise_key_object_info_value(
+                                key,
+                                value,
+                                resize_factor,
+                                use_grid,
+                            )
+                            normalised_key_object_infos[new_key] = new_value
+
+                    key_frame_data["key_object_infos"] = normalised_key_object_infos
+
+        if split == "train" and add_augmented:
+            data = generate_descriptor_qas(data)
+
+        if use_grid:
+            data = create_image_grid_dataset(data)
 
         removed = 0
         qa_list = []
@@ -110,6 +233,12 @@ class DriveLMImageDataset(Dataset):
                     + qas_behavior
                     + qas_augmented
                 ):
+                    qa["Q"] = normalise_key_object_descriptors_in_question(
+                        qa["Q"],
+                        resize_factor=resize_factor,
+                        use_grid=use_grid,
+                    )
+
                     tags = qa.get("tag", [])
                     qa_type = qa_types[i]
                     if (

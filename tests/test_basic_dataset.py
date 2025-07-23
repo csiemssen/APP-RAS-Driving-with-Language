@@ -6,7 +6,7 @@ import pytest
 from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset
+from src.utils.utils import create_subset, key_object_str_to_dict
 
 logger = get_logger(__name__)
 
@@ -234,7 +234,7 @@ class TestDriveLMImageDataset(unittest.TestCase):
         config_path = "tests/test_data/test_system_prompts.yml"
         dataset = DriveLMImageDataset(
             message_format=QwenMessageFormat(),
-            split="train",
+            split="test",
             use_system_prompt=True,
             use_reasoning=True,
             use_grid=True,
@@ -277,6 +277,53 @@ class TestDriveLMImageDataset(unittest.TestCase):
         assert found == override_strings, (
             f"Not all override strings found in system prompts: {override_strings - found}"
         )
+
+    def test_dataset_with_rescaling(self):
+        resize_factor = 0.5
+        dataset_orig = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            resize_factor=1.0,
+            use_grid=False,
+        )
+        dataset_rescaled = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            resize_factor=resize_factor,
+            use_grid=False,
+        )
+        self.assertGreater(
+            len(dataset_rescaled),
+            0,
+            "Dataset with rescaled images should not be empty",
+        )
+        self.assertEqual(
+            len(dataset_orig),
+            len(dataset_rescaled),
+            "Original and rescaled datasets should have the same number of items",
+        )
+
+        for orig_item, rescaled_item in zip(dataset_orig, dataset_rescaled):
+            if orig_item.key_object_info:
+                for (orig_key, orig_value), (
+                    rescaled_key,
+                    rescaled_value,
+                ) in zip(
+                    orig_item.key_object_info.items(),
+                    rescaled_item.key_object_info.items(),
+                ):
+                    orig_koi = key_object_str_to_dict(orig_key)
+                    rescaled_koi = key_object_str_to_dict(rescaled_key)
+                    assert (
+                        abs(orig_koi["x"] * resize_factor - rescaled_koi["x"]) < 1e-2
+                    ), (
+                        f"x coordinate not rescaled correctly: {orig_koi['x']} -> {rescaled_koi['x']}"
+                    )
+                    assert (
+                        abs(orig_koi["y"] * resize_factor - rescaled_koi["y"]) < 1e-2
+                    ), (
+                        f"y coordinate not rescaled correctly: {orig_koi['y']} -> {rescaled_koi['y']}"
+                    )
 
 
 if __name__ == "__main__":

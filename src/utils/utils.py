@@ -1,7 +1,7 @@
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Type, TypeVar
 
 import torch
 from torch.utils.data import Dataset, Subset
@@ -125,17 +125,56 @@ def create_subset(
     return subset
 
 
-def parse_key_objects(question: str) -> List[str]:
-    pattern = r"<[^>]+>"
-    return re.findall(pattern, question)
+T = TypeVar("T", int, float)
 
 
-def get_resize_image_size(resize_factor: float, grid=False) -> Tuple[int, int]:
+def tuple_cast(t: Tuple[float, ...], typ: Type[T]) -> Tuple[T, ...]:
+    return tuple(typ(x) for x in t)
+
+
+def tuple_mul(t: Tuple[float, float], scalar: float) -> Tuple[float, float]:
+    return (t[0] * scalar, t[1] * scalar)
+
+
+def get_resize_image_size(resize_factor: float, grid: bool = False) -> Tuple[int, int]:
     if grid:
-        height = int(GRID_IMG_SIZE[0] * resize_factor)
-        width = int(GRID_IMG_SIZE[1] * resize_factor)
+        size = tuple_mul(GRID_IMG_SIZE, resize_factor)
     else:
-        height = int(IMAGE_SIZE[0] * resize_factor)
-        width = int(IMAGE_SIZE[1] * resize_factor)
+        size = tuple_mul(IMAGE_SIZE, resize_factor)
+    return tuple_cast(size, int)
 
-    return (height, width)
+
+def rescale_point(
+    point: Tuple[float, float],
+    original_size: Tuple[int, int],
+    resize_factor: float,
+) -> Tuple[float, float]:
+    target_size = tuple_mul(original_size, resize_factor)
+    scale_x = target_size[1] / original_size[1]
+    scale_y = target_size[0] / original_size[0]
+    return point[0] * scale_x, point[1] * scale_y
+
+
+def find_key_objects(text: str) -> List[str]:
+    pattern = r"<c\d+,CAM_[A-Z_]+,\d+\.?\d*,\d+\.?\d*>"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+def key_object_str_to_dict(text: str) -> Dict[str, Any]:
+    pattern = r"<c(\d+),CAM_([A-Z_]+),(\d+\.?\d*),(\d+\.?\d*)>"
+    matches = re.findall(pattern, text)
+    return (
+        {
+            "id": f"c{matches[0][0]}",
+            "camera": f"CAM_{matches[0][1]}",
+            "x": float(matches[0][2]),
+            "y": float(matches[0][3]),
+        }
+        if matches
+        else {}
+    )
+
+
+def key_object_dict_to_str(key_object: Dict[str, Any]) -> str:
+    return f"<{key_object['id']},{key_object['camera']},{key_object['x']},{key_object['y']}>"
