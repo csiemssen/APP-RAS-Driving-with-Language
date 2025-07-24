@@ -35,7 +35,6 @@ def generate_descriptor_question(obj_id: str, obj_info: dict) -> str:
     coord_str = f"({coords[0]},{coords[1]})"
     core_question = generate_descriptor_core_question([obj_id])
     question = (
-        f"The image has a width of 1600 and a height of 900. "
         f"The key object, identified as {obj_id}, has its bounding box center coordinates at {coord_str} in the {cam} image. "
         f"{core_question} "
     )

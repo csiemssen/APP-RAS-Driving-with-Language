@@ -1,0 +1,28 @@
+general_prompt: "Placeholder"
+
+approach_prompt:
+  base: "Placeholder approach prompt"
+  use_grid:
+    enabled: "Prompt when grid is enabled."
+    disabled: "Prompt when grid is disabled."
+  use_reasoning: "Prompt when reasoning is enabled."
+
+question_type_prompts:
+  perception: "Placeholder perception prompt"
+  prediction: "Placeholder prediction prompt"
+  planning: "Placeholder planning prompt"
+  behavior: "Placeholder behavior prompt"
+
+question_specific_prompts:
+  perception:
+    importance_objects: "placeholder importance objects prompt"
+    moving_status: "placeholder moving status prompt"
+  prediction:
+    graph: "placeholder graph prompt"
+    yes_no: "placeholder yes/no prompt"
+  planning:
+    actions: "placeholder actions prompt"
+    collision: "placeholder collision prompt"
+    safe_actions: "placeholder safe actions prompt"
+  behavior:
+    default: "placeholder behavior prompt"

@@ -1,0 +1,908 @@
+{
+    "accuracy": 0.61,
+    "chatgpt": 0.0,
+    "language": null,
+    "match": 0.0,
+    "per_question_scores": {
+        "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1088.3,497.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,991.7,603.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_d9075c2a5f864a2b8abf41e703f4cf1c_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,231.5,472.1> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_dfb8d8959b9944d69dcec6d05e419f04_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1568.3,505.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "54cdaaae372d421fa4734d66f51a8c48_542eaf1fc9b34895a9e55fab57cb4cf4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,714.3,503.6> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "54cdaaae372d421fa4734d66f51a8c48_1b45a97a0e5e49fe9cd345dd4bd729c3_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,767.5,513.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "54cdaaae372d421fa4734d66f51a8c48_d5e16062410f4e329d31a881b28e5c1c_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,850.0,484.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "54cdaaae372d421fa4734d66f51a8c48_7abe79e5d3d745bcb237a4b7e03d1577_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1458.3,492.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "54cdaaae372d421fa4734d66f51a8c48_0dd14c14cea14dc1b0c0c9b0c9c7c4c3_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1321.7,495.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_bd8a5e326b804b069d497d29dbf19c2b_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1035.0,586.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_7903e67446c64958b0a660f10bdadf19_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1035.8,587.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_b6bf5a2bcb094969ace1023f8fe0b9e2_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,915.0,597.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_0a208b6bd70a45c9b77b4acff048b2e4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1030.0,587.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_947c1b70cff6486b87903d9665064ad8_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,354.2,617.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_a59f97b9ba4b451e92487285f27ffb52_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,715.0,547.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_fc4a9c4a635348468d38b9e4452b3b0f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,740.8,604.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1977a1c98a6c4eb79fbc2a6dc0da9b0f_12ce09b5190048678bcd70e83943907f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1035.8,588.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_2fd8f9bd71664143bc0e643a914791be_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,305.0,690.8> a traffic sign or a road barrier?",
+            "GT": "Yes.",
+            "answer": "No.",
+            "accuracy": 0.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_b48b532c3e1943578c4cf9e1a8230541_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,926.7,510.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_019813f350c743f1ad27e115e4d3a55c_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,224.2,486.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_cfc098728fb64a6d8cc60e0f8b268198_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,949.2,531.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_a4ba4660331c461b9d95ea4154fe2053_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1008.3,513.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "ba76f4185aa34ed3bff467ac640da902_d0c8108acf3a43ada1a6dd6c221abd18_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1331.7,718.1> a traffic sign or a road barrier?",
+            "GT": "Yes.",
+            "answer": "Yes.",
+            "accuracy": 1.0
+        },
+        "e0b14a8e11994763acba690bbcc3f56a_7138a5bb5798486d82d170558c4bd90d_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,1162.5,511.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "e0b14a8e11994763acba690bbcc3f56a_0e364b7146c848b5a5fd73bbe05e59ed_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,355.0,585.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "e0b14a8e11994763acba690bbcc3f56a_8a009c674c60457da87f9386cbfee63a_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,347.5,495.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "e0b14a8e11994763acba690bbcc3f56a_8a76c43c5a034741844748d3ed9c2fbc_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1030.0,493.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_f765c2cac300448abca6cf1496140331_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1036.7,528.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_7e675d1e19b84ccda4393c593a8594ee_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1053.3,513.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_bac9648d9bfb4258beafbd52eda61344_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1037.5,507.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_e2c5111b0a23476aac916814dd908ea1_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1034.2,528.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_d0c6d9ac1f5649d596d81177b36752a7_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1036.7,520.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_3ea38d2fcb3244ce93899fc085bd47ed_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1039.2,510.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_6f6485a3d7bd4695bc7c7cc21651b4fe_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1037.5,522.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "2422d2652f4f42298a389a6e0dfef307_5124bf7488f14f459bc3d8f4b15577a9_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1036.7,528.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_3a171478d2d448ba9f8fc44c7df60a5a_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,650.0,675.8> a traffic sign or a road barrier?",
+            "GT": "Yes.",
+            "answer": "No.",
+            "accuracy": 0.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_e3f986e5d53f416492bdf255e82bff52_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1056.7,568.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_af1b60ce78fd4c6a9cd3259070ab9c52_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,1335.0,756.7> a traffic sign or a road barrier?",
+            "GT": "Yes.",
+            "answer": "No.",
+            "accuracy": 0.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_0545b9cffcb441769be5f769fad6986d_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_LEFT,327.5,542.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_1f1309a70c89443fbf02b5bb96359d52_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1480.0,827.5> a traffic sign or a road barrier?",
+            "GT": "Yes.",
+            "answer": "No.",
+            "accuracy": 0.0
+        },
+        "df8dfada99a04a81bd1b102eeb84e9bc_5d76d048762e4f12bd814d456e5776b0_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,469.2,510.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_182b5e160c6f44e096380a9f9f8c41f4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,842.5,528.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_e50b488783c649dd9e9cfc5f98ff46fc_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,390.8,487.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_30e9bf9ff66b41e08b1c59e345a1014f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,1298.3,528.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_3dab7043733e463c9c1c909a31f279f3_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,834.2,511.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_16fc3cc5a0b747f593b20d8b30947b1b_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,891.7,501.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "76c632788f8c4516bef1c4297f2002f6_60e3bedfbb7a47058e859c66cc81a58a_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,835.0,538.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1891b66d9f58463399aa242f3b521232_eff4ca737a73408d80274afda5b9019b_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,1305.8,519.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1891b66d9f58463399aa242f3b521232_c1c99af601984bd9a08ea9c65e0bc1f4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_RIGHT,509.2,633.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1891b66d9f58463399aa242f3b521232_1662ec71669e497db3b0e7c2fa48356f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,744.2,510.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1891b66d9f58463399aa242f3b521232_828b240f290744099afff1fc94a4167f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,610.5,522.1> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "1891b66d9f58463399aa242f3b521232_ce63dd8c7f6a45f9bdee5b7305388314_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_RIGHT,996.7,672.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1891b66d9f58463399aa242f3b521232_755b761322a0441b85eee9e4fe49385d_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,1303.3,424.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "1891b66d9f58463399aa242f3b521232_90db859e924945e0a147a5403878e526_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,645.0,540.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "fe4fdd7a28754baeac7074ad78f55a52_8f4d3fb0381d4125950c0120a6982db4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,589.2,573.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "fe4fdd7a28754baeac7074ad78f55a52_b4a6de058566455b9079e39908d69bab_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,213.3,620.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "fe4fdd7a28754baeac7074ad78f55a52_a7924f68e0704c2ebff65044a8ae26b4_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_LEFT,1192.5,490.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "fe4fdd7a28754baeac7074ad78f55a52_115468e3e0964c17af494b41bda6d0f4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1298.3,557.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_648d919295694e0db78ab688679fa6fa_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,815.0,615.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_f9c83042c0744ccaa72cc25e1e17d27b_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,917.5,687.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_76a956a8995e4147b1867a47e213a18e_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,896.6,651.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_286308ef7744419a800b2342dd16aa52_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1063.3,538.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_1ca510ff9d66466f83589fe4b0a1d2e0_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,895.8,691.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_529bd74bd28841e7af5be7443e5ed249_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,916.7,687.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_d5817b9ad0b647f29555c79db25ad3a1_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1002.5,532.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "75548269eb0a4614a6f84ab8d7713196_4aefbf8c202f454ea6c234b1a6250a9d_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,854.2,647.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "17302a41218442ffbb0b094adb0669ab_dd86d69f1061442eb01c4fb93caff946_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_RIGHT,276.2,655.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "17302a41218442ffbb0b094adb0669ab_072f15feb492466fb2c4536cb8445ede_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,916.1,477.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "17302a41218442ffbb0b094adb0669ab_8d52c5a0c78a442791e011d0a132bc9b_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1102.5,499.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "17302a41218442ffbb0b094adb0669ab_9fe998b6018f472d9af54dab47e80f34_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,526.7,539.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "17302a41218442ffbb0b094adb0669ab_e91815e429dc428f96179d30e4811826_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1270.0,595.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_505fe98faa2843a8b11e082e6b2274a3_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1002.5,476.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_c42eec2e6901462ca66b926d1154cc44_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,855.0,450.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_baa013dbb58c4e4d8e2d766353decfa8_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK_LEFT,221.8,499.6> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_8995d0dfe3db4228a071482f87ba51c0_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,889.2,440.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_b56b7f945ae14c079e372bfa8b261f6f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,981.7,473.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_df7bdb18c22f4f519cbf9eacffa3f294_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,1002.5,500.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "6207269cb9474c14b01f9610b2ee30aa_79eb7f6b270743769504531f8dea9025_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,1451.7,472.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "3469d30a6e2a4d878fb0ff899346b7de_30c1e76b5d91415d8803fd019bfd24bf_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,717.5,484.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "3469d30a6e2a4d878fb0ff899346b7de_011b8e758330400dbdf16d55c8a3571a_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,933.3,470.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "3469d30a6e2a4d878fb0ff899346b7de_99a947b58ad24e6fa4314a6e04929ec0_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,712.5,501.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "3469d30a6e2a4d878fb0ff899346b7de_879e6e426a7d4dee84bc47d77c2bed91_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,821.7,490.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_634cc5f8d02740ec877154a67599d159_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,420.8,623.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_c04ada66550443a79301167ec1ea42f7_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,378.3,574.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_e962e335984b400c8239157c0982f435_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,1115.8,530.0> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_18827f57c05c4b8a89fc72d5edc03733_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_RIGHT,1140.8,500.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_354d2fd81b0a42d4b803c704a2c138c0_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,457.5,522.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_b00f16b952c74369be05edbeacd815bb_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,465.0,671.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_173fd5f38a9d48fbb060a4a194642280_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,268.3,606.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "b829278aae2747959f2a95423455bbcb_8c230980f5ed4fe8af301b9edd3520d4_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,800.0,548.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c7780850596641b8ab5f352d16b178e4_99d6859e15d7471fb19dbfc4afa26d14_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,538.3,536.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "c7780850596641b8ab5f352d16b178e4_d7c312c19b334966986714b6ddfa7f7e_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,812.5,487.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c7780850596641b8ab5f352d16b178e4_daadbf3040d74c1ba8b0d1011cf2b48f_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,914.2,503.3> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c7780850596641b8ab5f352d16b178e4_73181b8b4185415d8dd96906bac26aac_1": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,791.7,490.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c7780850596641b8ab5f352d16b178e4_a8f49e4765454af29a0b3e91a1d3ff47_3": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT,868.3,485.8> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "c77e6ecf108c4c8b80d35d84642c805f_96b14882b5e94679b6dd2a4fcc79caa3_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,323.3,529.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c77e6ecf108c4c8b80d35d84642c805f_05c7951d982f4628b6f78fc412fe42e5_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_BACK,214.3,471.7> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        },
+        "c77e6ecf108c4c8b80d35d84642c805f_f9d99bd0ad1d481c843b876bab1ea743_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,481.7,529.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "c77e6ecf108c4c8b80d35d84642c805f_e578316dc3c549e6a097f96a1530f5ae_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,323.3,529.2> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "Yes.",
+            "accuracy": 0.0
+        },
+        "c77e6ecf108c4c8b80d35d84642c805f_6eeb002017494289a73e7284044119a7_2": {
+            "tag": [
+                0
+            ],
+            "question": "Is <c1,CAM_FRONT_LEFT,326.7,527.5> a traffic sign or a road barrier?",
+            "GT": "No.",
+            "answer": "No.",
+            "accuracy": 1.0
+        }
+    }
+}

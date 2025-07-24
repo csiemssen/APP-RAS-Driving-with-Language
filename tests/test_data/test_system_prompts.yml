@@ -1,0 +1,28 @@
+general_prompt: "TEST_GENERAL_PROMPT"
+
+approach_prompt:
+  base: "TEST_BASE_PROMPT"
+  use_grid:
+    enabled: "TEST_USE_GRID_ENABLED"
+    disabled: "TEST_USE_GRID_DISABLED"
+  use_reasoning: "TEST_USE_REASONING_ENABLED"
+
+question_type_prompts:
+  perception: "TEST_PERCEPTION_PROMPT"
+  prediction: "TEST_PREDICTION_PROMPT"
+  planning: "TEST_PLANNING_PROMPT"
+  behavior: "TEST_BEHAVIOR_PROMPT"
+
+question_specific_prompts:
+  perception:
+    importance_objects: "TEST_IMPORTANCE_OBJECTS_PROMPT"
+    moving_status: "TEST_MOVING_STATUS_PROMPT"
+  prediction:
+    graph: "TEST_GRAPH_PROMPT"
+    yes_no: "TEST_YES_NO_PROMPT"
+  planning:
+    actions: "TEST_ACTIONS_PROMPT"
+    collision: "TEST_COLLISION_PROMPT"
+    safe_actions: "TEST_SAFE_ACTIONS_PROMPT"
+  behavior:
+    default: "TEST_BEHAVIOR_SPECIFIC_PROMPT"

@@ -1,12 +1,49 @@
 import os
+from typing import Tuple
 
 import tqdm
 from PIL import Image, ImageDraw, ImageFont
 
-from src.constants import GRID, IMAGE_SIZE, drivelm_dir, fonts_dir, grid_dir
+from src.constants import (
+    GRID,
+    GRID_POSITIONS,
+    IMAGE_SIZE,
+    drivelm_dir,
+    fonts_dir,
+    grid_dir,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def map_camera_point_to_grid_point(
+    point: Tuple[float, float],
+    cam_name: str,
+) -> Tuple[float, float]:
+    col, row = GRID_POSITIONS[cam_name]
+    img_height, img_width = IMAGE_SIZE
+    x_offset = col * img_width
+    y_offset = row * img_height
+    return (point[0] + x_offset, point[1] + y_offset)
+
+
+def get_camera_and_point_from_grid_point(
+    point: Tuple[float, float],
+    cam_name: str,
+) -> Tuple[float, float]:
+    img_height, img_width = IMAGE_SIZE
+    for cam_name, (col, row) in GRID_POSITIONS.items():
+        x_offset = col * img_width
+        y_offset = row * img_height
+        if (x_offset <= point[0] < x_offset + img_width) and (
+            y_offset <= point[1] < y_offset + img_height
+        ):
+            cam_x = point[0] - x_offset
+            cam_y = point[1] - y_offset
+            return cam_name, (cam_x, cam_y)
+    logger.warning(f"Point {point} does not belong to any camera region in the grid.")
+    return None, point
 
 
 def create_grid_image_with_labels(
@@ -32,16 +69,7 @@ def create_grid_image_with_labels(
         font = ImageFont.load_default()
         print("Warning: Fallback to default font")
 
-    positions = {
-        "CAM_FRONT_LEFT": (0, 0),
-        "CAM_FRONT": (1, 0),
-        "CAM_FRONT_RIGHT": (2, 0),
-        "CAM_BACK_LEFT": (0, 1),
-        "CAM_BACK": (1, 1),
-        "CAM_BACK_RIGHT": (2, 1),
-    }
-
-    for cam, (col, row) in positions.items():
+    for cam, (col, row) in GRID_POSITIONS.items():
         img_path = image_paths.get(cam)
         if img_path is None:
             continue

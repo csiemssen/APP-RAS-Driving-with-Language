@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional
+from typing import List, Optional
 
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -22,15 +22,23 @@ def evaluate_model(
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_system_prompt: bool = False,
+    system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
     approach_name: Optional[str] = None,
+    exclude_question_tags: List[int] = [],
+    exclude_question_types: List[str] = [],
+    resize_factor: float = 1.0,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
         use_grid=use_grid,
-        use_system_prompt=use_system_prompt,
         use_reasoning=use_reasoning,
+        use_system_prompt=use_system_prompt,
+        system_prompt_config_path=system_prompt_config_path,
+        exclude_question_tags=exclude_question_tags,
+        exclude_question_types=exclude_question_types,
+        resize_factor=resize_factor,
     )
     if test_set_size is not None:
         dataset = create_subset(
@@ -63,6 +71,7 @@ def evaluate_model(
                 {
                     "id": batch[i].qa_id,
                     "question": batch[i].question,
+                    "model_input": batch[i].formatted_message,
                     "answer": result,
                 }
             )

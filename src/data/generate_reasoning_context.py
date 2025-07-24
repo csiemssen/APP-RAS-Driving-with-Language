@@ -6,7 +6,7 @@ from src.data.generate_descriptor_qas import (
 )
 from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
-from src.utils.utils import parse_key_objects
+from src.utils.utils import find_key_objects
 
 logger = get_logger(__name__)
 
@@ -15,7 +15,7 @@ def generate_reasoning_context(item: QueryItem) -> List[Tuple[str, str]]:
     if item.qa_type == "augmented" or item.qa_type == "perception":
         return []
 
-    key_objects = parse_key_objects(item.question)
+    key_objects = find_key_objects(item.question)
     if not key_objects:
         logger.debug(
             f"No key objects found in question: {item.question}. Skipping reasoning context generation."
@@ -47,8 +47,7 @@ def generate_descriptor_question_ground_truth(
 ) -> str:
     answers = []
     for obj_id in key_objects:
-        # Add back the angle brackets for matching with key_object_info keys
-        obj_id_with_brackets = f"<{obj_id}>"
+        obj_id_with_brackets = f"{obj_id}"
 
         if obj_id_with_brackets in key_object_info:
             answer = generate_descriptor_answer(

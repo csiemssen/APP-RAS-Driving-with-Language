@@ -1,0 +1,44 @@
+{
+    "accuracy": 0.0,
+    "chatgpt": 50.5,
+    "language": null,
+    "match": 0.0,
+    "per_question_scores": {
+        "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_4": {
+            "tag": [
+                1
+            ],
+            "question": "What actions could the ego vehicle take based on <c1,CAM_BACK,1088.3,497.5>? Why take this action and what's the probability?",
+            "GT": "The action is to keep going at the same speed. The reason is to follow the traffic rules, which has a high probability.",
+            "answer": "- The action is to accelerate. The reason is to maintain speed and avoid stopping, which could lead to a loss of control over the vehicle. The probability is moderate.",
+            "chatgpt": 20.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_6": {
+            "tag": [
+                1
+            ],
+            "question": "In this scenario, what are safe actions to take for the ego vehicle?",
+            "GT": "Keep going at the same speed, decelerate gradually without braking.",
+            "answer": "Keep going at the same speed, decelerate gradually without braking, or slightly offset to the left.",
+            "chatgpt": 95.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_3": {
+            "tag": [
+                1
+            ],
+            "question": "What actions could the ego vehicle take based on <c1,CAM_BACK,991.7,603.0>? Why take this action and what's the probability?",
+            "GT": "The action is to keep stationary, the reason is to follow the traffic rules, high.",
+            "answer": "- The action is to brake. The reason is to avoid a potential collision with the car in front. The probability is moderate.\n- The action is to accelerate. The reason is to maintain speed and avoid stopping unnecessarily. The probability is low.\n- The action is to turn left. The reason is to navigate around the parked cars and avoid a collision. The probability is high.",
+            "chatgpt": 17.0
+        },
+        "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_5": {
+            "tag": [
+                1
+            ],
+            "question": "In this scenario, what are safe actions to take for the ego vehicle?",
+            "GT": "Keep going at the same speed, decelerate gradually without braking.",
+            "answer": "Slow down gradually without braking, slightly turn left, or stop if necessary.",
+            "chatgpt": 70.0
+        }
+    }
+}

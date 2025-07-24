@@ -39,6 +39,7 @@ docker run --gpus all -v ./data/output:/app/data/output <img-name>
 You can find the notebooks in the `notebooks` directory to run training and evaluation.  
 - Training: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/train.ipynb)
 - Evaluation: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/eval.ipynb)
+- Test: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/test.ipynb)
 
 ## Evaluation
 To evaluate, please use the official test server.  

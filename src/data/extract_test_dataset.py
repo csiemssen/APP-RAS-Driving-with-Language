@@ -15,13 +15,40 @@
 
 import argparse
 import json
+import random
 
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+PERCEPTION_MOVING_STATUS_OPTIONS = [
+    "Back up",
+    "Backward",
+    "Bending over",
+    "Reverse parking",
+    "Turn left",
+    "Turn right",
+    "Going ahead",
+]
 
-def extract_data(root_path, save_path, exclude_tags=[]):
+BEHAVIOR_STEERING_OPTIONS = [
+    "going straight",
+    "slightly steering to the left",
+    "slightly steering to the right",
+    "steering to the left",
+    "steering to the right",
+]
+
+BEHAVIOR_SPEED_OPTIONS = [
+    "not moving",
+    "driving slowly",
+    "driving with normal speed",
+    "driving fast",
+    "driving very fast",
+]
+
+
+def extract_data(root_path, save_path, patch_accuracy_options=True, exclude_tags=[]):
     with open(root_path, "r") as f:  # , \
         train_file = json.load(f)
 
@@ -91,6 +118,17 @@ def extract_data(root_path, save_path, exclude_tags=[]):
                 answer = qa["A"]
                 if "What is the moving status of object".lower() in question.lower():
                     qa["tag"] = [0]
+                    if patch_accuracy_options and not any(
+                        opt in question for opt in ["A.", "B.", "C.", "D."]
+                    ):
+                        option_strs, correct_letter = generate_perception_options(
+                            answer
+                        )
+                        qa["Q"] = (
+                            f"{question} Please select the correct answer from the following options: "
+                            + " ".join(option_strs)
+                        )
+                        qa["A"] = correct_letter
                     test_data[scene_id]["key_frames"][frame_id]["QA"][
                         "perception"
                     ].append(qa)
@@ -172,6 +210,15 @@ def extract_data(root_path, save_path, exclude_tags=[]):
                 question = qa["Q"]
                 answer = qa["A"]
                 qa["tag"] = [0]
+                if patch_accuracy_options and not any(
+                    opt in question for opt in ["A.", "B.", "C."]
+                ):
+                    option_strs, correct_letter = generate_behavior_options(answer)
+                    qa["Q"] = (
+                        f"{question} Please select the correct answer from the following options: "
+                        + " ".join(option_strs)
+                    )
+                    qa["A"] = correct_letter
                 test_data[scene_id]["key_frames"][frame_id]["QA"]["behavior"].append(qa)
 
     if exclude_tags is not None:
@@ -188,6 +235,59 @@ def extract_data(root_path, save_path, exclude_tags=[]):
 
     with open(save_path, "w") as f:
         json.dump(test_data, f, indent=4)
+
+
+def generate_perception_options(answer):
+    options = set(PERCEPTION_MOVING_STATUS_OPTIONS)
+    answer_clean = answer.strip().rstrip(".")
+    answer_option = None
+
+    for opt in options:
+        if answer_clean.lower() in opt.lower():
+            answer_option = opt
+            break
+
+    if not answer_option:
+        answer_option = answer.strip().rstrip(".")
+
+    options.discard(answer_option)
+
+    other_options = random.sample(list(options), 3)
+    all_options = [answer_option] + other_options
+    random.shuffle(all_options)
+
+    option_letters = ["A", "B", "C", "D"]
+    option_strs = [
+        f"{letter}. {opt}" for letter, opt in zip(option_letters, all_options)
+    ]
+    correct_letter = option_letters[all_options.index(answer_option)]
+
+    return option_strs, correct_letter
+
+
+def generate_behavior_options(answer):
+    sentences = [s.strip() for s in answer.split(".") if s.strip()]
+    if len(sentences) < 2:
+        answer_option = answer.strip()
+        options = [answer_option]
+        while len(options) < 3:
+            candidate = f"The ego vehicle is {random.choice(BEHAVIOR_STEERING_OPTIONS)}. The ego vehicle is {random.choice(BEHAVIOR_SPEED_OPTIONS)}."
+            if candidate not in options:
+                options.append(candidate)
+        random.shuffle(options)
+    else:
+        answer_option = f"{sentences[0]}. {sentences[1]}."
+        options = [answer_option]
+        while len(options) < 3:
+            candidate = f"The ego vehicle is {random.choice(BEHAVIOR_STEERING_OPTIONS)}. The ego vehicle is {random.choice(BEHAVIOR_SPEED_OPTIONS)}."
+            if candidate not in options:
+                options.append(candidate)
+        random.shuffle(options)
+
+    option_letters = ["A", "B", "C"]
+    option_strs = [f"{letter}. {opt}" for letter, opt in zip(option_letters, options)]
+    correct_letter = option_letters[options.index(answer_option)]
+    return option_strs, correct_letter
 
 
 if __name__ == "__main__":
@@ -210,11 +310,17 @@ if __name__ == "__main__":
         default="[]",
         help="question tags to exclude from the test dataset",
     )
+    parser.add_argument(
+        "--patch_accuracy_options",
+        action="store_true",
+        help="If set, patch accuracy questions (tag 0) to have multiple-choice options.",
+    )
     args = parser.parse_args()
     exclude_tags = json.loads(args.exclude_tags) if args.exclude_tags else []
 
     extract_data(
         args.root_path,
         args.save_path,
+        args.patch_accuracy_options,
         exclude_tags=[int(tag) for tag in exclude_tags],
     )

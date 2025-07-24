@@ -313,6 +313,7 @@ def train(
         add_augmented=use_augmented,
         use_reasoning=use_reasoning,
         use_system_prompt=use_system_prompt,
+        resize_factor=resize_factor,
     )
     if test_set_size is not None:
         dataset = create_subset(dataset, int(test_set_size))

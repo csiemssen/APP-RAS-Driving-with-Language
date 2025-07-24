@@ -6,7 +6,7 @@ from src.data.generate_descriptor_qas import (
 from src.data.query_item import QueryItem
 from src.models.base_inference import BaseInferenceEngine
 from src.utils.logger import get_logger
-from src.utils.utils import parse_key_objects
+from src.utils.utils import find_key_objects
 
 logger = get_logger(__name__)
 
@@ -23,7 +23,7 @@ class ReasoningEngine:
             if item.qa_type == "augmented" or item.qa_type == "perception":
                 continue
 
-            key_objects = parse_key_objects(item.question)
+            key_objects = find_key_objects(item.question)
             if not key_objects:
                 logger.debug(
                     f"No key objects found in question: {item.question}. Skipping reasoning context generation."

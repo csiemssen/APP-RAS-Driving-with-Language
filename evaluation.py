@@ -69,12 +69,15 @@ class evaluation_suit:
             print("Chat evaluation is not set up. Skipping evaluation.")
             return 0.0
 
-        results = [self.chat_eval.forward(item) for item in data]
+        results = [self.chat_eval.forward((answer, GT)) for answer, GT, idx in data]
 
         scores = [float(result[0]) for result in results]
         tokens_used = sum(result[1] for result in results)
 
         print(f"Chat evaluation used {tokens_used} tokens.")
+
+        for (answer, GT, idx), score in zip(data, scores):
+            self.per_question_scores.setdefault(idx, {})["chatgpt"] = score
 
         if len(scores) == 0:
             return 0.0
@@ -118,7 +121,7 @@ class evaluation_suit:
 
         outs1 = sum(outs1) / len(outs1)
 
-        if not self.chat_provider:
+        if not self.chat_eval:
             print("Chat evaluation is not set up. Skipping evaluation.")
             return outs1
         else:
@@ -195,7 +198,7 @@ class evaluation_suit:
             self.accuracy["GT"].append(GT)
             self.accuracy["idx"].append(idx)
         if 1 in tag:
-            self.GPT.append((answer, GT))
+            self.GPT.append((answer, GT, idx))
         if 2 in tag:
             self.language["GT"].append(GT)
             self.language["answer"].append(answer)
@@ -220,6 +223,13 @@ class evaluation_suit:
         scores["per_question_scores"] = self.per_question_scores
 
         return scores
+
+
+def strip_question_options(question):
+    marker = "Please select the correct answer from the following options:"
+    if marker in question:
+        return question.split(marker)[0].strip()
+    return question.strip()
 
 
 if __name__ == "__main__":
@@ -308,9 +318,11 @@ if __name__ == "__main__":
 
                 questions_counter += 1
                 if idx in pred_file:
-                    if question != pred_file[idx]["question"]:
+                    q1 = strip_question_options(question)
+                    q2 = strip_question_options(pred_file[idx]["question"])
+                    if q1 != q2:
                         raise Exception(
-                            f"Question mismatch for {idx}. Expected: {question}, Found: {pred_file[idx]['question']}"
+                            f"Question mismatch for {idx}. Expected: {q1}, Found: {q2}"
                         )
 
                     predict = pred_file[idx]["answer"]
