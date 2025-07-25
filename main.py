@@ -28,6 +28,7 @@ if __name__ == "__main__":
             "front_cam",
             "image_grid",
             "descriptor_qas",
+            "add_kois",
             "reasoning",
             "system_prompt",
         ],

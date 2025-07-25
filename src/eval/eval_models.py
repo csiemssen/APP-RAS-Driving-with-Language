@@ -23,11 +23,13 @@ def evaluate_model(
     use_grid: bool = False,
     use_system_prompt: bool = False,
     use_reasoning: bool = False,
+    add_kois: bool = False,
     approach_name: Optional[str] = None,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
+        add_kois=add_kois,
         use_grid=use_grid,
         use_system_prompt=use_system_prompt,
         use_reasoning=use_reasoning,
