@@ -67,15 +67,25 @@ def get_image_paths_and_kois_per_key_frame_yolo(max_samples: Optional[int] = Non
         kois = []
         for camera, image_path in image_paths_raw.items():
             results = model(os.path.join(drivelm_dir, image_path))
-            center_points = [(xywh[0], xywh[1]) for res in results for xywh in res.boxes.xywh]
-            categories = [res.names[cls.item()] for res in results for cls in res.boxes.cls.int()]
+            center_points = [
+                (xywh[0], xywh[1]) for res in results for xywh in res.boxes.xywh
+            ]
+            categories = [
+                res.names[cls.item()] for res in results for cls in res.boxes.cls.int()
+            ]
             for j in range(len(center_points)):
                 i += 1
-                kois.append((f"<c{i},{camera},{center_points[j][0]},{center_points[j][1]}>",categories[j]))
+                kois.append(
+                    (
+                        f"<c{i},{camera},{center_points[j][0]},{center_points[j][1]}>",
+                        categories[j],
+                    )
+                )
         kois_per_key_frame[key_frame_id] = {
             descriptor: {
                 "Category": category,
-            } for descriptor, category in kois
+            }
+            for descriptor, category in kois
         }
         num_samples += 1
     return kois_per_key_frame
@@ -93,8 +103,10 @@ def get_image_paths_and_kois_per_key_frame_gt(max_samples: Optional[int] = None)
     return kois_per_key_frame
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     kois_per_key_frame_gt = get_image_paths_and_kois_per_key_frame_gt()
     kois_per_key_frame_yolo = get_image_paths_and_kois_per_key_frame_yolo()
-    matches, num_kois_gt = calculate_error(kois_per_key_frame_gt, kois_per_key_frame_yolo)
+    matches, num_kois_gt = calculate_error(
+        kois_per_key_frame_gt, kois_per_key_frame_yolo
+    )
     print(f"Number of KOIs in GT: {num_kois_gt}, Number of matches: {matches}")

@@ -34,7 +34,8 @@ class QwenMessageFormat(MessageFormat):
             content.append(
                 {
                     "type": "text",
-                    "text": "List of objects in the scene:\n" + key_object_info.__str__(),
+                    "text": "List of objects in the scene:\n"
+                    + key_object_info.__str__(),
                 }
             )
 
@@ -44,7 +45,7 @@ class QwenMessageFormat(MessageFormat):
                     {"type": "text", "text": f"Context Question: {context_q}"}
                 )
                 content.append({"type": "text", "text": f"Context Answer: {context_a}"})
-        
+
         content.append({"type": "text", "text": "Question: " + question})
         content.append(
             {
