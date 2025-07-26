@@ -5,6 +5,7 @@ from torch.utils.data import Dataset
 
 from src.constants import drivelm_dir
 from src.data.generate_reasoning_context import generate_reasoning_context
+from src.data.get_sensor_calibration import get_sample_data_and_calibrated_camera_lf, get_camera_calibration
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
@@ -48,6 +49,7 @@ class DriveLMImageDataset(Dataset):
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
         self.use_system_prompt = use_system_prompt
+        self.calibration_lf = get_sample_data_and_calibrated_camera_lf()
 
         data = load_dataset(
             split,
@@ -114,6 +116,7 @@ class DriveLMImageDataset(Dataset):
                             "qa": remove_nones(qa),
                             "qa_type": qa_types[i],
                             "id": scene_id + "_" + key_frame_id + "_" + str(i),
+                            "key_frame_id": key_frame_id,
                             "key_object_info": key_object_infos
                             if qa_types[i] != "perception"
                             else None,
@@ -132,6 +135,7 @@ class DriveLMImageDataset(Dataset):
 
     def __getitem__(self, idx):
         qa = self.qas[idx]
+        key_frame_id = qa["key_frame_id"]
         question = qa["qa"]["Q"]
         answer = qa["qa"]["A"]
         tags = qa["qa"].get("tag", [])
@@ -147,6 +151,8 @@ class DriveLMImageDataset(Dataset):
             else None
         )
 
+        camera_calibration = get_camera_calibration(self.calibration_lf, key_frame_id)
+
         query_item = QueryItem(
             question=question,
             image_path=image_path,
@@ -156,6 +162,7 @@ class DriveLMImageDataset(Dataset):
             key_object_info=key_object_info,
             system_prompt=system_prompt,
             ground_truth_answer=answer,
+            camera_calibration=camera_calibration,
         )
 
         if self.use_reasoning and self.split == "train":
