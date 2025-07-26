@@ -265,12 +265,9 @@ def train(
 
     def collator(batch: Any):
         texts = [
-            engine.processor.apply_chat_template(data["messages"], tokenize=False)
-            for data in batch
+            engine.processor.apply_chat_template(data, tokenize=False) for data in batch
         ]
-        image_inputs, video_inputs = process_vision_info(
-            [data["messages"][0] for data in batch]
-        )
+        image_inputs, video_inputs = process_vision_info([data[0] for data in batch])
 
         processed_batch = engine.processor(
             text=texts,
@@ -287,12 +284,12 @@ def train(
             assistant_idx = next(
                 j
                 for data in batch
-                for j, m in enumerate(data["messages"])
+                for j, m in enumerate(data)
                 if m["role"] == "assistant"
             )
 
             pre_text = engine.processor.apply_chat_template(
-                data["messages"][:assistant_idx], tokenize=False
+                data[:assistant_idx], tokenize=False
             )
             pre_tokens = engine.processor.tokenizer(pre_text, return_tensors="pt")[
                 "input_ids"

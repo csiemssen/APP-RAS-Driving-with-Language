@@ -54,7 +54,7 @@ def evaluate_model(
         if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
-        formatted_messages = [[item.formatted_message] for item in batch]
+        formatted_messages = [item.formatted_message for item in batch]
 
         batch_results = engine.predict_batch(formatted_messages)
 
