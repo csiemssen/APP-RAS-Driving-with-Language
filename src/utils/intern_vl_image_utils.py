@@ -11,9 +11,7 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 def build_transform(input_size: int):
     return T.Compose(
         [
-            T.Lambda(
-                lambda img: img.convert("RGB") if img.mode != "RGB" else img
-            ),
+            T.Lambda(lambda img: img.convert("RGB") if img.mode != "RGB" else img),
             T.Resize(
                 (input_size, input_size),
                 interpolation=InterpolationMode.BICUBIC,
@@ -24,9 +22,7 @@ def build_transform(input_size: int):
     )
 
 
-def find_closest_aspect_ratio(
-    aspect_ratio, target_ratios, width, height, image_size
-):
+def find_closest_aspect_ratio(aspect_ratio, target_ratios, width, height, image_size):
     best_ratio_diff = float("inf")
     best_ratio = (1, 1)
     area = width * height
