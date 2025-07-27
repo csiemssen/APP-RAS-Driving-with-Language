@@ -2,6 +2,7 @@ import json
 import os
 from typing import List, Optional
 
+import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -60,7 +61,7 @@ def evaluate_model(
 
     results = []
 
-    for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
+    for batch_idx, batch in tqdm(enumerate(dataloader), desc="Evaluating model", unit="batch"):
         if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
@@ -77,6 +78,11 @@ def evaluate_model(
                     "answer": result,
                 }
             )
+
+            # Periodic GPU cleanup and monitoring
+            if batch_idx % 5 == 0:
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
 
     model_dir = sanitize_model_name(engine.model_path)
     output_dir = os.path.join(data_dir, "output", model_dir)

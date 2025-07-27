@@ -16,6 +16,7 @@ from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_yolo_kois import generate_yolo_kois
+from src.data.create_image_grid_dataset import create_image_grid_dataset
 from src.utils.logger import get_logger
 from src.utils.utils import extract_children
 
