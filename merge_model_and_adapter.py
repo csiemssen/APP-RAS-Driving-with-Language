@@ -16,7 +16,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-model = Qwen2_5_VLForConditionalGeneration.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct")
+model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+    "Qwen/Qwen2.5-VL-3B-Instruct"
+)
 
 model = PeftModel.from_pretrained(
     model=model,

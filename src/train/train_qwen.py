@@ -252,6 +252,7 @@ def train(
     use_augmented: bool = False,
     use_reasoning: bool = False,
     use_system_prompt: bool = False,
+    **kwargs,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
 

@@ -24,6 +24,7 @@ def evaluate_model(
     use_system_prompt: bool = False,
     system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
+    add_kois: bool = False,
     approach_name: Optional[str] = None,
     exclude_question_tags: List[int] = [],
     exclude_question_types: List[str] = [],
@@ -32,6 +33,7 @@ def evaluate_model(
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
+        add_kois=add_kois,
         use_grid=use_grid,
         use_reasoning=use_reasoning,
         use_system_prompt=use_system_prompt,

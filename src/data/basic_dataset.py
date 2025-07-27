@@ -132,6 +132,7 @@ class DriveLMImageDataset(Dataset):
         message_format: MessageFormat,
         split="train",
         add_augmented=False,
+        add_kois=False,
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
@@ -150,7 +151,13 @@ class DriveLMImageDataset(Dataset):
             else None
         )
 
-        data = load_dataset(split)
+        data = load_dataset(
+            split,
+            add_augmented=add_augmented,
+            add_kois=add_kois,
+            use_grid=use_grid,
+            exclude_tags=exclude_question_tags,
+        )
 
         if split == "train":
             for scene_id, scene_data in data.items():
@@ -205,7 +212,7 @@ class DriveLMImageDataset(Dataset):
 
                 key_object_infos = (
                     scene_obj[key_frame_id]["key_object_infos"]
-                    if split == "train"
+                    if split == "train" or add_kois
                     else None
                 )
 

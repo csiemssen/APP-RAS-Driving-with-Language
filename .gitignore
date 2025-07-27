@@ -199,3 +199,5 @@ backup/
 
 # ignore vscode config
 .vscode/
+
+yolo11*
