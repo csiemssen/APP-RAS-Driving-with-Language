@@ -172,7 +172,7 @@ def key_object_dict_to_str(key_object: Dict[str, Any]) -> str:
 def scale_key_object_point(
     point: tuple[float, float], resize_factor: float
 ) -> tuple[float, float]:
-    return point[0] * resize_factor, point[1] * resize_factor
+    return float.__round__(point[0] * resize_factor, 2), float.__round__(point[1] * resize_factor, 2)
 
 
 def normalise_key_object_infos(
@@ -185,12 +185,14 @@ def normalise_key_object_infos(
             key_object_infos = key_frame_data["key_object_infos"]
             if not key_object_infos:
                 continue
+            normalised_key_object_infos = {}
             for key, value in key_object_infos.items():
-                key = normalise_key_object_descriptor(
+                normalised_key = normalise_key_object_descriptor(
                     key,
                     resize_factor,
                     use_grid,
                 )
+                new_value = value.copy()
                 if "2d_bbox" in value:
                     koi_dict = key_object_str_to_dict(key)
                     x1, y1, x2, y2 = value["2d_bbox"]
@@ -207,7 +209,10 @@ def normalise_key_object_infos(
                         resize_factor,
                     )
 
-                    value["2d_bbox"] = (x1, y1, x2, y2)
+                    new_value["2d_bbox"] = (x1, y1, x2, y2)
+                normalised_key_object_infos[normalised_key] = new_value
+            key_frame_data["key_object_infos"] = normalised_key_object_infos
+
     return data
 
 
