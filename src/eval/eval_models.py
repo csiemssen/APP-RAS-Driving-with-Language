@@ -13,10 +13,9 @@ from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
 from src.utils.utils import (
     create_subset,
-    sanitize_model_name,
     normalise_key_objects_in_text,
+    sanitize_model_name,
 )
-
 
 logger = get_logger(__name__)
 
@@ -80,10 +79,16 @@ def evaluate_model(
             results.append(
                 {
                     "id": batch[i].qa_id,
-                    "question": batch[i].question,
+                    "question": normalise_key_objects_in_text(
+                        batch[i].question,
+                        resize_factor=1 / resize_factor,
+                        use_grid=use_grid,
+                    ),
                     "model_input": batch[i].formatted_message,
                     "answer": normalise_key_objects_in_text(
-                        text=result, resize_factor=1 / resize_factor, use_grid=use_grid
+                        text=result,
+                        resize_factor=1 / resize_factor,
+                        use_grid=use_grid,
                     ),
                 }
             )
