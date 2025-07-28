@@ -79,11 +79,7 @@ def evaluate_model(
         for i, result in enumerate(batch_results):
             results.append(
                 {
-                    "id": normalise_key_objects_in_text(
-                        text=batch[i].qa_id,
-                        resize_factor=1 / resize_factor,
-                        use_grid=use_grid,
-                    ),
+                    "id": batch[i].qa_id,
                     "question": batch[i].question,
                     "model_input": batch[i].formatted_message,
                     "answer": normalise_key_objects_in_text(

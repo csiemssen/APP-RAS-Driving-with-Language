@@ -69,27 +69,14 @@ class DriveLMImageDataset(Dataset):
         data = load_dataset(split)
 
         if split == "train":
-            for scene_id, scene_data in data.items():
-                for key_frame_id, key_frame_data in scene_data["key_frames"].items():
-                    key_object_infos = key_frame_data["key_object_infos"]
-                    normalised_key_object_infos = {}
-                    if key_object_infos:
-                        for key, value in key_object_infos.items():
-                            new_key, new_value = normalise_key_object_infos(
-                                key,
-                                value,
-                                resize_factor,
-                                use_grid,
-                            )
-                            normalised_key_object_infos[new_key] = new_value
-
-                    key_frame_data["key_object_infos"] = normalised_key_object_infos
+            data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if split == "train" and add_augmented:
             data = generate_descriptor_qas(data)
 
         if split == "val" and add_kois:
             data = generate_yolo_kois(data)
+            data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if use_grid:
             data = create_image_grid_dataset(data)

@@ -144,17 +144,6 @@ def get_resize_image_size(resize_factor: float, grid: bool = False) -> Tuple[int
     return tuple_cast(size, int)
 
 
-def rescale_point(
-    point: Tuple[float, float],
-    original_size: Tuple[int, int],
-    resize_factor: float,
-) -> Tuple[float, float]:
-    target_size = tuple_mul(original_size, resize_factor)
-    scale_x = target_size[1] / original_size[1]
-    scale_y = target_size[0] / original_size[0]
-    return point[0] * scale_x, point[1] * scale_y
-
-
 def find_key_objects(text: str) -> List[str]:
     pattern = r"<c\d+,CAM_[A-Z_]+,\d+\.?\d*,\d+\.?\d*>"
     matches = re.findall(pattern, text)
@@ -181,47 +170,45 @@ def key_object_dict_to_str(key_object: Dict[str, Any]) -> str:
 
 
 def scale_key_object_point(
-    point: tuple[float, float], resize_factor: float, use_grid: bool
+    point: tuple[float, float], resize_factor: float
 ) -> tuple[float, float]:
-    image_size = GRID_IMG_SIZE if use_grid else IMAGE_SIZE
-    return rescale_point(point, image_size, resize_factor)
+    return point[0] * resize_factor, point[1] * resize_factor
 
 
 def normalise_key_object_infos(
-    key: str,
-    value: dict[str, Any],
+    data,
     resize_factor: float,
     use_grid: bool,
 ) -> tuple[str, dict[str, Any]]:
-    normalised_key = normalise_key_object_descriptor(
-        key,
-        resize_factor,
-        use_grid,
-    )
+    for _, scene_data in data.items():
+        for _, key_frame_data in scene_data["key_frames"].items():
+            key_object_infos = key_frame_data["key_object_infos"]
+            if not key_object_infos:
+                continue
+            for key, value in key_object_infos.items():
+                key = normalise_key_object_descriptor(
+                    key,
+                    resize_factor,
+                    use_grid,
+                )
+                if "2d_bbox" in value:
+                    koi_dict = key_object_str_to_dict(key)
+                    x1, y1, x2, y2 = value["2d_bbox"]
+                    if use_grid:
+                        x1, y1 = map_camera_point_to_grid_point((x1, y1), koi_dict["camera"])
+                        x2, y2 = map_camera_point_to_grid_point((x2, y2), koi_dict["camera"])
 
-    koi_dict = key_object_str_to_dict(key)
-    normalised_value = value.copy()
-    if "2d_bbox" in normalised_value:
-        x1, y1, x2, y2 = normalised_value["2d_bbox"]
-        if use_grid:
-            x1, y1 = map_camera_point_to_grid_point((x1, y1), koi_dict["camera"])
-            x2, y2 = map_camera_point_to_grid_point((x2, y2), koi_dict["camera"])
+                    x1, y1 = scale_key_object_point(
+                        (x1, y1),
+                        resize_factor,
+                    )
+                    x2, y2 = scale_key_object_point(
+                        (x2, y2),
+                        resize_factor,
+                    )
 
-        x1, y1 = scale_key_object_point(
-            (x1, y1),
-            resize_factor,
-            use_grid,
-        )
-
-        x2, y2 = scale_key_object_point(
-            (x2, y2),
-            resize_factor,
-            use_grid,
-        )
-
-        normalised_value["2d_bbox"] = (x1, y1, x2, y2)
-
-    return normalised_key, normalised_value
+                    value["2d_bbox"] = (x1, y1, x2, y2)
+    return data
 
 
 def normalise_key_object_descriptor(
@@ -243,7 +230,7 @@ def normalise_key_object_descriptor(
     else:
         new_x, new_y = koi_dict["x"], koi_dict["y"]
 
-    new_x, new_y = scale_key_object_point((new_x, new_y), resize_factor, use_grid)
+    new_x, new_y = scale_key_object_point((new_x, new_y), resize_factor)
 
     koi_dict["x"] = new_x
     koi_dict["y"] = new_y
