@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Type, TypeVar
 import torch
 from torch.utils.data import Dataset, Subset
 
-from src.constants import GRID_IMG_SIZE, IMAGE_SIZE
+from src.constants import GRID_IMG_SIZE, IMAGE_SIZE, GRID_POSITIONS
 from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 
@@ -178,3 +178,101 @@ def key_object_str_to_dict(text: str) -> Dict[str, Any]:
 
 def key_object_dict_to_str(key_object: Dict[str, Any]) -> str:
     return f"<{key_object['id']},{key_object['camera']},{key_object['x']},{key_object['y']}>"
+
+
+def scale_key_object_point(
+    point: tuple[float, float], resize_factor: float, use_grid: bool
+) -> tuple[float, float]:
+    image_size = GRID_IMG_SIZE if use_grid else IMAGE_SIZE
+    return rescale_point(point, image_size, resize_factor)
+
+
+def normalise_key_object_infos(
+    key: str,
+    value: dict[str, Any],
+    resize_factor: float,
+    use_grid: bool,
+) -> tuple[str, dict[str, Any]]:
+    normalised_key = normalise_key_object_descriptor(
+        key,
+        resize_factor,
+        use_grid,
+    )
+
+    koi_dict = key_object_str_to_dict(key)
+    normalised_value = value.copy()
+    if "2d_bbox" in normalised_value:
+        x1, y1, x2, y2 = normalised_value["2d_bbox"]
+        if use_grid:
+            x1, y1 = map_camera_point_to_grid_point((x1, y1), koi_dict["camera"])
+            x2, y2 = map_camera_point_to_grid_point((x2, y2), koi_dict["camera"])
+
+        x1, y1 = scale_key_object_point(
+            (x1, y1),
+            resize_factor,
+            use_grid,
+        )
+
+        x2, y2 = scale_key_object_point(
+            (x2, y2),
+            resize_factor,
+            use_grid,
+        )
+
+        normalised_value["2d_bbox"] = (x1, y1, x2, y2)
+
+    return normalised_key, normalised_value
+
+
+def normalise_key_object_descriptor(
+    key_object_descriptor: str, resize_factor: float, use_grid: bool
+):
+    koi_dict = key_object_str_to_dict(key_object_descriptor)
+
+    if not koi_dict:
+        logger.warning(
+            f"Key object string '{key_object_descriptor}' could not be parsed."
+        )
+        return key_object_descriptor
+
+    # Map to grid coordinates first as it uses the orginal image size
+    if use_grid:
+        new_x, new_y = map_camera_point_to_grid_point(
+            (koi_dict["x"], koi_dict["y"]), koi_dict["camera"]
+        )
+    else:
+        new_x, new_y = koi_dict["x"], koi_dict["y"]
+
+    new_x, new_y = scale_key_object_point((new_x, new_y), resize_factor, use_grid)
+
+    koi_dict["x"] = new_x
+    koi_dict["y"] = new_y
+
+    return key_object_dict_to_str(koi_dict)
+
+
+def normalise_key_objects_in_text(
+    text: str,
+    resize_factor: float,
+    use_grid: bool,
+) -> str:
+    descriptors = find_key_objects(text)
+    for desc in descriptors:
+        norm_desc = normalise_key_object_descriptor(
+            desc,
+            resize_factor,
+            use_grid,
+        )
+        text = text.replace(desc, norm_desc)
+    return text
+
+
+def map_camera_point_to_grid_point(
+    point: Tuple[float, float],
+    cam_name: str,
+) -> Tuple[float, float]:
+    col, row = GRID_POSITIONS[cam_name]
+    img_height, img_width = IMAGE_SIZE
+    x_offset = col * img_width
+    y_offset = row * img_height
+    return (point[0] + x_offset, point[1] + y_offset)

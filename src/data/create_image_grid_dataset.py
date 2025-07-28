@@ -1,5 +1,4 @@
 import os
-from typing import Tuple
 
 import tqdm
 from PIL import Image, ImageDraw, ImageFont
@@ -15,35 +14,6 @@ from src.constants import (
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def map_camera_point_to_grid_point(
-    point: Tuple[float, float],
-    cam_name: str,
-) -> Tuple[float, float]:
-    col, row = GRID_POSITIONS[cam_name]
-    img_height, img_width = IMAGE_SIZE
-    x_offset = col * img_width
-    y_offset = row * img_height
-    return (point[0] + x_offset, point[1] + y_offset)
-
-
-def get_camera_and_point_from_grid_point(
-    point: Tuple[float, float],
-    cam_name: str,
-) -> Tuple[float, float]:
-    img_height, img_width = IMAGE_SIZE
-    for cam_name, (col, row) in GRID_POSITIONS.items():
-        x_offset = col * img_width
-        y_offset = row * img_height
-        if (x_offset <= point[0] < x_offset + img_width) and (
-            y_offset <= point[1] < y_offset + img_height
-        ):
-            cam_x = point[0] - x_offset
-            cam_y = point[1] - y_offset
-            return cam_name, (cam_x, cam_y)
-    logger.warning(f"Point {point} does not belong to any camera region in the grid.")
-    return None, point
 
 
 def create_grid_image_with_labels(

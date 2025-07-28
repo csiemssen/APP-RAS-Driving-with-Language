@@ -11,7 +11,12 @@ from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.base_inference import BaseInferenceEngine
 from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset, sanitize_model_name
+from src.utils.utils import (
+    create_subset,
+    sanitize_model_name,
+    normalise_key_objects_in_text,
+)
+
 
 logger = get_logger(__name__)
 
@@ -61,7 +66,9 @@ def evaluate_model(
 
     results = []
 
-    for batch_idx, batch in enumerate(tqdm(dataloader, desc="Evaluating model", unit="batch")):
+    for batch_idx, batch in enumerate(
+        tqdm(dataloader, desc="Evaluating model", unit="batch")
+    ):
         if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
@@ -72,10 +79,16 @@ def evaluate_model(
         for i, result in enumerate(batch_results):
             results.append(
                 {
-                    "id": batch[i].qa_id,
+                    "id": normalise_key_objects_in_text(
+                        text=batch[i].qa_id,
+                        resize_factor=1 / resize_factor,
+                        use_grid=use_grid,
+                    ),
                     "question": batch[i].question,
                     "model_input": batch[i].formatted_message,
-                    "answer": result,
+                    "answer": normalise_key_objects_in_text(
+                        text=result, resize_factor=1 / resize_factor, use_grid=use_grid
+                    ),
                 }
             )
 
