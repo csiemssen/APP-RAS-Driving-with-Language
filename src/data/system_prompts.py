@@ -2,7 +2,6 @@ import os
 
 import yaml
 
-from src.constants import GRID_IMG_SIZE, IMAGE_SIZE
 from src.utils.utils import has_options, get_resize_image_size
 
 
@@ -21,14 +20,16 @@ class SystemPromptProvider:
 
         grid_prompts = approach.get("use_grid", {})
         if use_grid:
+            im_size = get_resize_image_size(resize_factor, True)
             prompt += grid_prompts.get(
                 "enabled",
-                f"You are provided with a grid of images with size {get_resize_image_size(resize_factor, True)} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
+                f"You are provided with a grid of images with size {im_size[1], im_size[0]} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
             )
         else:
+            im_size = get_resize_image_size(resize_factor, False)
             prompt += grid_prompts.get(
                 "disabled",
-                f"You receive a single image with size {get_resize_image_size(resize_factor, False)} from the front camera. ",
+                f"You receive a single image with size {im_size[1], im_size[0]} from the front camera. ",
             )
 
         if use_reasoning:
