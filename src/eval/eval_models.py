@@ -61,7 +61,7 @@ def evaluate_model(
 
     results = []
 
-    for batch_idx, batch in tqdm(enumerate(dataloader), desc="Evaluating model", unit="batch"):
+    for batch_idx, batch in enumerate(tqdm(dataloader, desc="Evaluating model", unit="batch")):
         if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
