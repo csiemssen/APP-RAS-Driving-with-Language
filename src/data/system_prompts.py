@@ -2,7 +2,8 @@ import os
 
 import yaml
 
-from src.utils.utils import has_options
+from src.constants import GRID_IMG_SIZE, IMAGE_SIZE
+from src.utils.utils import has_options, get_resize_image_size
 
 
 class SystemPromptProvider:
@@ -13,7 +14,7 @@ class SystemPromptProvider:
                 self.prompts = yaml.safe_load(f)
 
     def get_approach_prompt(
-        self, use_grid: bool = False, use_reasoning: bool = False
+        self, resize_factor: float, use_grid: bool = False, use_reasoning: bool = False, 
     ) -> str:
         approach = self.prompts.get("approach_prompt", {})
         prompt = approach.get("base", "You are an autonomous driving assistant. ")
@@ -22,12 +23,12 @@ class SystemPromptProvider:
         if use_grid:
             prompt += grid_prompts.get(
                 "enabled",
-                "You are provided with a grid of images of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
+                f"You are provided with a grid of images with size {get_resize_image_size(resize_factor, GRID_IMG_SIZE)} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
             )
         else:
             prompt += grid_prompts.get(
                 "disabled",
-                "You receive a single image from the front camera. ",
+                f"You receive a single image with size {get_resize_image_size(resize_factor, IMAGE_SIZE)} from the front camera. ",
             )
 
         if use_reasoning:
@@ -171,8 +172,8 @@ class SystemPromptProvider:
                     )
         return None
 
-    def get_system_prompt(self, question_type: str, question: str, **approach_kwargs):
-        approach_prompt = self.get_approach_prompt(**approach_kwargs)
+    def get_system_prompt(self, question_type: str, question: str, resize_factor: float, **approach_kwargs):
+        approach_prompt = self.get_approach_prompt(resize_factor, **approach_kwargs)
         general_prompt = self.get_general_prompt()
         question_type_prompt = self.get_question_type_prompt(question_type)
         question_specific_prompt = self.get_question_specific_prompt(

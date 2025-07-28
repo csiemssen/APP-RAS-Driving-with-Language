@@ -60,6 +60,7 @@ class DriveLMImageDataset(Dataset):
         self.split = split
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
+        self.resize_factor = resize_factor
         self.system_prompt_provider = (
             SystemPromptProvider(config_path=system_prompt_config_path)
             if use_system_prompt
@@ -180,6 +181,7 @@ class DriveLMImageDataset(Dataset):
             self.system_prompt_provider.get_system_prompt(
                 question_type=qa["qa_type"],
                 question=question,
+                resize_factor=self.resize_factor,
                 use_grid=self.use_grid,
                 use_reasoning=self.use_reasoning,
             )
