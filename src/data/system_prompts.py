@@ -23,12 +23,12 @@ class SystemPromptProvider:
         if use_grid:
             prompt += grid_prompts.get(
                 "enabled",
-                f"You are provided with a grid of images with size {get_resize_image_size(resize_factor, GRID_IMG_SIZE)} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
+                f"You are provided with a grid of images with size {get_resize_image_size(resize_factor, True)} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
             )
         else:
             prompt += grid_prompts.get(
                 "disabled",
-                f"You receive a single image with size {get_resize_image_size(resize_factor, IMAGE_SIZE)} from the front camera. ",
+                f"You receive a single image with size {get_resize_image_size(resize_factor, False)} from the front camera. ",
             )
 
         if use_reasoning:
