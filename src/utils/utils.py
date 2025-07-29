@@ -263,6 +263,9 @@ def map_camera_point_to_grid_point(
     point: Tuple[float, float],
     cam_name: str,
 ) -> Tuple[float, float]:
+    # The model does not always output existing cam names
+    if cam_name not in GRID_POSITIONS:
+        return point
     col, row = GRID_POSITIONS[cam_name]
     img_height, img_width = IMAGE_SIZE
     x_offset = col * img_width
