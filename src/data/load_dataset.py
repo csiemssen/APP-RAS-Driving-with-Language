@@ -1,4 +1,5 @@
 import os
+import json
 from json import load
 from typing import List
 
@@ -13,10 +14,12 @@ from src.constants import (
 )
 from src.data.create_image_grid_dataset import create_image_grid_dataset
 from src.data.extract_test_dataset import extract_data
+from src.data.generate_bev import generate_bevs
 from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_yolo_kois import generate_yolo_kois
+from src.data.get_sensor_calibration import get_calibration
 from src.utils.logger import get_logger
 from src.utils.utils import extract_children
 
@@ -94,5 +97,9 @@ def load_dataset(
 
     if use_grid:
         data = create_image_grid_dataset(data)
+
+    # TODO: We should add a switch for this.
+    data = get_calibration(data)
+    data = generate_bevs(data)
 
     return data

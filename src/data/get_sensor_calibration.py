@@ -1,4 +1,5 @@
 import polars as pl
+from tqdm import tqdm
 
 from src.constants import nuscenes_dir
 
@@ -40,7 +41,6 @@ cameras = [
     "CAM_BACK_RIGHT",
 ]
 
-# TODO: Think about using np arrays here instead
 class CameraCalibration:
     camera_intrinsic: list[list[float]]
     translation: list[float]
@@ -70,3 +70,10 @@ def get_camera_calibration(lf: pl.LazyFrame, key_frame_id) -> dict[str, CameraCa
             rotation=calibration["rotation"][0].to_list(),
         )
     return calibration_per_camera
+
+def get_calibration(data: dict):
+    lf = get_sample_data_and_calibrated_camera_lf()
+    for _, scene in tqdm(data.items(), desc="Fetching camera calibration data"):
+        for key_frame_id, key_frame in scene["key_frames"].items():
+            key_frame["camera_calibration"] = get_camera_calibration(lf, key_frame_id)
+    return data
