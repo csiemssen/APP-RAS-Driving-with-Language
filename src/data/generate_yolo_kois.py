@@ -5,7 +5,7 @@ from ultralytics import YOLO
 from src.constants import drivelm_dir
 
 
-def generate_yolo_kois(data):
+def generate_yolo_kois(data, max_results_per_cam: int = 5):
     model = YOLO("yolo11n.pt")
     for _, scene_obj in data.items():
         for _, key_frame in scene_obj["key_frames"].items():
@@ -13,7 +13,7 @@ def generate_yolo_kois(data):
             i = 0
             kois = []
             for camera, image_path in image_paths_raw.items():
-                results = model(os.path.join(drivelm_dir, image_path))
+                results = model(os.path.join(drivelm_dir, image_path))[:max_results_per_cam]
                 center_points = [
                     (xywh[0], xywh[1]) for res in results for xywh in res.boxes.xywh
                 ]
