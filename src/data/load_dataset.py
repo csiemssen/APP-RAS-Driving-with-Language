@@ -1,5 +1,4 @@
 import os
-import json
 from json import load
 
 import gdown
@@ -51,7 +50,7 @@ def get_ds(split: str) -> None:
     extract_children(out_name, nuscenes_dir)
 
 
-def load_dataset(split: str):
+def load_dataset(split: str) -> dict:
     dataset_paths = {
         "train": drivelm_train_json,
         "val": drivelm_val_json,

@@ -13,7 +13,7 @@ def generate_yolo_kois(data, max_results_per_cam: int = 5):
             i = 0
             kois = []
             for camera, image_path in image_paths_raw.items():
-                results = model(os.path.join(drivelm_dir, image_path))[:max_results_per_camera]
+                results = model(os.path.join(drivelm_dir, image_path))[:max_results_per_cam]
                 bbox = [xyxy for res in results for xyxy in res.boxes.xyxy.cpu().tolist()]
                 center_points = [
                     (xywh[0], xywh[1]) for res in results for xywh in res.boxes.xywh.cpu()

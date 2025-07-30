@@ -5,10 +5,12 @@ from torch.utils.data import Dataset
 
 from src.constants import drivelm_dir
 from src.data.create_image_grid_dataset import create_image_grid_dataset
+from src.data.generate_bev import generate_bevs
 from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_reasoning_context import generate_reasoning_context
+from src.data.get_sensor_calibration import get_calibration
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
@@ -77,6 +79,9 @@ class DriveLMImageDataset(Dataset):
 
         if split == "val" and add_kois:
             data = generate_yolo_kois(data)
+            data = get_calibration(data)
+            data = generate_bevs(data)
+            # NOTE: We need to make sure this is executed AFTER we need actual image locations
             data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if use_grid:
