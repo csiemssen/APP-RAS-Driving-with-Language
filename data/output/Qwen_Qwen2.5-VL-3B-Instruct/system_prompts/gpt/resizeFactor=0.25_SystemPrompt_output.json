@@ -1,0 +1,134 @@
+[
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_4",
+    "question": "What actions could the ego vehicle take based on <c1,CAM_BACK,1088.3,497.5>? Why take this action and what's the probability?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response should include three parts:\n1. **The action** the ego vehicle could take (e.g., turn right, stay stationary, slow down, brake, accelerate, ...).\n2. **The reason** for this action (e.g., to avoid a collision, to follow traffic rules, no safety issue,...).\n3. **The probability or likelihood** of this action (e.g., high probability, low probability, ...).\n4. You can use variations in phrasing, but all three parts \u2014 action, reason, and probability \u2014 must be clearly expressed.\n\nExample:\n- The action is to turn right. The reason is to avoid a collision. The probability is high.\n"
+        },
+        {
+          "type": "text",
+          "text": "Question: What actions could the ego vehicle take based on <c1,CAM_BACK,1088.3,497.5>? Why take this action and what's the probability?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291010612404.jpg"
+        }
+      ]
+    },
+    "answer": "- The action is to stop. The reason is to follow traffic rules. The probability is high."
+  },
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_5",
+    "question": "What actions taken by the ego vehicle can lead to a collision with <c1,CAM_BACK,1088.3,497.5>?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response must include:\n1. A description of one or more ego vehicle actions that could plausibly lead to a collision (e.g., turning, accelerating, reversing, etc.).\n2. A clear indication that those actions could lead to a collision with the specified object.\n3. The object must be referred to using its **full descriptor**, exactly as provided in the question.\n4. You can use variations in phrasing,, but ensure the object descriptor is present and clearly linked to the action.\n\nExample:\nTurning right and accelerating through the intersection can lead to a collision with <c2,CAM_FRONT_RIGHT,985.8,610.8>.\n"
+        },
+        {
+          "type": "text",
+          "text": "Question: What actions taken by the ego vehicle can lead to a collision with <c1,CAM_BACK,1088.3,497.5>?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291010612404.jpg"
+        }
+      ]
+    },
+    "answer": "Accelerating forward while approaching the intersection can lead to a collision with <c1,CAM_BACK,1088.3,497.5>."
+  },
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_4a0798f849ca477ab18009c3a20b7df2_6",
+    "question": "In this scenario, what are safe actions to take for the ego vehicle?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response must include:\n1. A list of one or more safe driving actions the ego vehicle can reasonably take (e.g., keep going at the same speed, decelerate gradually without braking, slightly offset to the left, etc.).\n2. The actions should be written in natural language, joined with commas, 'and', or 'or'.\n3. Do not include any explanation, reasoning, or commentary\u2014only the actions.\n4. Use complete, grammatically correct phrases.\n5. You may vary the phrasing and number of actions, but all should be context-appropriate and safe.\n\nExample:\nKeep going at the same speed, decelerate gradually without braking, or slightly offset to the right."
+        },
+        {
+          "type": "text",
+          "text": "Question: In this scenario, what are safe actions to take for the ego vehicle?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291010612404.jpg"
+        }
+      ]
+    },
+    "answer": "Keep going at the same speed, or slightly offset to the left."
+  },
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_3",
+    "question": "What actions could the ego vehicle take based on <c1,CAM_BACK,991.7,603.0>? Why take this action and what's the probability?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response should include three parts:\n1. **The action** the ego vehicle could take (e.g., turn right, stay stationary, slow down, brake, accelerate, ...).\n2. **The reason** for this action (e.g., to avoid a collision, to follow traffic rules, no safety issue,...).\n3. **The probability or likelihood** of this action (e.g., high probability, low probability, ...).\n4. You can use variations in phrasing, but all three parts \u2014 action, reason, and probability \u2014 must be clearly expressed.\n\nExample:\n- The action is to turn right. The reason is to avoid a collision. The probability is high.\n"
+        },
+        {
+          "type": "text",
+          "text": "Question: What actions could the ego vehicle take based on <c1,CAM_BACK,991.7,603.0>? Why take this action and what's the probability?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291002262404.jpg"
+        }
+      ]
+    },
+    "answer": "- The action is to stop. The reason is to avoid a collision with the object at the intersection. The probability is high."
+  },
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_4",
+    "question": "What actions taken by the ego vehicle can lead to a collision with <c1,CAM_BACK,991.7,603.0>?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response must include:\n1. A description of one or more ego vehicle actions that could plausibly lead to a collision (e.g., turning, accelerating, reversing, etc.).\n2. A clear indication that those actions could lead to a collision with the specified object.\n3. The object must be referred to using its **full descriptor**, exactly as provided in the question.\n4. You can use variations in phrasing,, but ensure the object descriptor is present and clearly linked to the action.\n\nExample:\nTurning right and accelerating through the intersection can lead to a collision with <c2,CAM_FRONT_RIGHT,985.8,610.8>.\n"
+        },
+        {
+          "type": "text",
+          "text": "Question: What actions taken by the ego vehicle can lead to a collision with <c1,CAM_BACK,991.7,603.0>?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291002262404.jpg"
+        }
+      ]
+    },
+    "answer": "Accelerating forward and turning left at the stop sign can lead to a collision with <c1,CAM_BACK,991.7,603.0>."
+  },
+  {
+    "id": "f0f120e4d4b0441da90ec53b16ee169d_ffd1bdf020d145759224c629b501d2b2_5",
+    "question": "In this scenario, what are safe actions to take for the ego vehicle?",
+    "model_input": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Objects are labeled as <c, CAM, x, y>, where c is the ID, CAM is the camera name, and x, y are the 2D coordinates of the object center.\nYour response must include:\n1. A list of one or more safe driving actions the ego vehicle can reasonably take (e.g., keep going at the same speed, decelerate gradually without braking, slightly offset to the left, etc.).\n2. The actions should be written in natural language, joined with commas, 'and', or 'or'.\n3. Do not include any explanation, reasoning, or commentary\u2014only the actions.\n4. Use complete, grammatically correct phrases.\n5. You may vary the phrasing and number of actions, but all should be context-appropriate and safe.\n\nExample:\nKeep going at the same speed, decelerate gradually without braking, or slightly offset to the right."
+        },
+        {
+          "type": "text",
+          "text": "Question: In this scenario, what are safe actions to take for the ego vehicle?"
+        },
+        {
+          "type": "image",
+          "image": "file:///content/src/../data/drivelm/../nuscenes/samples/CAM_FRONT/n008-2018-09-18-13-10-39-0400__CAM_FRONT__1537291002262404.jpg"
+        }
+      ]
+    },
+    "answer": "Slow down gradually without braking, slightly offset to the left, or look for alternative routes."
+  }
+]

@@ -4,13 +4,22 @@ from typing import Any, List
 from torch.utils.data import Dataset
 
 from src.constants import drivelm_dir
+from src.data.create_image_grid_dataset import create_image_grid_dataset
+from src.data.generate_descriptor_qas import (
+    generate_descriptor_qas,
+)
 from src.data.generate_reasoning_context import generate_reasoning_context
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
-from src.data.system_prompts import get_system_prompt
+from src.data.system_prompts import SystemPromptProvider
+from src.data.generate_yolo_kois import generate_yolo_kois
 from src.utils.logger import get_logger
-from src.utils.utils import remove_nones
+from src.utils.utils import (
+    remove_nones,
+    normalise_key_object_infos,
+    normalise_key_objects_in_text,
+)
 
 logger = get_logger(__name__)
 
@@ -42,21 +51,36 @@ class DriveLMImageDataset(Dataset):
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
+        system_prompt_config_path=None,
         exclude_question_tags: List[int] = [],
+        exclude_question_types: List[str] = [],
+        resize_factor: float = 1.0,
     ):
         self.message_format = message_format
         self.split = split
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
-        self.use_system_prompt = use_system_prompt
-
-        data = load_dataset(
-            split,
-            add_augmented=add_augmented,
-            add_kois=add_kois,
-            use_grid=use_grid,
-            exclude_tags=exclude_question_tags,
+        self.resize_factor = resize_factor
+        self.system_prompt_provider = (
+            SystemPromptProvider(config_path=system_prompt_config_path)
+            if use_system_prompt
+            else None
         )
+
+        data = load_dataset(split)
+
+        if split == "train":
+            data = normalise_key_object_infos(data, resize_factor, use_grid)
+
+        if split == "train" and add_augmented:
+            data = generate_descriptor_qas(data)
+
+        if split == "val" and add_kois:
+            data = generate_yolo_kois(data)
+            data = normalise_key_object_infos(data, resize_factor, use_grid)
+
+        if use_grid:
+            data = create_image_grid_dataset(data)
 
         removed = 0
         qa_list = []
@@ -113,6 +137,20 @@ class DriveLMImageDataset(Dataset):
                     + qas_behavior
                     + qas_augmented
                 ):
+                    qa["Q"] = normalise_key_objects_in_text(
+                        qa["Q"],
+                        resize_factor=resize_factor,
+                        use_grid=use_grid,
+                    )
+
+                    tags = qa.get("tag", [])
+                    qa_type = qa_types[i]
+                    if (
+                        any(tag in exclude_question_tags for tag in tags)
+                        or qa_type in exclude_question_types
+                    ):
+                        continue
+
                     qa_list.append(
                         {
                             "qa": remove_nones(qa),
@@ -145,12 +183,14 @@ class DriveLMImageDataset(Dataset):
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
         system_prompt = (
-            get_system_prompt(
-                qa["qa_type"],
+            self.system_prompt_provider.get_system_prompt(
+                question_type=qa["qa_type"],
+                question=question,
+                resize_factor=self.resize_factor,
                 use_grid=self.use_grid,
                 use_reasoning=self.use_reasoning,
             )
-            if self.use_system_prompt
+            if self.system_prompt_provider
             else None
         )
 

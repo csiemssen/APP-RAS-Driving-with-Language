@@ -21,3 +21,12 @@ GRID_IMG_SIZE = (
     IMAGE_SIZE[0] * GRID[0],
     IMAGE_SIZE[1] * GRID[1],
 )  # (height, width)
+
+GRID_POSITIONS = {
+    "CAM_FRONT_LEFT": (0, 0),
+    "CAM_FRONT": (1, 0),
+    "CAM_FRONT_RIGHT": (2, 0),
+    "CAM_BACK_LEFT": (0, 1),
+    "CAM_BACK": (1, 1),
+    "CAM_BACK_RIGHT": (2, 1),
+}

@@ -1,7 +1,8 @@
 import json
 import os
-from typing import Optional
+from typing import List, Optional
 
+import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -10,7 +11,11 @@ from src.data.basic_dataset import DriveLMImageDataset, simple_dict_collate
 from src.models.base_inference import BaseInferenceEngine
 from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset, sanitize_model_name
+from src.utils.utils import (
+    create_subset,
+    normalise_key_objects_in_text,
+    sanitize_model_name,
+)
 
 logger = get_logger(__name__)
 
@@ -22,17 +27,25 @@ def evaluate_model(
     test_set_size: Optional[str] = None,
     use_grid: bool = False,
     use_system_prompt: bool = False,
+    system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
     add_kois: bool = False,
     approach_name: Optional[str] = None,
+    exclude_question_tags: List[int] = [],
+    exclude_question_types: List[str] = [],
+    resize_factor: float = 1.0,
 ):
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
         add_kois=add_kois,
         use_grid=use_grid,
-        use_system_prompt=use_system_prompt,
         use_reasoning=use_reasoning,
+        use_system_prompt=use_system_prompt,
+        system_prompt_config_path=system_prompt_config_path,
+        exclude_question_tags=exclude_question_tags,
+        exclude_question_types=exclude_question_types,
+        resize_factor=resize_factor,
     )
     if test_set_size is not None:
         dataset = create_subset(
@@ -52,7 +65,9 @@ def evaluate_model(
 
     results = []
 
-    for batch in tqdm(dataloader, desc="Evaluating model", unit="batch"):
+    for batch_idx, batch in enumerate(
+        tqdm(dataloader, desc="Evaluating model", unit="batch")
+    ):
         if use_reasoning:
             batch = reasoning_engine.process_batch(batch)
 
@@ -64,10 +79,22 @@ def evaluate_model(
             results.append(
                 {
                     "id": batch[i].qa_id,
-                    "question": batch[i].question,
-                    "answer": result,
+                    "question": normalise_key_objects_in_text(
+                        batch[i].question,
+                        resize_factor=1 / resize_factor,
+                        use_grid=use_grid,
+                    ),
+                    "model_input": batch[i].formatted_message,
+                    "answer": normalise_key_objects_in_text(
+                        text=result,
+                        resize_factor=1 / resize_factor,
+                        use_grid=use_grid,
+                    ),
                 }
             )
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     model_dir = sanitize_model_name(engine.model_path)
     output_dir = os.path.join(data_dir, "output", model_dir)

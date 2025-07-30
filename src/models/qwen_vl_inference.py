@@ -107,7 +107,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             for k, v in inputs.items()
         }
         with torch.no_grad():
-            generated_ids = self.model.generate(**inputs, max_new_tokens=128)
+            generated_ids = self.model.generate(**inputs, max_new_tokens=256)
 
         generated_ids_trimmed = [
             out_ids[len(in_ids) :]

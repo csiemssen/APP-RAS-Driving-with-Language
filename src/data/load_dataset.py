@@ -1,7 +1,6 @@
 import os
 import json
 from json import load
-from typing import List
 
 import gdown
 
@@ -12,14 +11,7 @@ from src.constants import (
     drivelm_val_json,
     nuscenes_dir,
 )
-from src.data.create_image_grid_dataset import create_image_grid_dataset
 from src.data.extract_test_dataset import extract_data
-from src.data.generate_bev import generate_bevs
-from src.data.generate_descriptor_qas import (
-    generate_descriptor_qas,
-)
-from src.data.generate_yolo_kois import generate_yolo_kois
-from src.data.get_sensor_calibration import get_calibration
 from src.utils.logger import get_logger
 from src.utils.utils import extract_children
 
@@ -59,13 +51,7 @@ def get_ds(split: str) -> None:
     extract_children(out_name, nuscenes_dir)
 
 
-def load_dataset(
-    split: str,
-    add_augmented: bool = False,
-    add_kois: bool = False,
-    use_grid: bool = False,
-    exclude_tags: List[int] = [],
-):
+def load_dataset(split: str):
     dataset_paths = {
         "train": drivelm_train_json,
         "val": drivelm_val_json,
@@ -81,25 +67,12 @@ def load_dataset(
 
     if split == "test":
         logger.debug("Extracting test dataset from train dataset")
-        extract_data(drivelm_train_json, drivelm_test_json, exclude_tags)
+        extract_data(drivelm_train_json, drivelm_test_json)
 
         base_path = drivelm_test_json
 
     with open(base_path) as f:
         logger.debug(f"Loading dataset from {base_path}")
         data = load(f)
-
-    if split == "train" and add_augmented:
-        data = generate_descriptor_qas(data)
-
-    if split == "val" and add_kois:
-        data = generate_yolo_kois(data)
-
-    if use_grid:
-        data = create_image_grid_dataset(data)
-
-    # TODO: We should add a switch for this.
-    data = get_calibration(data)
-    data = generate_bevs(data)
 
     return data

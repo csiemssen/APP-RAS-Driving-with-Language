@@ -5,7 +5,7 @@ from ultralytics import YOLO
 from src.constants import drivelm_dir
 
 
-def generate_yolo_kois(data, max_results_per_camera:int = 5):
+def generate_yolo_kois(data, max_results_per_cam: int = 5):
     model = YOLO("yolo11n.pt")
     for _, scene_obj in data.items():
         for _, key_frame in scene_obj["key_frames"].items():
