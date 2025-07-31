@@ -22,24 +22,24 @@ def get_ds(split: str) -> None:
     if split == "train" or split == "test":
         out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_train.zip")
         gdown.download(
-            id="1DeosPGYeM2gXSChjMODGsQChZyYDmaUz",
+            id="1fcy_oamCh2WER9ldd790DI39mNSwW9GV",
             output=out_name,
         )
         extract_children(out_name, nuscenes_dir)
         gdown.download(
-            id="1CvTPwChKvfnvrZ1Wr0ZNVqtibkkNeGgt",
+            id="14tuCTmV63nxkTO3pUeEGib45ddYHmjnV",
             output=os.path.join(drivelm_dir, "v1_1_train_nus.json"),
         )
 
     else:
         out_name = os.path.join(nuscenes_dir, "drivelm_nus_imgs_val.zip")
         gdown.download(
-            id="18f8ygNxGZWat-crUjroYuQbd39Sk9xCo",
+            id="1IXvFxAKfiM2f5We3Y7jYPw0nG_c7uSyX",
             output=out_name,
         )
         extract_children(out_name, nuscenes_dir / "samples")
         gdown.download(
-            id="1fsVP7jOpvChcpoXVdypaZ4HREX1gA7As",
+            id="1DmwJ3EjtSVSl9QAygOeaME0eMGNONx5I",
             output=os.path.join(drivelm_dir, "v1_1_val_nus_q_only.json"),
         )
 
