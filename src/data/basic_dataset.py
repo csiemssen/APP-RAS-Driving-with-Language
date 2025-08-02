@@ -5,10 +5,12 @@ from torch.utils.data import Dataset
 
 from src.constants import drivelm_dir
 from src.data.create_image_grid_dataset import create_image_grid_dataset
+from src.data.generate_bev import generate_bevs
 from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_reasoning_context import generate_reasoning_context
+from src.data.get_sensor_calibration import get_calibration
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
@@ -48,6 +50,7 @@ class DriveLMImageDataset(Dataset):
         split="train",
         add_augmented=False,
         add_kois=False,
+        add_bev=False,
         use_grid=False,
         use_reasoning=False,
         use_system_prompt=False,
@@ -60,6 +63,7 @@ class DriveLMImageDataset(Dataset):
         self.split = split
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
+        self.add_bev = add_bev
         self.resize_factor = resize_factor
         self.system_prompt_provider = (
             SystemPromptProvider(config_path=system_prompt_config_path)
@@ -77,6 +81,9 @@ class DriveLMImageDataset(Dataset):
 
         if split == "val" and add_kois:
             data = generate_yolo_kois(data)
+            if add_bev:
+                data = get_calibration(data)
+                data = generate_bevs(data)
             data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if use_grid:
@@ -87,12 +94,16 @@ class DriveLMImageDataset(Dataset):
         for scene_id in data.keys():
             scene_obj = data[scene_id]["key_frames"]
             for key_frame_id in scene_obj.keys():
-                # NOTE: Only consider FRONT camera images or GRID images for now
                 image_paths = scene_obj[key_frame_id]["image_paths"]
                 if use_grid:
                     image_path = os.path.join(
                         drivelm_dir,
                         image_paths["GRID"],
+                    )
+                elif add_bev:
+                    image_path = os.path.join(
+                        drivelm_dir,
+                        image_paths["BEV"],
                     )
                 else:
                     image_path = os.path.join(
@@ -110,6 +121,8 @@ class DriveLMImageDataset(Dataset):
                     if split == "train" or add_kois
                     else None
                 )
+
+                camera_calibration = scene_obj[key_frame_id]["camera_calibration"]
 
                 qas = scene_obj[key_frame_id]["QA"]
 
@@ -154,6 +167,8 @@ class DriveLMImageDataset(Dataset):
                             "qa": remove_nones(qa),
                             "qa_type": qa_types[i],
                             "id": scene_id + "_" + key_frame_id + "_" + str(i),
+                            "key_frame_id": key_frame_id,
+                            "camera_calibration": camera_calibration,
                             "key_object_info": key_object_infos
                             if qa_types[i] != "perception"
                             else None,
@@ -175,6 +190,7 @@ class DriveLMImageDataset(Dataset):
         question = qa["qa"]["Q"]
         answer = qa["qa"]["A"]
         tags = qa["qa"].get("tag", [])
+        camera_calibration = qa["camera_calibration"]
         key_object_info = qa["key_object_info"]
         image_path = qa["image_path"]
         system_prompt = (
@@ -183,6 +199,7 @@ class DriveLMImageDataset(Dataset):
                 question=question,
                 resize_factor=self.resize_factor,
                 use_grid=self.use_grid,
+                add_bev=self.add_bev,
                 use_reasoning=self.use_reasoning,
             )
             if self.system_prompt_provider
@@ -198,6 +215,7 @@ class DriveLMImageDataset(Dataset):
             key_object_info=key_object_info,
             system_prompt=system_prompt,
             ground_truth_answer=answer,
+            camera_calibration=camera_calibration,
         )
 
         if self.use_reasoning and self.split == "train":

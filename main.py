@@ -29,6 +29,7 @@ if __name__ == "__main__":
             "image_grid",
             "descriptor_qas",
             "add_kois",
+            "add_bev",
             "reasoning",
             "system_prompt",
         ],
@@ -44,7 +45,7 @@ if __name__ == "__main__":
         "--dataset_split",
         help="The dataset split to use for training / evaluation.",
         type=str,
-        choices=["train", "val"],
+        choices=["train", "val", "test"],
         default="val",
     )
     parser.add_argument(

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
+from src.data.get_sensor_calibration import CameraCalibration
 from src.data.message_formats import MessageFormat
 
 
@@ -11,6 +12,7 @@ class QueryItem:
     qa_id: str
     qa_type: str
     tags: List[str]
+    camera_calibration: CameraCalibration
     key_object_info: Optional[Dict[str, Any]] = None
     system_prompt: str = None
     ground_truth_answer: Optional[str] = None
