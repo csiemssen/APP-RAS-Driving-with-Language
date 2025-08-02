@@ -247,6 +247,8 @@ def _is_better_camera_view(obj1, obj2):
 
 
 def generate_bevs(data):
+    bev_dir.mkdir(parents=True, exist_ok=True)
+
     for scene_id, scene_obj in tqdm(data.items(), desc="Generating BEVs"):
         for key_frame_id, key_frame in scene_obj["key_frames"].items():
             image_paths = key_frame["image_paths"]
