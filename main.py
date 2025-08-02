@@ -29,6 +29,7 @@ if __name__ == "__main__":
             "image_grid",
             "descriptor_qas",
             "add_kois",
+            "add_bev",
             "reasoning",
             "system_prompt",
         ],

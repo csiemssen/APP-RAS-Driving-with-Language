@@ -21,6 +21,7 @@ GRID_IMG_SIZE = (
     IMAGE_SIZE[0] * GRID[0],
     IMAGE_SIZE[1] * GRID[1],
 )  # (height, width)
+BEV_IMG_SIZE = (500, 500)
 
 GRID_POSITIONS = {
     "CAM_FRONT_LEFT": (0, 0),

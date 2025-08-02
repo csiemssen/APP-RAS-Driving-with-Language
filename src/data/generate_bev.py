@@ -254,18 +254,17 @@ def generate_bevs(data):
             bev_path = bev_dir / image_name
             image_paths["BEV"] = "../nuscenes/samples/BEV/" + image_name
 
-            # TODO: Uncomment once done
-            #if not bev_path.exists():
-            image_paths = {
-                key: os.path.join(drivelm_dir, path)
-                for key, path in image_paths.items()
-            }
-            kois = key_frame["key_object_infos"]
-            calibration = key_frame["camera_calibration"]
-            bev_img = generate_bev_from_detections(
-                kois=kois,
-                calibration=calibration,
-            )
-            cv2.imwrite(bev_path, bev_img)
-            logger.debug(f"Saved bev image: {bev_img}")
+            if not bev_path.exists():
+                image_paths = {
+                    key: os.path.join(drivelm_dir, path)
+                    for key, path in image_paths.items()
+                }
+                kois = key_frame["key_object_infos"]
+                calibration = key_frame["camera_calibration"]
+                bev_img = generate_bev_from_detections(
+                    kois=kois,
+                    calibration=calibration,
+                )
+                cv2.imwrite(bev_path, bev_img)
+                logger.debug(f"Saved bev image: {bev_img}")
     return data
