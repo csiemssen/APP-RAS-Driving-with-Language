@@ -1,4 +1,5 @@
 import os
+import shutil
 from json import load
 
 import gdown
@@ -47,7 +48,7 @@ def get_ds(split: str) -> None:
         id="1sqW1y2k346mtLCQnO0NAab3sEzxUyQ_d",
         output=out_name,
     )
-    extract_children(out_name, nuscenes_dir)
+    shutil.unpack_archive(out_name, nuscenes_dir)
 
 
 def load_dataset(split: str) -> dict:
