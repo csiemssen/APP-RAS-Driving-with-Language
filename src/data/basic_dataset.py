@@ -49,6 +49,7 @@ class DriveLMImageDataset(Dataset):
         message_format: MessageFormat,
         split="train",
         add_augmented=False,
+        front_cam=False,
         add_kois=False,
         add_bev=False,
         use_grid=False,
@@ -61,6 +62,7 @@ class DriveLMImageDataset(Dataset):
     ):
         self.message_format = message_format
         self.split = split
+        self.front_cam = front_cam
         self.use_reasoning = use_reasoning
         self.use_grid = use_grid
         self.add_bev = add_bev
@@ -83,7 +85,7 @@ class DriveLMImageDataset(Dataset):
             data = generate_yolo_kois(data)
             if add_bev:
                 data = get_calibration(data)
-                data = generate_bevs(data)
+                data = generate_bevs(data, front_cam=front_cam)
             data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if use_grid:
@@ -200,6 +202,7 @@ class DriveLMImageDataset(Dataset):
                 resize_factor=self.resize_factor,
                 use_grid=self.use_grid,
                 add_bev=self.add_bev,
+                front_cam=self.front_cam,
                 use_reasoning=self.use_reasoning,
             )
             if self.system_prompt_provider

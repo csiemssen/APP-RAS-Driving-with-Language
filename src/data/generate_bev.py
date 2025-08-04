@@ -246,13 +246,16 @@ def _is_better_camera_view(obj1, obj2):
     return score1 > score2
 
 
-def generate_bevs(data):
+def generate_bevs(data, front_cam: bool = False):
     bev_dir.mkdir(parents=True, exist_ok=True)
 
     for scene_id, scene_obj in tqdm(data.items(), desc="Generating BEVs"):
         for key_frame_id, key_frame in scene_obj["key_frames"].items():
             image_paths = key_frame["image_paths"]
-            image_name = f"{scene_id}_{key_frame_id}__BEV.jpg"
+            if front_cam:
+                image_name = f"{scene_id}_{key_frame_id}__BEV_FRONT_CAM.jpg"
+            else:
+                image_name = f"{scene_id}_{key_frame_id}__BEV.jpg"
             bev_path = bev_dir / image_name
             image_paths["BEV"] = "../nuscenes/samples/BEV/" + image_name
 
@@ -267,6 +270,16 @@ def generate_bevs(data):
                     kois=kois,
                     calibration=calibration,
                 )
-                cv2.imwrite(bev_path, bev_img)
+                if front_cam:
+                    front_image = cv2.imread(image_paths["CAM_FRONT"])
+                    target_height = min(front_image.shape[0], bev_img.shape[0])
+                    front_aspect = front_image.shape[1] / front_image.shape[0]
+                    front_width = int(target_height * front_aspect)
+                    front_resized = cv2.resize(front_image, (front_width, target_height))
+                    bev_resized = cv2.resize(bev_img, (bev_img.shape[1], target_height))
+                    combined_img = np.hstack([front_resized, bev_resized])
+                    cv2.imwrite(bev_path, combined_img)
+                else:
+                    cv2.imwrite(bev_path, bev_img)
                 logger.debug(f"Saved bev image: {bev_img}")
     return data

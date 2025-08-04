@@ -29,6 +29,7 @@ def evaluate_model(
     use_system_prompt: bool = False,
     system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
+    front_cam: bool = False,
     add_kois: bool = False,
     add_bev: bool = False,
     approach_name: Optional[str] = None,
@@ -39,6 +40,7 @@ def evaluate_model(
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
+        front_cam=front_cam,
         add_kois=add_kois,
         add_bev=add_bev,
         use_grid=use_grid,
