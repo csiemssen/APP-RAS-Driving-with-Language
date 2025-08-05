@@ -124,7 +124,9 @@ class DriveLMImageDataset(Dataset):
                     else None
                 )
 
-                camera_calibration = scene_obj[key_frame_id]["camera_calibration"]
+                camera_calibration = None
+                if split=="val" and add_kois and add_bev:
+                    camera_calibration = scene_obj[key_frame_id]["camera_calibration"]
 
                 qas = scene_obj[key_frame_id]["QA"]
 
