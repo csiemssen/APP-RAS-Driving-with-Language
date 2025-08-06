@@ -81,7 +81,7 @@ class DriveLMImageDataset(Dataset):
         if split == "train" and add_augmented:
             data = generate_descriptor_qas(data)
 
-        if split == "val" and add_kois:
+        if (split == "val" or split == "test") and add_kois:
             data = generate_yolo_kois(data)
             if add_bev:
                 data = get_calibration(data)
@@ -102,7 +102,7 @@ class DriveLMImageDataset(Dataset):
                         drivelm_dir,
                         image_paths["GRID"],
                     )
-                elif add_bev:
+                elif add_kois and add_bev:
                     image_path = os.path.join(
                         drivelm_dir,
                         image_paths["BEV"],

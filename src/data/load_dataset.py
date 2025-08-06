@@ -43,7 +43,16 @@ def get_ds(split: str) -> None:
             id="1fsVP7jOpvChcpoXVdypaZ4HREX1gA7As",
             output=os.path.join(drivelm_dir, "v1_1_val_nus_q_only.json"),
         )
+    get_nuscenes_ds()
+
+
+def get_nuscenes_ds():
     out_name = os.path.join(nuscenes_dir, "nuscenes_json.zip")
+    gdown.download(
+        id="1sqW1y2k346mtLCQnO0NAab3sEzxUyQ_d",
+        output=out_name,
+    )
+    shutil.unpack_archive(out_name, nuscenes_dir)
     gdown.download(
         id="1sqW1y2k346mtLCQnO0NAab3sEzxUyQ_d",
         output=out_name,
