@@ -322,10 +322,8 @@ def train(
         resize_factor=resize_factor,
     )
     if test_set_size is not None:
-        dataset = create_subset(dataset, int(test_set_size))
+        dataset = create_subset(dataset, int(test_set_size), equal_distribution=True)
     dataset = [item.formatted_message for item in dataset]
-
-    logger.info(dataset[0])    
 
     engine.load_model(flash_attn=False)
     model = prepare_model_for_kbit_training(
