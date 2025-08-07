@@ -15,3 +15,4 @@ peft~=0.15.2
 trl~=0.18.1
 polars==1.31.0
 ultralytics==8.3.168
+gradio~=5.41.0
