@@ -69,12 +69,6 @@ def get_dataset(split, add_kois, add_bev, use_grid, use_system_prompt):
         use_system_prompt=use_system_prompt,
     )
     raw_dataset = load_dataset(split)
-
-    gr.Info(
-        f"Dataset {split} loaded successfully with length of {str(len(dataset))}",
-        duration=2,
-    )
-
     return split
 
 
@@ -276,7 +270,10 @@ def get_ground_truth(invalid=False):
         return gr.update(value=None, visible=False)
 
     if selected_question_item is not None:
-        if selected_question_item.ground_truth_answer is None:
+        if (
+            selected_question_item.ground_truth_answer is None
+            or selected_question_item.ground_truth_answer == ""
+        ):
             return gr.update(value=None, visible=False)
 
         return gr.update(value=selected_question_item.ground_truth_answer, visible=True)
@@ -376,7 +373,12 @@ def update_question_item_on_question_id(
             selected_question_item = copy.deepcopy(item)
             break
 
-    return [get_question(), get_system_prompt(), get_formatted_question()]
+    return [
+        get_question(),
+        get_system_prompt(),
+        get_formatted_question(),
+        get_ground_truth(),
+    ]
 
 
 def render_question_item_change_on_scene_id(items):
