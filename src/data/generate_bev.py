@@ -403,14 +403,9 @@ def generate_bevs(data, front_cam: bool = False):
                 )
                 if front_cam:
                     front_image = cv2.imread(image_paths["CAM_FRONT"])
-                    target_height = min(front_image.shape[0], bev_img.shape[0])
-                    front_aspect = front_image.shape[1] / front_image.shape[0]
-                    front_width = int(target_height * front_aspect)
-                    front_resized = cv2.resize(
-                        front_image, (front_width, target_height)
-                    )
-                    bev_resized = cv2.resize(bev_img, (bev_img.shape[1], target_height))
-                    combined_img = np.hstack([front_resized, bev_resized])
+                    target_height = front_image.shape[0]
+                    bev_resized = cv2.resize(bev_img, (target_height, target_height))
+                    combined_img = np.hstack([front_image, bev_resized])
                     cv2.imwrite(bev_path, combined_img)
                 else:
                     cv2.imwrite(bev_path, bev_img)
