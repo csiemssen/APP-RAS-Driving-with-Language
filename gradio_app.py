@@ -9,6 +9,12 @@ from src.data.load_dataset import load_dataset
 from src.models.gemma_inference import GemmaInferenceEngine
 from src.models.intern_vl_inference import InternVLInferenceEngine
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
+from src.utils.utils import (
+    denormalize_key_object_infos,
+    denormalize_key_objects_in_text,
+    normalize_key_object_infos,
+    normalize_key_objects_in_text,
+)
 
 PROVIDERS = {
     "Google": {
@@ -219,10 +225,48 @@ def get_image():
 
 def update_image(evt: gr.SelectData):
     global image_paths_list, selected_question_item
-    if 0 <= evt.index < len(image_paths_list):
-        selected_question_item.image_path = image_paths_list[evt.index]
-        return [selected_question_item.image_path, get_formatted_question()]
-    return [None, get_formatted_question()]
+    if 0 > evt.index or evt.index >= len(image_paths_list):
+        raise gr.Error("Invalid image selection", duration=2)
+
+    previous_image_path = get_image()
+    selected_question_item.image_path = image_paths_list[evt.index]
+
+    was_grid = "GRID" in previous_image_path
+    is_grid = "GRID" in selected_question_item.image_path
+
+    if not was_grid and is_grid:
+        if selected_question_item.key_object_info is not None:
+            selected_question_item.key_object_info = normalize_key_object_infos(
+                selected_question_item.key_object_info,
+                resize_factor=1,
+                use_grid=is_grid,
+            )
+        selected_question_item.question = normalize_key_objects_in_text(
+            selected_question_item.question,
+            resize_factor=1,
+            use_grid=is_grid,
+        )
+
+    if was_grid and not is_grid:
+        if selected_question_item.key_object_info is not None:
+            selected_question_item.key_object_info = denormalize_key_object_infos(
+                selected_question_item.key_object_info,
+                resize_factor=1,
+                use_grid=was_grid,
+            )
+
+        selected_question_item.question = denormalize_key_objects_in_text(
+            selected_question_item.question,
+            resize_factor=1,
+            use_grid=was_grid,
+        )
+
+    return [
+        selected_question_item.image_path,
+        get_question(),
+        get_kois(),
+        get_formatted_question(),
+    ]
 
 
 def get_question():
@@ -283,11 +327,8 @@ def get_ground_truth(invalid=False):
 def get_kois():
     global selected_question_item
     if selected_question_item is not None:
-        return [
-            selected_question_item.key_object_info,
-            get_formatted_question(),
-        ]
-    return [None, get_formatted_question()]
+        return selected_question_item.key_object_info
+    return None
 
 
 def update_kois_active(active):
@@ -373,12 +414,7 @@ def update_question_item_on_question_id(
             selected_question_item = copy.deepcopy(item)
             break
 
-    return [
-        get_question(),
-        get_system_prompt(),
-        get_formatted_question(),
-        get_ground_truth(),
-    ]
+    return [*render_question_item_change_on_question_id(question_id_items)]
 
 
 def render_question_item_change_on_scene_id(items):
@@ -400,21 +436,22 @@ def render_question_item_change_on_keyframe(items):
 
 
 def render_question_item_change_on_question_type(items):
+    question_id_items = filter_question_items(items, question_id=get_question_id())
     return [
         render_question_ids(items),
-        *render_question_item_change_on_question_id(),
-        get_kois()[0],
-        get_images(items),
-        get_image(),
+        *render_question_item_change_on_question_id(question_id_items),
+        get_kois(),
     ]
 
 
-def render_question_item_change_on_question_id():
+def render_question_item_change_on_question_id(items):
     return [
         get_question(),
         get_system_prompt(),
         get_formatted_question(),
         get_ground_truth(),
+        get_images(items),
+        get_image(),
     ]
 
 
@@ -586,9 +623,9 @@ with gr.Blocks() as demo:
             system_prompt_textbox,
             format_message_json,
             ground_truth_textbox,
-            kois_json,
             image_gallery,
             image,
+            kois_json,
         ],
     )
 
@@ -613,9 +650,9 @@ with gr.Blocks() as demo:
             system_prompt_textbox,
             format_message_json,
             ground_truth_textbox,
-            kois_json,
             image_gallery,
             image,
+            kois_json,
         ],
     )
     keyframe_id_dropdown.input(
@@ -628,9 +665,9 @@ with gr.Blocks() as demo:
             system_prompt_textbox,
             format_message_json,
             ground_truth_textbox,
-            kois_json,
             image_gallery,
             image,
+            kois_json,
         ],
     )
 
@@ -643,9 +680,9 @@ with gr.Blocks() as demo:
             system_prompt_textbox,
             format_message_json,
             ground_truth_textbox,
-            kois_json,
             image_gallery,
             image,
+            kois_json,
         ],
     )
 
@@ -662,13 +699,15 @@ with gr.Blocks() as demo:
             system_prompt_textbox,
             format_message_json,
             ground_truth_textbox,
+            image_gallery,
+            image,
         ],
     )
 
     image_gallery.select(
         fn=update_image,
         inputs=None,
-        outputs=[image, format_message_json],
+        outputs=[image, question_textbox, kois_json, format_message_json],
     )
 
     question_textbox.submit(
