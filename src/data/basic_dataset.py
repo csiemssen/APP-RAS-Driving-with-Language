@@ -118,7 +118,7 @@ class DriveLMImageDataset(Dataset):
                         image_paths["CAM_FRONT"],
                     )
                 else:
-                    image_path = None                   
+                    image_path = None
 
                 # NOTE: This is a simple workaround if we do not have all files available
                 if image_path and not os.path.isfile(image_path):

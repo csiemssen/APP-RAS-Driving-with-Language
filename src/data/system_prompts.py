@@ -13,7 +13,12 @@ class SystemPromptProvider:
                 self.prompts = yaml.safe_load(f)
 
     def get_approach_prompt(
-        self, resize_factor: float, use_grid: bool = False, use_reasoning: bool = False, add_bev: bool = False, front_cam: bool = False
+        self,
+        resize_factor: float,
+        use_grid: bool = False,
+        use_reasoning: bool = False,
+        add_bev: bool = False,
+        front_cam: bool = False,
     ) -> str:
         approach = self.prompts.get("approach_prompt", {})
         prompt = approach.get("base", "You are an autonomous driving assistant. ")
@@ -26,11 +31,10 @@ class SystemPromptProvider:
                 f"You are provided with a grid of images with size {im_size[1], im_size[0]} of the current situation. Starting from the upper left, the upper row shows images from the 'FRONT_LEFT', 'FRONT' and 'FRONT_RIGHT' cameras respectively. Starting from the bottom left, the lower row shows images from the 'BACK_LEFT', 'BACK' and 'BACK_RIGHT' cameras respectively. ",
             )
         elif add_bev and not front_cam:
-            im_size = get_resize_image_size(resize_factor, bev=True)
-            prompt += f"You are provided with a birds eye view image with size {im_size[1], im_size[0]} of the vehicle and the sorrounding objects. The ego vehicle is marked in red, vehicles are marked in yellow and predestrians are marked in blue. Each of the objects is associated with an id, that corresponds to the id given in the list of key object infos. E.g. a vehicle with the id 'c1' would correspond to a key object '<c1,CAM_FRONT,200,400>'. This view should provide you with a good overview of the objects surrounding the vehicle and their relative distance. "
+            prompt += "You are provided with a birds eye view of the vehicle and the sorrounding objects. The ego vehicle is marked in red, vehicles are marked in yellow and predestrians are marked in blue. Each of the objects is associated with an id, that corresponds to the id given in the list of key object infos. E.g. a vehicle with the id 'c1' would correspond to a key object '<c1,CAM_FRONT,200,400>'. This view should provide you with a good overview of the objects surrounding the vehicle and their relative distance. "
         elif add_bev and front_cam:
-            im_size = get_resize_image_size(resize_factor, bev=True, front_cam=True)
-            prompt += f"You are provided with the front view of the car together with a birds eye view image with size {im_size[1], im_size[0]} of the vehicle and the sorrounding objects. The ego vehicle is marked in red, vehicles are marked in yellow and predestrians are marked in blue. Each of the objects is associated with an id, that corresponds to the id given in the list of key object infos. E.g. a vehicle with the id 'c1' would correspond to a key object '<c1,CAM_FRONT,200,400>'. This view should provide you with a good overview of the objects surrounding the vehicle and their relative distance. "
+            im_size = get_resize_image_size(resize_factor)
+            prompt += f"You are provided with the front view of the car with size {im_size[1], im_size[0]} together with a birds eye view of the vehicle and the sorrounding objects. The ego vehicle is marked in red, vehicles are marked in yellow and predestrians are marked in blue. Each of the objects is associated with an id, that corresponds to the id given in the list of key object infos. E.g. a vehicle with the id 'c1' would correspond to a key object '<c1,CAM_FRONT,200,400>'. This view should provide you with a good overview of the objects surrounding the vehicle and their relative distance. "
         elif front_cam and not add_bev:
             im_size = get_resize_image_size(resize_factor)
             prompt += grid_prompts.get(
@@ -179,7 +183,9 @@ class SystemPromptProvider:
                     )
         return None
 
-    def get_system_prompt(self, question_type: str, question: str, resize_factor: float, **approach_kwargs):
+    def get_system_prompt(
+        self, question_type: str, question: str, resize_factor: float, **approach_kwargs
+    ):
         approach_prompt = self.get_approach_prompt(resize_factor, **approach_kwargs)
         general_prompt = self.get_general_prompt()
         question_type_prompt = self.get_question_type_prompt(question_type)
