@@ -20,7 +20,7 @@ class QwenMessageFormat(MessageFormat):
     def format(
         self,
         question: str,
-        image_path: str,
+        image_path: Optional[str],
         system_prompt: str = None,
         answer: Optional[str] = None,
         key_object_info: Optional[dict] = None,
@@ -47,12 +47,13 @@ class QwenMessageFormat(MessageFormat):
                 content.append({"type": "text", "text": f"Context Answer: {context_a}"})
 
         content.append({"type": "text", "text": "Question: " + question})
-        content.append(
-            {
-                "type": "image",
-                "image": f"file://{image_path}",
-            }
-        )
+        if image_path:
+            content.append(
+                {
+                    "type": "image",
+                    "image": f"file://{image_path}",
+                }
+            )
         return {
             "role": "user",
             "content": content,
