@@ -31,7 +31,7 @@ class SystemPromptProvider:
         elif add_bev and front_cam:
             im_size = get_resize_image_size(resize_factor, bev=True, front_cam=True)
             prompt += f"You are provided with the front view of the car together with a birds eye view image with size {im_size[1], im_size[0]} of the vehicle and the sorrounding objects. The ego vehicle is marked in red, vehicles are marked in yellow and predestrians are marked in blue. Each of the objects is associated with an id, that corresponds to the id given in the list of key object infos. E.g. a vehicle with the id 'c1' would correspond to a key object '<c1,CAM_FRONT,200,400>'. This view should provide you with a good overview of the objects surrounding the vehicle and their relative distance. "
-        else:
+        elif front_cam and not add_bev:
             im_size = get_resize_image_size(resize_factor)
             prompt += grid_prompts.get(
                 "disabled",

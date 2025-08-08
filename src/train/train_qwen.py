@@ -41,7 +41,7 @@ class TrainingArguments(transformers.TrainingArguments):
     cache_dir: Optional[str] = field(default=None)
     optim: str = field(default="adamw_torch")
     model_max_length: int = field(
-        default=512,
+        default=1028,
         metadata={
             "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."
         },
@@ -242,7 +242,6 @@ def create_optimizer(self):
     return self.optimizer
 
 
-# TODO: Look into the deepspeed config
 def train(
     approach_name: str,
     resize_factor: float,
@@ -252,6 +251,9 @@ def train(
     use_augmented: bool = False,
     use_reasoning: bool = False,
     use_system_prompt: bool = False,
+    add_kois: bool = False,
+    add_bev: bool = False,
+    front_cam: bool = False,
     **kwargs,
 ):
     name = approach_name + datetime.now().strftime("%H:%M:%S-%m-%d-%Y%")
@@ -310,6 +312,9 @@ def train(
     dataset = DriveLMImageDataset(
         engine.training_message_formatter,
         split="train",
+        front_cam=front_cam,
+        add_kois=add_kois,
+        add_bev=add_bev,
         use_grid=use_grid,
         add_augmented=use_augmented,
         use_reasoning=use_reasoning,
@@ -317,7 +322,7 @@ def train(
         resize_factor=resize_factor,
     )
     if test_set_size is not None:
-        dataset = create_subset(dataset, int(test_set_size))
+        dataset = create_subset(dataset, int(test_set_size), equal_distribution=True)
     dataset = [item.formatted_message for item in dataset]
 
     engine.load_model(flash_attn=False)

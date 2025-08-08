@@ -37,7 +37,7 @@ class ReasoningEngine:
                     image_path=item.image_path,
                     qa_id=f"{item.qa_id}_reasoning",
                     qa_type=item.qa_type,
-                    key_object_info=item.key_object_info,  # note not available in eval mode
+                    key_object_info=item.key_object_info,
                     system_prompt=item.system_prompt,
                 )
                 desc_item.formatted_message = desc_item.format_message(
