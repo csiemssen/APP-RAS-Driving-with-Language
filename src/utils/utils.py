@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Type, TypeVar
 import torch
 from torch.utils.data import Dataset, Subset
 
-from src.constants import GRID_IMG_SIZE, IMAGE_SIZE, GRID_POSITIONS
+from src.constants import BEV_IMG_SIZE, BEV_AND_FRONT_CAM_IMG_SIZE, GRID_IMG_SIZE, IMAGE_SIZE, GRID_POSITIONS
 from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 
@@ -136,9 +136,13 @@ def tuple_mul(t: Tuple[float, float], scalar: float) -> Tuple[float, float]:
     return (t[0] * scalar, t[1] * scalar)
 
 
-def get_resize_image_size(resize_factor: float, grid: bool = False) -> Tuple[int, int]:
+def get_resize_image_size(resize_factor: float, grid: bool = False, bev: bool = False, front_cam: bool = False) -> Tuple[int, int]:
     if grid:
         size = tuple_mul(GRID_IMG_SIZE, resize_factor)
+    elif bev and not front_cam:
+        size = tuple_mul(BEV_IMG_SIZE, resize_factor)
+    elif bev and front_cam:
+        size = tuple_mul(BEV_AND_FRONT_CAM_IMG_SIZE, resize_factor)
     else:
         size = tuple_mul(IMAGE_SIZE, resize_factor)
     return tuple_cast(size, int)

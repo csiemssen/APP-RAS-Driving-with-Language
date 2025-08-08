@@ -5,6 +5,7 @@ data_dir = src_dir / ".." / "data"
 drivelm_dir = data_dir / "drivelm"
 nuscenes_dir = data_dir / "nuscenes"
 grid_dir = nuscenes_dir / "samples" / "GRID"
+bev_dir = nuscenes_dir / "samples" / "BEV"
 drivelm_train_json = drivelm_dir / "v1_1_train_nus.json"
 drivelm_val_json = drivelm_dir / "v1_1_val_nus_q_only.json"
 drivelm_test_json = drivelm_dir / "v1_1_test_nus.json"
@@ -20,6 +21,8 @@ GRID_IMG_SIZE = (
     IMAGE_SIZE[0] * GRID[0],
     IMAGE_SIZE[1] * GRID[1],
 )  # (height, width)
+BEV_IMG_SIZE = (500, 500)
+BEV_AND_FRONT_CAM_IMG_SIZE = (500, 1388)
 
 GRID_POSITIONS = {
     "CAM_FRONT_LEFT": (0, 0),
