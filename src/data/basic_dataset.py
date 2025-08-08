@@ -10,17 +10,17 @@ from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_reasoning_context import generate_reasoning_context
+from src.data.generate_yolo_kois import generate_yolo_kois
 from src.data.get_sensor_calibration import get_calibration
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
 from src.data.system_prompts import SystemPromptProvider
-from src.data.generate_yolo_kois import generate_yolo_kois
 from src.utils.logger import get_logger
 from src.utils.utils import (
+    normalize_key_object_infos,
+    normalize_key_objects_in_text,
     remove_nones,
-    normalise_key_object_infos,
-    normalise_key_objects_in_text,
 )
 
 logger = get_logger(__name__)
@@ -75,12 +75,6 @@ class DriveLMImageDataset(Dataset):
 
         data = load_dataset(split)
 
-        if split == "train":
-            if add_bev:
-                data = get_calibration(data)
-                data = generate_bevs(data, front_cam=front_cam)
-            data = normalise_key_object_infos(data, resize_factor, use_grid)
-
         if split == "train" and add_augmented:
             data = generate_descriptor_qas(data)
 
@@ -89,10 +83,18 @@ class DriveLMImageDataset(Dataset):
             if add_bev:
                 data = get_calibration(data)
                 data = generate_bevs(data, front_cam=front_cam)
-            data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if use_grid:
             data = create_image_grid_dataset(data)
+
+        for scene_data in data.values():
+            for key_frame_data in scene_data["key_frames"].values():
+                infos = key_frame_data.get("key_object_infos")
+
+                if infos:
+                    key_frame_data["key_object_infos"] = normalize_key_object_infos(
+                        infos, resize_factor, use_grid
+                    )
 
         removed = 0
         qa_list = []
@@ -116,7 +118,7 @@ class DriveLMImageDataset(Dataset):
                         image_paths["CAM_FRONT"],
                     )
                 else:
-                    image_path = None                   
+                    image_path = None
 
                 # NOTE: This is a simple workaround if we do not have all files available
                 if image_path and not os.path.isfile(image_path):
@@ -130,7 +132,7 @@ class DriveLMImageDataset(Dataset):
                 )
 
                 camera_calibration = None
-                if split=="val" and add_kois and add_bev:
+                if split == "val" and add_kois and add_bev:
                     camera_calibration = scene_obj[key_frame_id]["camera_calibration"]
 
                 qas = scene_obj[key_frame_id]["QA"]
@@ -157,7 +159,7 @@ class DriveLMImageDataset(Dataset):
                     + qas_behavior
                     + qas_augmented
                 ):
-                    qa["Q"] = normalise_key_objects_in_text(
+                    qa["Q"] = normalize_key_objects_in_text(
                         qa["Q"],
                         resize_factor=resize_factor,
                         use_grid=use_grid,

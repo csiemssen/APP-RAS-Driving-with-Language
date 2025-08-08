@@ -90,7 +90,8 @@ if __name__ == "__main__":
         )
     elif args.eval:
         resize_image_size = get_resize_image_size(
-            resize_factor=resize_factor, grid="image_grid" in args.approach, bev="add_bev" in args.approach, front_cam="front_cam" in args.approach,
+            resize_factor=resize_factor,
+            grid="image_grid" in args.approach,
         )
         logger.debug(f"Using resize image size: {resize_image_size}")
         if is_cuda():

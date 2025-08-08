@@ -8,11 +8,7 @@ def get_sample_data_and_calibrated_camera_df() -> pl.DataFrame:
     sample_data_lf = pl.read_json(nuscenes_dir / "sample_data.json").lazy()
     sample_data_lf = sample_data_lf.filter(
         pl.col("is_key_frame") == True  # noqa: E712
-    ).select([
-        "token",
-        "sample_token",
-        "calibrated_sensor_token"
-    ])
+    ).select(["token", "sample_token", "calibrated_sensor_token"])
     calibrated_camera_lf = pl.read_json(nuscenes_dir / "calibrated_sensor.json").lazy()
     calibrated_camera_lf = calibrated_camera_lf.filter(
         pl.col("camera_intrinsic").len() != 0
@@ -25,10 +21,10 @@ def get_sample_data_and_calibrated_camera_df() -> pl.DataFrame:
         suffix="_sensor",
     )
     return sample_data_lf.join(
-        calibrated_camera_with_sensor_type_lf, 
-        left_on="calibrated_sensor_token", 
-        right_on="token", 
-        suffix="_calibrated"
+        calibrated_camera_with_sensor_type_lf,
+        left_on="calibrated_sensor_token",
+        right_on="token",
+        suffix="_calibrated",
     ).collect()
 
 
@@ -41,6 +37,7 @@ cameras = [
     "CAM_BACK_RIGHT",
 ]
 
+
 class CameraCalibration:
     camera_intrinsic: list[list[float]]
     translation: list[float]
@@ -52,17 +49,16 @@ class CameraCalibration:
         self.rotation = rotation
 
 
-def get_camera_calibration(lf: pl.DataFrame, key_frame_id) -> dict[str, CameraCalibration]:
+def get_camera_calibration(
+    lf: pl.DataFrame, key_frame_id
+) -> dict[str, CameraCalibration]:
     calibration_per_camera = {}
     for cam in cameras:
-        calibration = lf.filter(
-            pl.col("channel") == cam,
-            pl.col("sample_token") == key_frame_id
-        ).select(
-            "translation",
-            "rotation",
-            "camera_intrinsic"
-        ).to_dict()
+        calibration = (
+            lf.filter(pl.col("channel") == cam, pl.col("sample_token") == key_frame_id)
+            .select("translation", "rotation", "camera_intrinsic")
+            .to_dict()
+        )
         assert len(calibration["translation"]) == 1
         calibration_per_camera[cam] = CameraCalibration(
             camera_intrinsic=calibration["camera_intrinsic"][0].to_list(),
@@ -70,6 +66,7 @@ def get_camera_calibration(lf: pl.DataFrame, key_frame_id) -> dict[str, CameraCa
             rotation=calibration["rotation"][0].to_list(),
         )
     return calibration_per_camera
+
 
 def get_calibration(data: dict):
     lf = get_sample_data_and_calibrated_camera_df()

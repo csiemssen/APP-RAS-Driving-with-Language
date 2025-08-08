@@ -71,13 +71,16 @@ def load_dataset(split: str) -> dict:
         raise ValueError(f"Invalid split: {split}. Must be 'train', 'val' or 'test'.")
 
     base_path = dataset_paths[split]
+
     if not base_path.is_file():
         get_ds(split)
+
+    if not os.path.isfile(os.path.join(nuscenes_dir, "nuscenes_json.zip")):
+        get_nuscenes_ds()
 
     if split == "test":
         logger.debug("Extracting test dataset from train dataset")
         extract_data(drivelm_train_json, drivelm_test_json)
-
         base_path = drivelm_test_json
 
     with open(base_path) as f:

@@ -1,12 +1,16 @@
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, List, Tuple, Type, TypeVar
 
 import torch
 from torch.utils.data import Dataset, Subset
 
-from src.constants import BEV_IMG_SIZE, BEV_AND_FRONT_CAM_IMG_SIZE, GRID_IMG_SIZE, IMAGE_SIZE, GRID_POSITIONS
+from src.constants import (
+    GRID_IMG_SIZE,
+    GRID_POSITIONS,
+    IMAGE_SIZE,
+)
 from src.data.query_item import QueryItem
 from src.utils.logger import get_logger
 
@@ -136,134 +140,205 @@ def tuple_mul(t: Tuple[float, float], scalar: float) -> Tuple[float, float]:
     return (t[0] * scalar, t[1] * scalar)
 
 
-def get_resize_image_size(resize_factor: float, grid: bool = False, bev: bool = False, front_cam: bool = False) -> Tuple[int, int]:
+def get_resize_image_size(
+    resize_factor: float,
+    grid: bool = False,
+) -> Tuple[int, int]:
     if grid:
         size = tuple_mul(GRID_IMG_SIZE, resize_factor)
-    elif bev and not front_cam:
-        size = tuple_mul(BEV_IMG_SIZE, resize_factor)
-    elif bev and front_cam:
-        size = tuple_mul(BEV_AND_FRONT_CAM_IMG_SIZE, resize_factor)
     else:
         size = tuple_mul(IMAGE_SIZE, resize_factor)
     return tuple_cast(size, int)
 
 
 def find_key_objects(text: str) -> List[str]:
-    pattern = r"<c\d+,CAM_[A-Z_]+,\d+\.?\d*,\d+\.?\d*>"
-    matches = re.findall(pattern, text)
-    return matches
+    return re.findall(r"<c\d+,CAM_[A-Z_]+,\d+\.?\d*,\d+\.?\d*>", text)
 
 
-def key_object_str_to_dict(text: str) -> Dict[str, Any]:
-    pattern = r"<c(\d+),CAM_([A-Z_]+),(\d+\.?\d*),(\d+\.?\d*)>"
-    matches = re.findall(pattern, text)
+def key_object_key_to_dict(key: str) -> Dict[str, Any]:
+    match = re.match(r"<c(\d+),CAM_([A-Z_]+),(\d+\.?\d*),(\d+\.?\d*)>", key)
     return (
         {
-            "id": f"c{matches[0][0]}",
-            "camera": f"CAM_{matches[0][1]}",
-            "x": float(matches[0][2]),
-            "y": float(matches[0][3]),
+            "id": f"c{match.group(1)}",
+            "camera": f"CAM_{match.group(2)}",
+            "x": float(match.group(3)),
+            "y": float(match.group(4)),
         }
-        if matches
+        if match
         else {}
     )
 
 
-def key_object_dict_to_str(key_object: Dict[str, Any]) -> str:
-    return f"<{key_object['id']},{key_object['camera']},{key_object['x']},{key_object['y']}>"
+def key_object_dict_to_key(key_obj: Dict[str, Any]) -> str:
+    return f"<{key_obj['id']},{key_obj['camera']},{key_obj['x']},{key_obj['y']}>"
 
 
-def scale_key_object_point(
-    point: tuple[float, float], resize_factor: float
-) -> tuple[float, float]:
-    return float.__round__(point[0] * resize_factor, 2), float.__round__(point[1] * resize_factor, 2)
+def scale_point(point: Tuple[float, float], factor: float) -> Tuple[float, float]:
+    return round(point[0] * factor, 2), round(point[1] * factor, 2)
 
 
-def normalise_key_object_infos(
-    data,
-    resize_factor: float,
-    use_grid: bool,
-) -> tuple[str, dict[str, Any]]:
-    for _, scene_data in data.items():
-        for _, key_frame_data in scene_data["key_frames"].items():
-            key_object_infos = key_frame_data["key_object_infos"]
-            if not key_object_infos:
-                continue
-            normalised_key_object_infos = {}
-            for key, value in key_object_infos.items():
-                normalised_key = normalise_key_object_descriptor(
-                    key,
-                    resize_factor,
-                    use_grid,
-                )
-                new_value = value.copy()
-                if "2d_bbox" in value:
-                    koi_dict = key_object_str_to_dict(key)
-                    x1, y1, x2, y2 = value["2d_bbox"]
-                    if use_grid:
-                        x1, y1 = map_camera_point_to_grid_point((x1, y1), koi_dict["camera"])
-                        x2, y2 = map_camera_point_to_grid_point((x2, y2), koi_dict["camera"])
-
-                    x1, y1 = scale_key_object_point(
-                        (x1, y1),
-                        resize_factor,
-                    )
-                    x2, y2 = scale_key_object_point(
-                        (x2, y2),
-                        resize_factor,
-                    )
-
-                    new_value["2d_bbox"] = (x1, y1, x2, y2)
-                normalised_key_object_infos[normalised_key] = new_value
-            key_frame_data["key_object_infos"] = normalised_key_object_infos
-
-    return data
+def _transform_key_object_infos(
+    key_object_infos: Dict[str, Any],
+    key_transform: Callable[[str], str],
+    bbox_transform: Callable[
+        [Tuple[float, float, float, float]], Tuple[float, float, float, float]
+    ] = None,
+) -> Dict[str, Any]:
+    result = {}
+    for key, value in key_object_infos.items():
+        new_key = key_transform(key)
+        new_value = value.copy()
+        if "2d_bbox" in value and bbox_transform:
+            new_value["2d_bbox"] = bbox_transform(value["2d_bbox"])
+        result[new_key] = new_value
+    return result
 
 
-def normalise_key_object_descriptor(
-    key_object_descriptor: str, resize_factor: float, use_grid: bool
-):
-    koi_dict = key_object_str_to_dict(key_object_descriptor)
-
-    if not koi_dict:
-        logger.warning(
-            f"Key object string '{key_object_descriptor}' could not be parsed."
-        )
-        return key_object_descriptor
-
-    # Map to grid coordinates first as it uses the orginal image size
-    if use_grid:
-        new_x, new_y = map_camera_point_to_grid_point(
-            (koi_dict["x"], koi_dict["y"]), koi_dict["camera"]
-        )
-    else:
-        new_x, new_y = koi_dict["x"], koi_dict["y"]
-
-    new_x, new_y = scale_key_object_point((new_x, new_y), resize_factor)
-
-    koi_dict["x"] = new_x
-    koi_dict["y"] = new_y
-
-    return key_object_dict_to_str(koi_dict)
-
-
-def normalise_key_objects_in_text(
-    text: str,
-    resize_factor: float,
-    use_grid: bool,
+def _transform_key_objects_in_text(
+    text: str, transform_fn: Callable[[str], str]
 ) -> str:
-    descriptors = find_key_objects(text)
-    for desc in descriptors:
-        norm_desc = normalise_key_object_descriptor(
-            desc,
-            resize_factor,
-            use_grid,
-        )
-        text = text.replace(desc, norm_desc)
+    keys = find_key_objects(text)
+    transformed_keys = [transform_fn(key) for key in keys]
+    for orig, new in zip(keys, transformed_keys):
+        text = text.replace(orig, new)
     return text
 
 
-def map_camera_point_to_grid_point(
+def scale_key_object_key(key: str, factor: float) -> str:
+    obj = key_object_key_to_dict(key)
+    if not obj:
+        logger.warning(f"Key object string '{key}' could not be parsed.")
+        return key
+    obj["x"], obj["y"] = scale_point((obj["x"], obj["y"]), factor)
+    return key_object_dict_to_key(obj)
+
+
+def scale_bbox(
+    bbox: Tuple[float, float, float, float], factor: float
+) -> Tuple[float, float, float, float]:
+    x1, y1 = scale_point((bbox[0], bbox[1]), factor)
+    x2, y2 = scale_point((bbox[2], bbox[3]), factor)
+    return x1, y1, x2, y2
+
+
+def scale_key_object_infos(
+    key_object_infos: Dict[str, Any], resize_factor: float
+) -> Dict[str, Any]:
+    return _transform_key_object_infos(
+        key_object_infos,
+        lambda k: scale_key_object_key(k, resize_factor),
+        lambda bbox: scale_bbox(bbox, resize_factor),
+    )
+
+
+def camera_key_object_infos_to_grid(
+    key_object_infos: Dict[str, Any],
+) -> Dict[str, Any]:
+    return _transform_key_object_infos(
+        key_object_infos,
+        camera_key_object_key_to_grid,
+        lambda bbox: (
+            *camera_point_to_grid_point(
+                (bbox[0], bbox[1]),
+                key_object_key_to_dict(list(key_object_infos.keys())[0])["camera"],
+            ),
+            *camera_point_to_grid_point(
+                (bbox[2], bbox[3]),
+                key_object_key_to_dict(list(key_object_infos.keys())[0])["camera"],
+            ),
+        ),
+    )
+
+
+def grid_key_object_infos_to_camera(
+    key_object_infos: Dict[str, Any],
+) -> Dict[str, Any]:
+    return _transform_key_object_infos(
+        key_object_infos,
+        grid_key_objects_key_to_camera,
+        lambda bbox: (
+            *grid_point_to_camera_point(
+                (bbox[0], bbox[1]),
+                key_object_key_to_dict(list(key_object_infos.keys())[0])["camera"],
+            ),
+            *grid_point_to_camera_point(
+                (bbox[2], bbox[3]),
+                key_object_key_to_dict(list(key_object_infos.keys())[0])["camera"],
+            ),
+        ),
+    )
+
+
+def camera_key_object_key_to_grid(key_object_key: str) -> str:
+    obj = key_object_key_to_dict(key_object_key)
+    if not obj:
+        logger.warning(f"Key object string '{key_object_key}' could not be parsed.")
+        return key_object_key
+    obj["x"], obj["y"] = camera_point_to_grid_point((obj["x"], obj["y"]), obj["camera"])
+    return key_object_dict_to_key(obj)
+
+
+def grid_key_objects_key_to_camera(key_object_key: str) -> str:
+    obj = key_object_key_to_dict(key_object_key)
+    if not obj:
+        logger.warning(f"Key object string '{key_object_key}' could not be parsed.")
+        return key_object_key
+    obj["x"], obj["y"] = grid_point_to_camera_point((obj["x"], obj["y"]), obj["camera"])
+    return key_object_dict_to_key(obj)
+
+
+def normalize_key_object_infos(
+    key_object_infos: Dict[str, Any],
+    resize_factor: float = 1.0,
+    use_grid: bool = False,
+) -> Dict[str, Any]:
+    if use_grid:
+        key_object_infos = camera_key_object_infos_to_grid(key_object_infos)
+    return scale_key_object_infos(key_object_infos, resize_factor)
+
+
+def denormalize_key_object_infos(
+    key_object_infos: Dict[str, Any],
+    resize_factor: float = 1.0,
+    use_grid: bool = False,
+) -> Dict[str, Any]:
+    infos = scale_key_object_infos(key_object_infos, 1.0 / resize_factor)
+    if use_grid:
+        infos = grid_key_object_infos_to_camera(infos)
+    return infos
+
+
+def normalize_key_objects_in_text(
+    text: str,
+    resize_factor: float = 1.0,
+    use_grid: bool = False,
+) -> str:
+    def transform(key: str) -> str:
+        norm_key = key
+        if use_grid:
+            norm_key = camera_key_object_key_to_grid(norm_key)
+        norm_key = scale_key_object_key(norm_key, resize_factor)
+        return norm_key
+
+    return _transform_key_objects_in_text(text, transform)
+
+
+def denormalize_key_objects_in_text(
+    text: str,
+    resize_factor: float = 1.0,
+    use_grid: bool = False,
+) -> str:
+    def transform(key: str) -> str:
+        denorm_key = key
+        denorm_key = scale_key_object_key(denorm_key, 1.0 / resize_factor)
+        if use_grid:
+            denorm_key = grid_key_objects_key_to_camera(denorm_key)
+        return denorm_key
+
+    return _transform_key_objects_in_text(text, transform)
+
+
+def camera_point_to_grid_point(
     point: Tuple[float, float],
     cam_name: str,
 ) -> Tuple[float, float]:
@@ -275,3 +350,16 @@ def map_camera_point_to_grid_point(
     x_offset = col * img_width
     y_offset = row * img_height
     return (point[0] + x_offset, point[1] + y_offset)
+
+
+def grid_point_to_camera_point(
+    point: Tuple[float, float],
+    cam_name: str,
+) -> Tuple[float, float]:
+    if cam_name not in GRID_POSITIONS:
+        return point
+    col, row = GRID_POSITIONS[cam_name]
+    img_height, img_width = IMAGE_SIZE
+    x_offset = col * img_width
+    y_offset = row * img_height
+    return (point[0] - x_offset, point[1] - y_offset)
