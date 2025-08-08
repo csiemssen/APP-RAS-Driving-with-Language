@@ -65,7 +65,7 @@ def get_dataset(split, add_kois, add_bev, use_grid, use_system_prompt):
     if inference_engine is None:
         raise gr.Error("Please load model first", duration=2)
 
-    dataset = DriveLMImageDataset(
+    flat_dataset = DriveLMImageDataset(
         message_format=inference_engine.message_formatter,
         split=split,
         front_cam=True,
@@ -74,6 +74,19 @@ def get_dataset(split, add_kois, add_bev, use_grid, use_system_prompt):
         use_grid=use_grid,
         use_system_prompt=use_system_prompt,
     )
+
+    dataset = {}
+    for item in flat_dataset:
+        scene_id = parse_scene_id(item.qa_id)
+        keyframe_id = parse_keyframe_id(item.qa_id)
+        question_id = parse_question_id(item.qa_id)
+        question_type = item.qa_type
+
+        dataset.setdefault(scene_id, {})
+        dataset[scene_id].setdefault(keyframe_id, {})
+        dataset[scene_id][keyframe_id].setdefault(question_type, {})
+        dataset[scene_id][keyframe_id][question_type][question_id] = item
+
     raw_dataset = load_dataset(split)
     return split
 
@@ -108,6 +121,30 @@ def filter_question_items(
     ]
 
 
+def pick_question_item(
+    scene_id=None, keyframe_id=None, question_type=None, question_id=None
+):
+    global dataset, selected_question_item
+    if dataset is None or len(dataset) == 0:
+        raise_dataset_error()
+        return None
+
+    for s_id, keyframes in dataset.items():
+        if scene_id is not None and s_id != scene_id:
+            continue
+        for k_id, questions in keyframes.items():
+            if keyframe_id is not None and k_id != keyframe_id:
+                continue
+            for q_type, questions_dict in questions.items():
+                if question_type is not None and q_type != question_type:
+                    continue
+                for q_id, item in questions_dict.items():
+                    if question_id is not None and q_id != question_id:
+                        continue
+
+                    return copy.deepcopy(item)
+
+
 def get_scene_id():
     global selected_question_item
     if selected_question_item is not None:
@@ -115,14 +152,9 @@ def get_scene_id():
     return None
 
 
-def get_scenes(items):
-    return sorted({parse_scene_id(item.qa_id) for item in items})
-
-
-def render_scenes(items):
-    scene_ids = get_scenes(items)
+def render_scene_ids(scene_ids):
     return gr.update(
-        choices=scene_ids,
+        choices=sorted(scene_ids),
         value=get_scene_id(),
     )
 
@@ -134,27 +166,10 @@ def get_keyframe_id():
     return None
 
 
-def get_keyframes(items):
-    return sorted({parse_keyframe_id(item.qa_id) for item in items})
-
-
-def render_keyframes(items):
-    keyframe_ids = get_keyframes(items)
+def render_keyframe_ids(keyframe_ids):
     return gr.update(
-        choices=keyframe_ids,
+        choices=sorted(keyframe_ids),
         value=get_keyframe_id(),
-    )
-
-
-def get_question_types(items):
-    return sorted({item.qa_type for item in items})
-
-
-def render_question_types(items):
-    question_types = get_question_types(items)
-    return gr.update(
-        choices=question_types,
-        value=get_question_type(),
     )
 
 
@@ -165,6 +180,13 @@ def get_question_type():
     return None
 
 
+def render_question_types(question_types):
+    return gr.update(
+        choices=sorted(question_types),
+        value=get_question_type(),
+    )
+
+
 def get_question_id():
     global selected_question_item
     if selected_question_item is not None:
@@ -172,19 +194,14 @@ def get_question_id():
     return None
 
 
-def get_question_ids(items):
-    return sorted({parse_question_id(item.qa_id) for item in items})
-
-
-def render_question_ids(items):
-    question_ids = get_question_ids(items)
+def render_question_ids(question_ids):
     return gr.update(
-        choices=question_ids,
+        choices=sorted(question_ids),
         value=get_question_id(),
     )
 
 
-def get_images(items):
+def get_images():
     global image_paths_list
     scene_id = get_scene_id()
     keyframe_id = get_keyframe_id()
@@ -343,56 +360,45 @@ def update_question_item():
         raise_dataset_error()
         return None
 
-    selected_question_item = copy.deepcopy(dataset[0])
-    scene_items = filter_question_items(dataset, scene_id=get_scene_id())
+    selected_question_item = pick_question_item()
+    scene_id = parse_scene_id(selected_question_item.qa_id)
+    scene = dataset[scene_id]
     return [
-        render_scenes(dataset),
-        *render_question_item_change_on_scene_id(scene_items),
+        render_scene_ids(dataset.keys()),
+        *render_question_item_change_on_scene_id(scene),
     ]
 
 
 def update_question_item_on_scene_id(scene_id):
     global dataset, selected_question_item
-    if dataset is None or len(dataset) == 0:
-        raise_dataset_error()
-        return None
-    for item in dataset:
-        if parse_scene_id(item.qa_id) == scene_id:
-            selected_question_item = copy.deepcopy(item)
-            break
+    selected_question_item = pick_question_item(scene_id=scene_id)
 
-    scene_items = filter_question_items(items=dataset, scene_id=scene_id)
-    return [*render_question_item_change_on_scene_id(scene_items)]
+    return [*render_question_item_change_on_scene_id(dataset[scene_id])]
 
 
 def update_question_item_on_keyframe_id(scene_id, keyframe_id):
     global dataset, selected_question_item
-    keyframe_items = filter_question_items(
-        items=dataset, scene_id=scene_id, keyframe_id=keyframe_id
+    selected_question_item = pick_question_item(
+        scene_id=scene_id, keyframe_id=keyframe_id
     )
-    for item in keyframe_items:
-        selected_question_item = copy.deepcopy(item)
-        break
 
-    return [*render_question_item_change_on_keyframe(keyframe_items)]
+    keyframe = dataset[scene_id][keyframe_id]
+    return [*render_question_item_change_on_keyframe(keyframe)]
 
 
 def update_question_item_on_question_type(scene_id, keyframe_id, question_type):
     global dataset, selected_question_item
 
-    question_type_items = filter_question_items(
-        items=dataset,
+    selected_question_item = pick_question_item(
         scene_id=scene_id,
         keyframe_id=keyframe_id,
         question_type=question_type,
     )
 
-    for item in question_type_items:
-        selected_question_item = copy.deepcopy(item)
-        break
+    question_type = dataset[scene_id][keyframe_id][question_type]
 
     return [
-        *render_question_item_change_on_question_type(question_type_items),
+        *render_question_item_change_on_question_type(question_type),
     ]
 
 
@@ -401,56 +407,50 @@ def update_question_item_on_question_id(
 ):
     global dataset, selected_question_item
 
-    question_id_items = filter_question_items(
-        items=dataset,
+    selected_question_item = pick_question_item(
         scene_id=scene_id,
         keyframe_id=keyframe_id,
         question_type=question_type,
         question_id=question_id,
     )
 
-    for item in question_id_items:
-        if parse_question_id(item.qa_id) == question_id:
-            selected_question_item = copy.deepcopy(item)
-            break
+    question_id = dataset[scene_id][keyframe_id][question_type][question_id]
 
-    return [*render_question_item_change_on_question_id(question_id_items)]
+    return [*render_question_item_change_on_question_id(question_id)]
 
 
-def render_question_item_change_on_scene_id(items):
-    keyframe_items = filter_question_items(items, keyframe_id=get_keyframe_id())
+def render_question_item_change_on_scene_id(scene):
+    keyframe = scene[get_keyframe_id()]
     return [
-        render_keyframes(items),
-        *render_question_item_change_on_keyframe(keyframe_items),
+        render_keyframe_ids(scene.keys()),
+        *render_question_item_change_on_keyframe(keyframe),
     ]
 
 
-def render_question_item_change_on_keyframe(items):
-    question_type_items = filter_question_items(
-        items, question_type=get_question_type()
-    )
+def render_question_item_change_on_keyframe(keyframe):
+    question_type = keyframe[get_question_type()]
     return [
-        render_question_types(items),
-        *render_question_item_change_on_question_type(question_type_items),
+        render_question_types(keyframe.keys()),
+        *render_question_item_change_on_question_type(question_type),
     ]
 
 
-def render_question_item_change_on_question_type(items):
-    question_id_items = filter_question_items(items, question_id=get_question_id())
+def render_question_item_change_on_question_type(question_type):
+    question_ids = question_type[get_question_id()]
     return [
-        render_question_ids(items),
-        *render_question_item_change_on_question_id(question_id_items),
+        render_question_ids(question_type.keys()),
+        *render_question_item_change_on_question_id(question_ids),
         get_kois(),
     ]
 
 
-def render_question_item_change_on_question_id(items):
+def render_question_item_change_on_question_id(question_id):
     return [
         get_question(),
         get_system_prompt(),
         get_formatted_question(),
         get_ground_truth(),
-        get_images(items),
+        get_images(),
         get_image(),
     ]
 
