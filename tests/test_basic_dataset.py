@@ -6,7 +6,7 @@ import pytest
 from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset, key_object_str_to_dict
+from src.utils.utils import create_subset, key_object_key_to_dict
 
 logger = get_logger(__name__)
 
@@ -312,8 +312,8 @@ class TestDriveLMImageDataset(unittest.TestCase):
                     orig_item.key_object_info.items(),
                     rescaled_item.key_object_info.items(),
                 ):
-                    orig_koi = key_object_str_to_dict(orig_key)
-                    rescaled_koi = key_object_str_to_dict(rescaled_key)
+                    orig_koi = key_object_key_to_dict(orig_key)
+                    rescaled_koi = key_object_key_to_dict(rescaled_key)
                     assert (
                         abs(orig_koi["x"] * resize_factor - rescaled_koi["x"]) < 1e-2
                     ), (

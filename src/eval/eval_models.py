@@ -13,7 +13,7 @@ from src.reasoning.reasoning_engine import ReasoningEngine
 from src.utils.logger import get_logger
 from src.utils.utils import (
     create_subset,
-    normalise_key_objects_in_text,
+    denormalize_key_objects_in_text,
     sanitize_model_name,
 )
 
@@ -29,7 +29,9 @@ def evaluate_model(
     use_system_prompt: bool = False,
     system_prompt_config_path: Optional[str] = None,
     use_reasoning: bool = False,
+    front_cam: bool = False,
     add_kois: bool = False,
+    add_bev: bool = False,
     approach_name: Optional[str] = None,
     exclude_question_tags: List[int] = [],
     exclude_question_types: List[str] = [],
@@ -38,7 +40,9 @@ def evaluate_model(
     dataset = DriveLMImageDataset(
         message_format=engine.message_formatter,
         split=dataset_split,
+        front_cam=front_cam,
         add_kois=add_kois,
+        add_bev=add_bev,
         use_grid=use_grid,
         use_reasoning=use_reasoning,
         use_system_prompt=use_system_prompt,
@@ -79,15 +83,15 @@ def evaluate_model(
             results.append(
                 {
                     "id": batch[i].qa_id,
-                    "question": normalise_key_objects_in_text(
+                    "question": denormalize_key_objects_in_text(
                         batch[i].question,
-                        resize_factor=1 / resize_factor,
+                        resize_factor=resize_factor,
                         use_grid=use_grid,
                     ),
                     "model_input": batch[i].formatted_message,
-                    "answer": normalise_key_objects_in_text(
+                    "answer": denormalize_key_objects_in_text(
                         text=result,
-                        resize_factor=1 / resize_factor,
+                        resize_factor=resize_factor,
                         use_grid=use_grid,
                     ),
                 }
