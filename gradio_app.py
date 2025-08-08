@@ -48,6 +48,7 @@ dataset = None
 image_paths_list = []
 selected_question_item = None
 kois_active = True
+prediction_history = {}
 
 
 def get_engine(provider, model):
@@ -354,6 +355,13 @@ def update_kois_active(active):
     return [active, get_formatted_question()]
 
 
+def get_answer(question_id):
+    global prediction_history
+    if question_id in prediction_history:
+        return prediction_history[question_id]
+    return None
+
+
 def update_question_item():
     global dataset, selected_question_item
     if dataset is None or len(dataset) == 0:
@@ -452,6 +460,7 @@ def render_question_item_change_on_question_id(question_id):
         get_ground_truth(),
         get_images(),
         get_image(),
+        get_answer(question_id.qa_id),
     ]
 
 
@@ -474,9 +483,11 @@ def get_formatted_question():
 
 
 def predict_question(formatted_question):
-    global inference_engine
+    global inference_engine, prediction_history, selected_question_item
 
     responses = inference_engine.predict_batch([[formatted_question]])
+    question_id = selected_question_item.qa_id
+    prediction_history[question_id] = responses[0]
     return responses[0]
 
 
@@ -625,6 +636,7 @@ with gr.Blocks() as demo:
             ground_truth_textbox,
             image_gallery,
             image,
+            response_textbox,
             kois_json,
         ],
     )
@@ -652,6 +664,7 @@ with gr.Blocks() as demo:
             ground_truth_textbox,
             image_gallery,
             image,
+            response_textbox,
             kois_json,
         ],
     )
@@ -667,6 +680,7 @@ with gr.Blocks() as demo:
             ground_truth_textbox,
             image_gallery,
             image,
+            response_textbox,
             kois_json,
         ],
     )
@@ -682,6 +696,7 @@ with gr.Blocks() as demo:
             ground_truth_textbox,
             image_gallery,
             image,
+            response_textbox,
             kois_json,
         ],
     )
@@ -701,6 +716,7 @@ with gr.Blocks() as demo:
             ground_truth_textbox,
             image_gallery,
             image,
+            response_textbox,
         ],
     )
 
