@@ -180,9 +180,7 @@ class DriveLMImageDataset(Dataset):
                             "id": scene_id + "_" + key_frame_id + "_" + str(i),
                             "key_frame_id": key_frame_id,
                             "camera_calibration": camera_calibration,
-                            "key_object_info": key_object_infos
-                            if qa_types[i] != "perception"
-                            else None,
+                            "key_object_info": key_object_infos,
                             "image_path": image_path,
                         }
                     )
