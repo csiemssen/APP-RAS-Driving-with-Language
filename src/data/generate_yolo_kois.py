@@ -15,14 +15,28 @@ def generate_yolo_kois(data, max_results_per_cam: int = 5):
             kois = []
             for camera, image_path in image_paths_raw.items():
                 results = model(
-                    os.path.join(drivelm_dir, image_path), 
+                    os.path.join(drivelm_dir, image_path),
                     max_det=max_results_per_cam,
-                    classes=[0, 1, 2, 3, 5, 6, 7, 9, 11], # [person, bicycle, car, motorcycle, bus, train, truck, traffic light, stop sign]
-                    verbose=False
+                    classes=[
+                        0,
+                        1,
+                        2,
+                        3,
+                        5,
+                        6,
+                        7,
+                        9,
+                        11,
+                    ],  # [person, bicycle, car, motorcycle, bus, train, truck, traffic light, stop sign]
+                    verbose=False,
                 )
-                bbox = [xyxy for res in results for xyxy in res.boxes.xyxy.cpu().tolist()]
+                bbox = [
+                    xyxy for res in results for xyxy in res.boxes.xyxy.cpu().tolist()
+                ]
                 center_points = [
-                    (xywh[0], xywh[1]) for res in results for xywh in res.boxes.xywh.cpu()
+                    (xywh[0], xywh[1])
+                    for res in results
+                    for xywh in res.boxes.xywh.cpu()
                 ]
                 categories = [
                     res.names[cls.item()]
@@ -35,7 +49,7 @@ def generate_yolo_kois(data, max_results_per_cam: int = 5):
                         (
                             f"<c{i},{camera},{center_points[j][0]},{center_points[j][1]}>",
                             categories[j],
-                            bbox[j]
+                            bbox[j],
                         )
                     )
             key_frame["key_object_infos"] = {

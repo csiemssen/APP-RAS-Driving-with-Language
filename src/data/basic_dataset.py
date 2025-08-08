@@ -112,14 +112,16 @@ class DriveLMImageDataset(Dataset):
                         drivelm_dir,
                         image_paths["BEV"],
                     )
-                else:
+                elif front_cam and not add_bev:
                     image_path = os.path.join(
                         drivelm_dir,
                         image_paths["CAM_FRONT"],
                     )
+                else:
+                    image_path = None
 
                 # NOTE: This is a simple workaround if we do not have all files available
-                if not os.path.isfile(image_path):
+                if image_path and not os.path.isfile(image_path):
                     removed += 1
                     continue
 
@@ -178,9 +180,7 @@ class DriveLMImageDataset(Dataset):
                             "id": scene_id + "_" + key_frame_id + "_" + str(i),
                             "key_frame_id": key_frame_id,
                             "camera_calibration": camera_calibration,
-                            "key_object_info": key_object_infos
-                            if qa_types[i] != "perception"
-                            else None,
+                            "key_object_info": key_object_infos,
                             "image_path": image_path,
                         }
                     )
