@@ -9,16 +9,16 @@ from src.data.generate_descriptor_qas import (
     generate_descriptor_qas,
 )
 from src.data.generate_reasoning_context import generate_reasoning_context
+from src.data.generate_yolo_kois import generate_yolo_kois
 from src.data.load_dataset import load_dataset
 from src.data.message_formats import MessageFormat
 from src.data.query_item import QueryItem
 from src.data.system_prompts import SystemPromptProvider
-from src.data.generate_yolo_kois import generate_yolo_kois
 from src.utils.logger import get_logger
 from src.utils.utils import (
-    remove_nones,
     normalise_key_object_infos,
     normalise_key_objects_in_text,
+    remove_nones,
 )
 
 logger = get_logger(__name__)
@@ -154,9 +154,7 @@ class DriveLMImageDataset(Dataset):
                             "qa": remove_nones(qa),
                             "qa_type": qa_types[i],
                             "id": scene_id + "_" + key_frame_id + "_" + str(i),
-                            "key_object_info": key_object_infos
-                            if qa_types[i] != "perception"
-                            else None,
+                            "key_object_info": key_object_infos,
                             "image_path": image_path,
                         }
                     )
