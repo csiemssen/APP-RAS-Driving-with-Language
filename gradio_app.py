@@ -357,9 +357,14 @@ def update_kois_active(active):
 
 def get_answer(question_id):
     global prediction_history
-    if question_id in prediction_history:
-        return prediction_history[question_id]
+    if question_id in prediction_history and prediction_history[question_id]:
+        return prediction_history[question_id][-1]["answer"]
     return None
+
+
+def get_answer_history(question_id):
+    global prediction_history
+    return prediction_history.get(question_id, None)
 
 
 def update_question_item():
@@ -461,6 +466,7 @@ def render_question_item_change_on_question_id(question_id):
         get_images(),
         get_image(),
         get_answer(question_id.qa_id),
+        get_answer_history(question_id.qa_id),
     ]
 
 
@@ -487,8 +493,15 @@ def predict_question(formatted_question):
 
     responses = inference_engine.predict_batch([[formatted_question]])
     question_id = selected_question_item.qa_id
-    prediction_history[question_id] = responses[0]
-    return responses[0]
+    prediction_history.setdefault(question_id, []).append(
+        {
+            "model": inference_engine.model_path,
+            "message": selected_question_item.formatted_message,
+            "answer": responses[0],
+        }
+    )
+
+    return [responses[0], get_answer_history(question_id)]
 
 
 def raise_dataset_error():
@@ -602,6 +615,11 @@ with gr.Blocks() as demo:
 
         response_textbox = gr.Textbox(label="Answer", value=None, interactive=False)
 
+        with gr.Accordion("Response History", open=False):
+            response_history_json = gr.JSON(
+                value=None,
+            )
+
         ground_truth_textbox = gr.Textbox(
             label="Ground Truth Answer",
             value=None,
@@ -637,6 +655,7 @@ with gr.Blocks() as demo:
             image_gallery,
             image,
             response_textbox,
+            response_history_json,
             kois_json,
         ],
     )
@@ -665,6 +684,7 @@ with gr.Blocks() as demo:
             image_gallery,
             image,
             response_textbox,
+            response_history_json,
             kois_json,
         ],
     )
@@ -681,6 +701,7 @@ with gr.Blocks() as demo:
             image_gallery,
             image,
             response_textbox,
+            response_history_json,
             kois_json,
         ],
     )
@@ -697,6 +718,7 @@ with gr.Blocks() as demo:
             image_gallery,
             image,
             response_textbox,
+            response_history_json,
             kois_json,
         ],
     )
@@ -717,6 +739,7 @@ with gr.Blocks() as demo:
             image_gallery,
             image,
             response_textbox,
+            response_history_json,
         ],
     )
 
@@ -747,7 +770,7 @@ with gr.Blocks() as demo:
     send_button.click(
         fn=predict_question,
         inputs=format_message_json,
-        outputs=response_textbox,
+        outputs=[response_textbox, response_history_json],
     )
 
 
