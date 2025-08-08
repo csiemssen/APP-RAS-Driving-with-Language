@@ -76,6 +76,9 @@ class DriveLMImageDataset(Dataset):
         data = load_dataset(split)
 
         if split == "train":
+            if add_bev:
+                data = get_calibration(data)
+                data = generate_bevs(data, front_cam=front_cam)
             data = normalise_key_object_infos(data, resize_factor, use_grid)
 
         if split == "train" and add_augmented:
