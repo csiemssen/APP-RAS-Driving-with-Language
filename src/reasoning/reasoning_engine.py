@@ -39,6 +39,8 @@ class ReasoningEngine:
                     qa_type=item.qa_type,
                     key_object_info=item.key_object_info,
                     system_prompt=item.system_prompt,
+                    tags=item.tags,
+                    camera_calibration=item.camera_calibration,
                 )
                 desc_item.formatted_message = desc_item.format_message(
                     self.engine.message_formatter
