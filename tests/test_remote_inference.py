@@ -13,37 +13,38 @@ class TestRemoteInferenceEngine(unittest.TestCase):
     @unittest.skip("Skipping OpenAI inference test")
     def test_openai_predict_batch(self):
         engine = OpenAIInferenceEngine()
-        messages = [
-            [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "What is the capital of France?"},
-            ]
-        ]
+
+        messages = message_formats.OpenAIMessageFormat().format(
+            question="What is the capital of France?",
+            system_prompt="You are a helpful assistant.",
+            image_path="./tests/test_data/images/CAM_BACK.jpg",
+        )
+
         results = engine.predict_batch(messages)
 
         self.assertTrue(len(results) > 0, "Results should not be empty")
 
     def test_gemini_predict_batch(self):
         engine = GeminiInferenceEngine(model="gemini-2.0-flash")
-        message = message_formats.GeminiMessageFormat().format(
+        messages = message_formats.GeminiMessageFormat().format(
             question="What is the capital of France?",
-            image_path=None,
+            image_path="./tests/test_data/images/CAM_BACK.jpg",
             system_prompt="You are a helpful assistant.",
         )
 
-        results = engine.predict_batch([message])
+        results = engine.predict_batch([messages])
 
         self.assertTrue(len(results) > 0, "Results should not be empty")
 
     def test_anthropic_predict_batch(self):
         engine = AnthropicInferenceEngine(model="claude-3-5-haiku-20241022")
-        messages = [
-            [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "What is the capital of France?"},
-            ]
-        ]
-        results = engine.predict_batch(messages)
+
+        messages = message_formats.AnthropicMessageFormat().format(
+            question="What is the capital of France?",
+            image_path="./tests/test_data/images/CAM_BACK.jpg",
+            system_prompt="You are a helpful assistant.",
+        )
+        results = engine.predict_batch([messages])
 
         self.assertTrue(len(results) > 0, "Results should not be empty")
 
