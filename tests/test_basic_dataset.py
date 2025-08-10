@@ -6,7 +6,7 @@ import pytest
 from src.data.basic_dataset import DriveLMImageDataset
 from src.data.message_formats import QwenMessageFormat
 from src.utils.logger import get_logger
-from src.utils.utils import create_subset
+from src.utils.utils import create_subset, key_object_key_to_dict
 
 logger = get_logger(__name__)
 
@@ -196,6 +196,134 @@ class TestDriveLMImageDataset(unittest.TestCase):
                 assert tag not in exclude_question_tags, (
                     f"Item {item.qa_id} has excluded tag '{tag}'"
                 )
+
+    def test_dataset_with_excluded_question_types(self):
+        exclude_question_types = ["planning"]
+
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+            exclude_question_types=exclude_question_types,
+        )
+
+        for item in dataset:
+            assert item.qa_type not in exclude_question_types, (
+                f"Item {item.qa_id} has excluded question type '{item.qa_type}'"
+            )
+
+    def test_dataset_with_system_prompt(self):
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            use_system_prompt=True,
+        )
+
+        self.assertGreater(
+            len(dataset),
+            0,
+            "Dataset with system prompts should not be empty",
+        )
+
+        for item in dataset:
+            self.assertIsNotNone(
+                item.system_prompt,
+                f"Item {item.qa_id} should have a system prompt",
+            )
+
+    def test_all_system_prompt_overrides_are_used(self):
+        config_path = "tests/test_data/test_system_prompts.yml"
+        dataset = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="test",
+            use_system_prompt=True,
+            use_reasoning=True,
+            use_grid=True,
+            system_prompt_config_path=config_path,
+        )
+
+        # Collect all override strings from the config file
+        import yaml
+
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+
+        override_strings = set()
+        # General prompt
+        override_strings.add(config.get("general_prompt", ""))
+        # Approach prompts
+        approach = config.get("approach_prompt", {})
+        override_strings.add(approach.get("base", ""))
+        grid = approach.get("use_grid", {})
+        override_strings.add(grid.get("enabled", ""))
+        override_strings.add(approach.get("use_reasoning", ""))
+        # Question type prompts
+        for v in config.get("question_type_prompts", {}).values():
+            override_strings.add(v)
+        # Question specific prompts
+        for section in config.get("question_specific_prompts", {}).values():
+            for v in section.values():
+                override_strings.add(v)
+
+        override_strings = {s for s in override_strings if s}
+
+        found = set()
+        for item in dataset:
+            for s in override_strings:
+                if s in item.system_prompt:
+                    found.add(s)
+            if found == override_strings:
+                break
+
+        assert found == override_strings, (
+            f"Not all override strings found in system prompts: {override_strings - found}"
+        )
+
+    def test_dataset_with_rescaling(self):
+        resize_factor = 0.5
+        dataset_orig = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            resize_factor=1.0,
+            use_grid=False,
+        )
+        dataset_rescaled = DriveLMImageDataset(
+            message_format=QwenMessageFormat(),
+            split="train",
+            resize_factor=resize_factor,
+            use_grid=False,
+        )
+        self.assertGreater(
+            len(dataset_rescaled),
+            0,
+            "Dataset with rescaled images should not be empty",
+        )
+        self.assertEqual(
+            len(dataset_orig),
+            len(dataset_rescaled),
+            "Original and rescaled datasets should have the same number of items",
+        )
+
+        for orig_item, rescaled_item in zip(dataset_orig, dataset_rescaled):
+            if orig_item.key_object_info:
+                for (orig_key, orig_value), (
+                    rescaled_key,
+                    rescaled_value,
+                ) in zip(
+                    orig_item.key_object_info.items(),
+                    rescaled_item.key_object_info.items(),
+                ):
+                    orig_koi = key_object_key_to_dict(orig_key)
+                    rescaled_koi = key_object_key_to_dict(rescaled_key)
+                    assert (
+                        abs(orig_koi["x"] * resize_factor - rescaled_koi["x"]) < 1e-2
+                    ), (
+                        f"x coordinate not rescaled correctly: {orig_koi['x']} -> {rescaled_koi['x']}"
+                    )
+                    assert (
+                        abs(orig_koi["y"] * resize_factor - rescaled_koi["y"]) < 1e-2
+                    ), (
+                        f"y coordinate not rescaled correctly: {orig_koi['y']} -> {rescaled_koi['y']}"
+                    )
 
 
 if __name__ == "__main__":

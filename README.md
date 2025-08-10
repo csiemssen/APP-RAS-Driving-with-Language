@@ -1,17 +1,16 @@
-## ⚒️ Tools
-#### Zotero
-Citation/Research Manager
-[Group](https://www.zotero.org/groups/5975647/app-ras-driving-with-language)
-
-## 📚 DriveLM Challenge
+## 🏆 DriveLM Challenge
 - [Challenge Website](https://opendrivelab.com/challenge2024/#driving_with_language)
 - [GitHub Repository](https://github.com/OpenDriveLab/DriveLM)
 - [Team Google Form](https://docs.google.com/forms/d/e/1FAIpQLSef_L4L9jXV_88pXkuFmaloifhRuFjVARbjsV-8GWETc6aNCA/viewform)
 
-
-## 💬 Milestone Presentations
+## 📄 Presentations and Report
 - [Milestone 1](https://docs.google.com/presentation/d/13reSKMykn5WhVyi5zi5oK5OygVjTZljeMWflJejQZlw/edit?slide=id.g32bc6f01e94_0_43#slide=id.g32bc6f01e94_0_43)
 - [Milestone 2](https://docs.google.com/presentation/d/1suusmSruqXyRdfvViq1NKfDEqTpH5-M9w7zgh7HDCAo/edit?slide=id.g32bc6f01e94_0_74#slide=id.g32bc6f01e94_0_74)
+- [Milestone 3](https://docs.google.com/presentation/d/1Hpav8SiMT5LqfAGE8KdR5SxGAkOWBNx9zaBSD1SdWUQ/edit?slide=id.g32bc6f01e94_0_74#slide=id.g32bc6f01e94_0_74)
+- [Report](https://www.overleaf.com/project/6877602e966f2ddf5c867888)
+
+#### ⚒️ Tools
+ - [Zotero](https://www.zotero.org/groups/5975647/app-ras-driving-with-language)
 
 ## Setup
 - Download the [NuScenes](https://github.com/OpenDriveLab/DriveLM/tree/main/challenge) training and validation datasets, and place them together in the `data/nuscenes` directory
@@ -39,6 +38,7 @@ docker run --gpus all -v ./data/output:/app/data/output <img-name>
 You can find the notebooks in the `notebooks` directory to run training and evaluation.  
 - Training: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/train.ipynb)
 - Evaluation: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/eval.ipynb)
+- Test: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/csiemssen/APP-RAS-Driving-with-Language/blob/main/notebooks/test.ipynb)
 
 ## Evaluation
 To evaluate, please use the official test server.  

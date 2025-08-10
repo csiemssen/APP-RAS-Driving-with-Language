@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 class QwenVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
-        processor_path: str = "Qwen/Qwen2.5-VL-3B-Instruct",
+        processor_path: str = "Qwen/Qwen2.5-VL-7B-Instruct",
         model_path: Optional[str] = None,
         use_4bit: bool = False,
         torch_dtype: Optional[torch.dtype] = None,
@@ -107,7 +107,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
             for k, v in inputs.items()
         }
         with torch.no_grad():
-            generated_ids = self.model.generate(**inputs, max_new_tokens=128)
+            generated_ids = self.model.generate(**inputs, max_new_tokens=256)
 
         generated_ids_trimmed = [
             out_ids[len(in_ids) :]

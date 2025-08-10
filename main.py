@@ -28,6 +28,8 @@ if __name__ == "__main__":
             "front_cam",
             "image_grid",
             "descriptor_qas",
+            "add_kois",
+            "add_bev",
             "reasoning",
             "system_prompt",
         ],
@@ -43,7 +45,7 @@ if __name__ == "__main__":
         "--dataset_split",
         help="The dataset split to use for training / evaluation.",
         type=str,
-        choices=["train", "val"],
+        choices=["train", "val", "test"],
         default="val",
     )
     parser.add_argument(
@@ -88,7 +90,8 @@ if __name__ == "__main__":
         )
     elif args.eval:
         resize_image_size = get_resize_image_size(
-            resize_factor=resize_factor, grid="image_grid" in args.approach
+            resize_factor=resize_factor,
+            grid="image_grid" in args.approach,
         )
         logger.debug(f"Using resize image size: {resize_image_size}")
         if is_cuda():
@@ -106,6 +109,7 @@ if __name__ == "__main__":
             batch_size=args.batch_size,
             test_set_size=args.test_set_size,
             approach_name=approach_name,
+            resize_factor=resize_factor,
             **kwargs,
         )
     else:

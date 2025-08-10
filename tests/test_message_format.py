@@ -24,25 +24,20 @@ class TestMessageFormat(unittest.TestCase):
             context=context,
         )
 
-        expected_message = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": system_prompt},
-                    {"type": "text", "text": "Question: " + question},
-                    {
-                        "type": "image",
-                        "image": "file:///path/to/your/image.jpg",
-                    },
-                    {
-                        "type": "text",
-                        "text": "Key object infos:\n{'object': 'car', 'color': 'red'}",
-                    },
-                    {"type": "text", "text": "Context Question: What is this?"},
-                    {"type": "text", "text": "Context Answer: This is a car."},
-                ],
-            }
-        ]
+        expected_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": system_prompt},
+                {
+                    "type": "text",
+                    "text": "List of objects in the scene:\n{'object': 'car', 'color': 'red'}",
+                },
+                {"type": "text", "text": "Context Question: What is this?"},
+                {"type": "text", "text": "Context Answer: This is a car."},
+                {"type": "text", "text": "Question: " + question},
+                {"type": "image", "image": "file:///path/to/your/image.jpg"},
+            ],
+        }
         self.assertEqual(
             formatted_message,
             expected_message,
