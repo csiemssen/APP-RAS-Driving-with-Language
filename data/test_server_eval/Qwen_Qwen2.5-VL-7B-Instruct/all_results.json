@@ -1,0 +1,14 @@
+{
+	"resize_factor-0.25_AddKois_SystemPrompt_FrontCam": {
+		"accuracy": 0.35626535626535627,
+		"chatgpt": 72.98942042318308,
+		"language/Bleu_1": 0.3699343138943459,
+		"language/Bleu_2": 0.30519119100711883,
+		"language/Bleu_3": 0.24829671124590225,
+		"language/Bleu_4": 0.20152685748896207,
+		"language/ROUGE_L": 0.47248909881175416,
+		"language/CIDEr": 0.011184441296658644,
+		"match": 36.23816553589664,
+		"final_score": 0.48601007144096375
+	}
+}
