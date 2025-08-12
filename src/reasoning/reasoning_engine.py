@@ -49,7 +49,7 @@ class ReasoningEngine:
 
         if descriptor_items:
             descriptor_messages = [
-                [desc_item.formatted_message] for _, desc_item in descriptor_items
+                desc_item.formatted_message for _, desc_item in descriptor_items
             ]
             descriptor_answers = self.engine.predict_batch(descriptor_messages)
 

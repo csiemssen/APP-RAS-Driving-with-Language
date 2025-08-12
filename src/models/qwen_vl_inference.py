@@ -19,7 +19,7 @@ class QwenVLInferenceEngine(BaseInferenceEngine):
         self,
         processor_path: str = "Qwen/Qwen2.5-VL-7B-Instruct",
         model_path: Optional[str] = None,
-        use_4bit: bool = False,
+        use_4bit: bool = True,
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
         device: Optional[str] = None,

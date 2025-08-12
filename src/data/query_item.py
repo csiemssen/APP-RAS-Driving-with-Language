@@ -17,11 +17,11 @@ class QueryItem:
     system_prompt: str = None
     ground_truth_answer: Optional[str] = None
 
-    formatted_message: Optional[Dict[str, Any]] = None
+    formatted_message: Optional[List[Dict[str, Any]]] = None
 
     context_pairs: List[Tuple[str, str]] = field(default_factory=list)
 
-    def format_message(self, formatter: MessageFormat) -> Dict[str, Any]:
+    def format_message(self, formatter: MessageFormat) -> List[Dict[str, Any]]:
         self.formatted_message = formatter.format(
             question=self.question,
             image_path=self.image_path,

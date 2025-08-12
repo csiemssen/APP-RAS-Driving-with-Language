@@ -3,16 +3,34 @@ from argparse import ArgumentParser
 
 from src.constants import model_dir
 from src.eval.eval_models import evaluate_model
+from src.models.anthropic_inference import AnthropicInferenceEngine
+from src.models.gemini_inference import GeminiInferenceEngine
+from src.models.gemma_inference import GemmaInferenceEngine
+from src.models.intern_vl_inference import InternVLInferenceEngine
+from src.models.openai_inference import OpenAIInferenceEngine
 from src.models.qwen_vl_inference import QwenVLInferenceEngine
 from src.train.train_qwen import train
 from src.utils.approach import get_approach_kwargs, get_approach_name
 from src.utils.logger import get_logger
-from src.utils.utils import get_resize_image_size, is_cuda
+from src.utils.utils import get_resize_image_size
 
 logger = get_logger(__name__)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument(
+        "--provider",
+        help="The inference provider/model to use.",
+        choices=[
+            "openai",
+            "anthropic",
+            "gemini",
+            "gemma",
+            "intern_vl",
+            "qwen",
+        ],
+        default="qwen",
+    )
     parser.add_argument(
         "--train",
         help="Set to finetune the current model",
@@ -51,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--resize_factor",
         help="Resize factor to apply to the images. Original size is (1600 x 900). Currently only applied if using image_grid approach.",
-        default="0.5",
+        default="1",
     )
     parser.add_argument(
         "--batch_size",
@@ -94,14 +112,24 @@ if __name__ == "__main__":
             grid="image_grid" in args.approach,
         )
         logger.debug(f"Using resize image size: {resize_image_size}")
-        if is_cuda():
+
+        engine = None
+        if args.provider == "openai":
+            engine = OpenAIInferenceEngine(model=args.model_path)
+        elif args.provider == "anthropic":
+            engine = AnthropicInferenceEngine(model=args.model_path)
+        elif args.provider == "gemini":
+            engine = GeminiInferenceEngine(model=args.model_path)
+        elif args.provider == "gemma":
+            engine = GemmaInferenceEngine(model_path=model_path)
+        elif args.provider == "intern_vl":
+            engine = InternVLInferenceEngine(model_path=model_path)
+        elif args.provider == "qwen":
             engine = QwenVLInferenceEngine(
-                model_path=model_path,
-                use_4bit=True,
-                resize_image_size=resize_image_size,
+                model_path=model_path, resize_image_size=resize_image_size
             )
         else:
-            engine = QwenVLInferenceEngine(resize_image_size=resize_image_size)
+            raise ValueError(f"Unknown provider: {args.provider}")
 
         evaluate_model(
             engine=engine,

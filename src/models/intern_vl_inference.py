@@ -16,7 +16,7 @@ class InternVLInferenceEngine(BaseInferenceEngine):
     def __init__(
         self,
         model_path: str = "OpenGVLab/InternVL3-2B",
-        use_4bit: bool = False,
+        use_4bit: bool = True,
         torch_dtype: Optional[torch.dtype] = None,
         revision: Optional[str] = None,
         device: Optional[str] = None,

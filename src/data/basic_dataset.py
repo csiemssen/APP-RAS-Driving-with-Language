@@ -186,9 +186,13 @@ class DriveLMImageDataset(Dataset):
                     )
 
         logger.info(f"Removed {removed} scenes due to missing image files.")
-        logger.info(f"Loaded {len(qa_list)} QAs from the DriveLM dataset.")
+        logger.info(
+            f"Loaded {len(qa_list)} QAs from the DriveLM dataset for split {self.split}."
+        )
 
-        qa_list.sort(key=lambda qa: qa["qa_type"])
+        if use_reasoning:
+            qa_list.sort(key=lambda qa: qa["qa_type"])
+
         self.qas = qa_list
 
     def __len__(self):
