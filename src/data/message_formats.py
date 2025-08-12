@@ -1,4 +1,6 @@
+import base64
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -54,10 +56,12 @@ class QwenMessageFormat(MessageFormat):
                     "image": f"file://{image_path}",
                 }
             )
-        return {
-            "role": "user",
-            "content": content,
-        }
+        return [
+            {
+                "role": "user",
+                "content": content,
+            }
+        ]
 
 
 class QwenTrainingMessageFormat(MessageFormat):
@@ -282,9 +286,6 @@ class AnthropicMessageFormat(MessageFormat):
         key_object_info: Optional[dict] = None,
         context: Optional[List[Tuple[str, str]]] = None,
     ) -> List[Dict[str, Any]]:
-        import base64
-        from pathlib import Path
-
         user_content = []
         if image_path:
             image_bytes = Path(image_path).read_bytes()
@@ -297,6 +298,7 @@ class AnthropicMessageFormat(MessageFormat):
                         "media_type": "image/jpeg",
                         "data": image_b64,
                     },
+                    "cache_control": {"type": "ephemeral"},
                 }
             )
 
